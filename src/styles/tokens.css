@@ -1,0 +1,89 @@
+/*
+ * ChessRetabled — cel-shaded design tokens
+ * The whole look is built from: flat color fills, a few hard-edged shade tones,
+ * thick "ink" outlines, chunky drop shadows, and halftone accents.
+ */
+:root {
+  /* ---- Core ink + paper ---- */
+  --ink: #1a1330; /* near-black outline color used everywhere */
+  --ink-soft: #2c2148;
+  --paper: #fbf4e4; /* warm off-white */
+
+  /* ---- Backdrop (deep dusk) ---- */
+  --bg-0: #160f29; /* deepest */
+  --bg-1: #1e1640;
+  --bg-2: #2a1f54;
+  --bg-3: #372a68;
+  --bg-grad-top: #271b4d;
+  --bg-grad-bottom: #170f2c;
+
+  /* ---- Surfaces ---- */
+  --surface: #2c2154;
+  --surface-2: #372a68;
+  --surface-raised: #41327d;
+
+  /* ---- Brand accents (vivid, flat) ---- */
+  --coral: #ff6b4a;
+  --coral-dark: #d8462a;
+  --gold: #ffce4f;
+  --gold-dark: #e0a417;
+  --mint: #44e0a4;
+  --mint-dark: #1fae7a;
+  --violet: #9b6bff;
+  --violet-dark: #6c3fd4;
+  --sky: #4fc3ff;
+  --sky-dark: #1f8fd6;
+  --rose: #ff5d9e;
+  --rose-dark: #d62f76;
+
+  /* semantic */
+  --accent: var(--gold);
+  --accent-dark: var(--gold-dark);
+  --good: var(--mint);
+  --good-dark: var(--mint-dark);
+  --bad: var(--coral);
+  --bad-dark: var(--coral-dark);
+
+  /* ---- Board ---- */
+  --sq-light: #f3d9a4;
+  --sq-light-shade: #e6c489;
+  --sq-dark: #4a8fb5;
+  --sq-dark-shade: #3a779b;
+  --board-frame: #2a1f4f;
+  --board-frame-edge: #4a3a86;
+  --sq-highlight: #ffe27a; /* last move / selection */
+  --sq-target: rgba(68, 224, 164, 0.0); /* dots are drawn separately */
+  --sq-check: #ff6b6b;
+
+  /* ---- Text ---- */
+  --text: #fbf4e4;
+  --text-dim: #c7bbe6;
+  --text-muted: #8d7fb8;
+  --text-on-light: #2a1f4f;
+
+  /* ---- Typography ---- */
+  --font-display: "Baloo 2", "Trebuchet MS", system-ui, sans-serif;
+  --font-body: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* ---- Outlines & shadows (the cel-shaded signature) ---- */
+  --outline-w: 3px;
+  --outline: var(--outline-w) solid var(--ink);
+  --radius-s: 10px;
+  --radius-m: 16px;
+  --radius-l: 24px;
+  --radius-pill: 999px;
+
+  /* chunky offset shadow (the "sticker" look) */
+  --shadow-sticker: 0 6px 0 0 var(--ink);
+  --shadow-sticker-sm: 0 4px 0 0 var(--ink);
+  --shadow-drop: 0 10px 24px -8px rgba(0, 0, 0, 0.55);
+  --shadow-pop: 0 14px 40px -10px rgba(0, 0, 0, 0.6);
+
+  /* ---- Layout ---- */
+  --nav-h: 68px;
+  --content-max: 1180px;
+
+  /* ---- Motion ---- */
+  --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}

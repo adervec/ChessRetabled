@@ -1,0 +1,42 @@
+.promo-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  background: rgba(12, 8, 24, 0.6);
+  backdrop-filter: blur(3px);
+}
+.promo {
+  background: var(--surface);
+  border: var(--outline);
+  border-radius: var(--radius-l);
+  box-shadow: var(--shadow-sticker), var(--shadow-pop);
+  padding: 18px 20px 22px;
+}
+.promo__title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.2rem;
+  text-align: center;
+  margin-bottom: 14px;
+}
+.promo__row {
+  display: flex;
+  gap: 12px;
+}
+.promo__choice {
+  width: 76px;
+  height: 88px;
+  padding: 6px;
+  background: var(--surface-2);
+  border: var(--outline);
+  border-radius: var(--radius-m);
+  box-shadow: var(--shadow-sticker-sm);
+  cursor: pointer;
+  transition: transform 0.12s var(--ease-pop), background 0.15s ease;
+}
+.promo__choice:hover {
+  transform: translateY(-4px);
+  background: var(--surface-raised);
+}

@@ -1,0 +1,32 @@
+{
+  "name": "chess-retabled",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "A cel-shaded chess game: play vs bots, lessons, puzzles, and practice.",
+  "scripts": {
+    "setup-engine": "node scripts/setup-engine.mjs",
+    "postinstall": "node scripts/setup-engine.mjs",
+    "predev": "node scripts/setup-engine.mjs",
+    "prebuild": "node scripts/setup-engine.mjs",
+    "dev": "vite",
+    "build": "tsc --noEmit -p tsconfig.json && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "chess.js": "^1.0.0-beta.8",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.2",
+    "stockfish": "^16.0.0",
+    "zustand": "^4.5.5"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.2",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.8"
+  }
+}

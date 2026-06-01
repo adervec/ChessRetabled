@@ -1,0 +1,126 @@
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  height: var(--nav-h);
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 0 clamp(14px, 4vw, 34px);
+  background: linear-gradient(180deg, var(--bg-2), var(--bg-1));
+  border-bottom: var(--outline);
+  box-shadow: 0 6px 0 -3px var(--ink), var(--shadow-drop);
+}
+
+.nav__brand {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.nav__links {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 8px;
+}
+
+.nav__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.98rem;
+  padding: 9px 16px;
+  border-radius: var(--radius-pill);
+  border: 2px solid transparent;
+  color: var(--text-dim);
+  transition: background 0.15s ease, color 0.15s ease, transform 0.12s var(--ease-pop);
+  cursor: pointer;
+}
+.nav__link:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.06);
+}
+.nav__link.is-active {
+  color: var(--text-on-light);
+  background: var(--gold);
+  border-color: var(--ink);
+  box-shadow: var(--shadow-sticker-sm);
+}
+.nav__link .ico {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.nav__stats {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav__stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  padding: 7px 13px;
+  border-radius: var(--radius-pill);
+  border: 2px solid var(--ink);
+  background: var(--surface-2);
+  font-size: 0.92rem;
+}
+.nav__stat .ico {
+  font-size: 1.05rem;
+}
+
+/* Mobile: collapse text labels into icons */
+.nav__burger {
+  display: none;
+}
+
+@media (max-width: 860px) {
+  .nav__link span.label {
+    display: none;
+  }
+  .nav__link {
+    padding: 9px 12px;
+  }
+  .nav__stat .label {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .nav__links {
+    position: fixed;
+    top: var(--nav-h);
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 14px;
+    background: var(--bg-2);
+    border-bottom: var(--outline);
+    transform: translateY(-130%);
+    transition: transform 0.28s var(--ease-out);
+    box-shadow: var(--shadow-drop);
+  }
+  .nav__links.is-open {
+    transform: translateY(0);
+  }
+  .nav__link span.label {
+    display: inline;
+  }
+  .nav__burger {
+    display: inline-flex;
+    margin-left: auto;
+  }
+  .nav__stats {
+    margin-left: 0;
+  }
+}

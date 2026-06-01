@@ -1,0 +1,85 @@
+# ♞ ChessRetabled
+
+A **cel-shaded chess club** in the browser. Play smart bots, climb an interactive
+lesson curriculum, and crack tactics puzzles — all on a 2.5D board that pops off
+the table.
+
+![mode: Play • Puzzles • Learn • Practice](https://img.shields.io/badge/modes-Play%20%C2%B7%20Puzzles%20%C2%B7%20Learn%20%C2%B7%20Practice-9b6bff)
+
+## Features
+
+- **🎨 2.5D cel-shaded board** — a flat board tilted in CSS 3D perspective with
+  upright, hand-built cel-shaded piece sprites (bold ink outlines, flat color
+  fills, hard-edged shading, team-colored bases).
+- **♟ Play vs Bots** — a roster of **12 characters** from a 250-rated hatchling
+  to a 2850 grandmaster, powered by **Stockfish 16 (WASM)** with a built-in
+  minimax AI fallback so play never breaks. Move list, eval bar, hints,
+  takebacks, resign, draw offers, and rematches.
+- **🧩 Tactics Puzzles** — **37 validated puzzles** (mate-in-1, mate-in-2, and
+  tactical motifs) with rated training, themed sets, hints, and a personal
+  puzzle rating. Every solution is *derived and verified* with chess.js, so the
+  content is correct by construction.
+- **🎓 Lessons** — **5 courses / 16 interactive lessons** from "how the knight
+  moves" to endgame technique, mixing explanation with hands-on guided moves.
+- **🎯 Practice Arena** — endgame drills (K+Q vs K, K+R vs K, two rooks, king &
+  pawn, back-rank) played against the engine, with success/stalemate detection.
+- **📈 Progress** — a localStorage-backed profile: level/XP, puzzle rating, day
+  streak, win/loss record, lesson stars, and drills mastered.
+
+## Tech stack
+
+- **React 18 + TypeScript + Vite**
+- **chess.js** — move generation, validation, and game state
+- **Stockfish 16** (single-threaded WASM build) behind a clean engine interface
+- **zustand** — persistent progress store
+- **react-router** — navigation
+- Plain CSS design system (cel-shaded tokens, no UI framework)
+
+## Getting started
+
+```bash
+npm install          # also vendors the Stockfish engine into public/engine
+npm run dev          # start the dev server (http://localhost:5173)
+npm run build        # type-check + production build
+npm run preview      # preview the production build
+```
+
+> **Note on the engine:** the Stockfish artifacts (including a ~39 MB NNUE
+> evaluation net) are large, so they are **not** committed to git. They are
+> copied out of the installed `stockfish` npm package into `public/engine/` by
+> `scripts/setup-engine.mjs`, which runs automatically on `postinstall`,
+> `predev`, and `prebuild`. If the engine ever fails to load, the app
+> transparently falls back to a built-in minimax AI.
+
+## Content is validated, not hand-typed
+
+Chess content is easy to get subtly wrong, so it's generated and checked:
+
+```bash
+node scripts/build-puzzles.mjs     # derive + validate the puzzle set
+node scripts/validate-lessons.mjs  # validate every interactive lesson move
+```
+
+- `build-puzzles.mjs` finds mating moves by scanning legal moves for checkmate
+  and proves forced mate-in-2 with a small search — anything that doesn't
+  validate is excluded and reported.
+- `validate-lessons.mjs` confirms every lesson's FEN is legal, the side-to-move
+  matches, and each accepted answer is a legal move.
+
+## Project structure
+
+```
+src/
+  chess/        chess.js wrapper, board controller, game/puzzle/bot hooks, types
+  engine/       Stockfish UCI worker, minimax fallback, unified engine, bots
+  components/   board (2.5D + cel-shaded pieces), game UI, play UI, nav, brand
+  content/      bots, puzzles (generated), lessons, drills
+  pages/        Home, Play, Puzzles, Learn, LessonPlayer, Practice, Profile
+  state/        persistent progress store (zustand)
+  styles/       design tokens + global cel-shaded styles
+scripts/        setup-engine, build-puzzles, validate-lessons
+```
+
+## License
+
+Stockfish is GPL-licensed; see the `stockfish` npm package for details.

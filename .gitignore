@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+*.local
+*.tsbuildinfo
+
+# Local agent settings (keep .claude/launch.json shared)
+.claude/settings.local.json
+
+# Vendored Stockfish engine artifacts (regenerated from node_modules via
+# scripts/setup-engine.mjs; the NNUE net alone is ~39MB).
+public/engine/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor / OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+Thumbs.db

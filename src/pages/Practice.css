@@ -1,0 +1,116 @@
+.drills__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+.drillcard {
+  position: relative;
+  text-align: left;
+  padding: 18px;
+  border: var(--outline);
+  border-radius: var(--radius-l);
+  background: var(--surface);
+  box-shadow: var(--shadow-sticker), var(--shadow-drop);
+  cursor: pointer;
+  color: var(--text);
+  overflow: hidden;
+  transition: transform 0.13s var(--ease-pop), box-shadow 0.13s var(--ease-pop);
+}
+.drillcard::before {
+  content: "";
+  position: absolute;
+  right: -30px;
+  top: -30px;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: var(--d-accent);
+  opacity: 0.16;
+}
+.drillcard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 0 0 var(--ink), var(--shadow-pop);
+}
+.drillcard__icon {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  font-size: 1.9rem;
+  border-radius: var(--radius-m);
+  border: var(--outline);
+  background: var(--d-accent);
+  box-shadow: var(--shadow-sticker-sm);
+  margin-bottom: 10px;
+}
+.drillcard__title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.2rem;
+}
+.drillcard__desc {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+.drillcard__foot {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.drill {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 330px;
+  gap: 24px;
+  align-items: start;
+}
+.drill__side {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: sticky;
+  top: calc(var(--nav-h) + 16px);
+}
+.drill__goal {
+  padding: 16px 18px;
+  border: var(--outline);
+  border-radius: var(--radius-m);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.15rem;
+  text-align: center;
+  background: var(--surface);
+}
+.drill__goal.success {
+  background: var(--mint);
+  color: var(--text-on-light);
+}
+.drill__goal.fail {
+  background: var(--coral);
+  color: #fff;
+}
+.drill__tip {
+  background: var(--bg-0);
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-m);
+  padding: 12px 14px;
+  color: var(--text-dim);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+.drill__controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+@media (max-width: 900px) {
+  .drill {
+    grid-template-columns: 1fr;
+  }
+  .drill__side {
+    position: static;
+  }
+}

@@ -1,0 +1,39 @@
+.movelist {
+  max-height: 220px;
+  min-height: 96px;
+  background: var(--bg-0);
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-m);
+  padding: 6px 4px;
+}
+.movelist__empty {
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  padding: 14px;
+  text-align: center;
+}
+.movelist__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+.movelist__num {
+  width: 34px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  padding: 3px 8px;
+  text-align: right;
+}
+.movelist__san {
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 0.98rem;
+}
+.movelist__san.is-last {
+  background: var(--gold);
+  color: var(--text-on-light);
+}
+.movelist tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.03);
+}

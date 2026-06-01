@@ -1,0 +1,120 @@
+.botpicker__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+  gap: 14px;
+}
+.botcard {
+  position: relative;
+  text-align: left;
+  padding: 16px;
+  background: var(--surface);
+  border: var(--outline);
+  border-radius: var(--radius-m);
+  box-shadow: var(--shadow-sticker-sm);
+  cursor: pointer;
+  transition: transform 0.13s var(--ease-pop), box-shadow 0.13s var(--ease-pop);
+  color: var(--text);
+  overflow: hidden;
+}
+.botcard::before {
+  content: "";
+  position: absolute;
+  right: -30px;
+  top: -30px;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: var(--bc-accent);
+  opacity: 0.16;
+}
+.botcard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 7px 0 0 var(--ink);
+}
+.botcard.is-selected {
+  box-shadow: 0 0 0 3px var(--bc-accent), var(--shadow-sticker-sm);
+  background: var(--surface-2);
+}
+.botcard__avatar {
+  width: 50px;
+  height: 50px;
+  display: grid;
+  place-items: center;
+  font-size: 1.8rem;
+  border-radius: var(--radius-s);
+  border: 2px solid var(--ink);
+  background: var(--bc-accent);
+  margin-bottom: 10px;
+}
+.botcard__name {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.15rem;
+}
+.botcard__title {
+  color: var(--text-muted);
+  font-weight: 700;
+  font-size: 0.82rem;
+}
+.botcard__rating {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: var(--gold);
+}
+.botcard__blurb {
+  margin-top: 8px;
+  font-size: 0.86rem;
+  color: var(--text-dim);
+  line-height: 1.35;
+}
+
+.botpicker__bar {
+  position: sticky;
+  bottom: 14px;
+  margin-top: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 14px 16px;
+  background: var(--surface-2);
+  border: var(--outline);
+  border-radius: var(--radius-l);
+  box-shadow: var(--shadow-sticker), var(--shadow-drop);
+}
+.botpicker__color {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.botpicker__label {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--text-dim);
+}
+.segmented {
+  display: inline-flex;
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  background: var(--bg-0);
+}
+.segmented__btn {
+  border: none;
+  background: transparent;
+  color: var(--text-dim);
+  font-family: var(--font-display);
+  font-weight: 700;
+  padding: 9px 14px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.segmented__btn.is-on {
+  background: var(--gold);
+  color: var(--text-on-light);
+}

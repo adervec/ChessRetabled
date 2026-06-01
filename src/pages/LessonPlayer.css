@@ -1,0 +1,100 @@
+.lesson__top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.lesson__progress {
+  flex: 1;
+  max-width: 320px;
+}
+.lesson {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 26px;
+  align-items: start;
+}
+.lesson.no-board {
+  grid-template-columns: minmax(0, 720px);
+  justify-content: center;
+}
+.lesson__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: sticky;
+  top: calc(var(--nav-h) + 16px);
+}
+.lesson__card {
+  background: var(--surface);
+  border: var(--outline);
+  border-radius: var(--radius-l);
+  box-shadow: var(--shadow-sticker), var(--shadow-drop);
+  padding: 22px;
+}
+.lesson__steptitle {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.4rem;
+  margin-bottom: 8px;
+}
+.lesson__body {
+  color: var(--text-dim);
+  line-height: 1.6;
+  font-size: 1.02rem;
+}
+.lesson__status {
+  padding: 12px 14px;
+  border-radius: var(--radius-m);
+  border: var(--outline);
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-align: center;
+}
+.lesson__status.prompt {
+  background: var(--bg-0);
+  color: var(--text-dim);
+}
+.lesson__status.wrong {
+  background: var(--coral);
+  color: #fff;
+  animation: shake 0.4s;
+}
+.lesson__status.done {
+  background: var(--mint);
+  color: var(--text-on-light);
+}
+.lesson__actions {
+  display: flex;
+  gap: 10px;
+}
+
+.lesson__complete {
+  text-align: center;
+  padding: 36px 26px;
+  background: var(--surface);
+  border: var(--outline);
+  border-radius: var(--radius-l);
+  box-shadow: var(--shadow-sticker), var(--shadow-pop);
+  max-width: 480px;
+  margin: 20px auto;
+}
+.lesson__complete .big {
+  font-size: 4rem;
+  filter: drop-shadow(0 6px 0 var(--ink));
+  animation: pop-in 0.4s var(--ease-pop) both;
+}
+.lesson__stars-big {
+  font-size: 2.4rem;
+  letter-spacing: 6px;
+  margin: 10px 0 18px;
+}
+
+@media (max-width: 900px) {
+  .lesson {
+    grid-template-columns: 1fr;
+  }
+  .lesson__panel {
+    position: static;
+  }
+}
