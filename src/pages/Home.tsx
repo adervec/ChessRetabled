@@ -147,6 +147,26 @@ export function Home() {
           </div>
         ))}
       </section>
+
+      <footer className="home__fineprint">
+        <p>
+          <strong>ChessRetabled</strong> is a free, open-source hobby project ·{" "}
+          <a
+            href="https://github.com/adervec/ChessRetabled"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Source &amp; license (GPL-3.0)
+          </a>
+        </p>
+        <p>
+          For learning and fun — not professional chess instruction; bot and
+          puzzle ratings are approximate and unofficial. Made by a developer (not
+          a coach, doctor, or lawyer). No accounts and no tracking — your progress
+          is saved only in your browser. Chess engine: Stockfish (GPL). Not
+          affiliated with Stockfish, FIDE, chess.com, or Lichess.
+        </p>
+      </footer>
     </div>
   );
 }

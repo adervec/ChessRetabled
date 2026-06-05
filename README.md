@@ -103,6 +103,32 @@ sub-path. Local `npm run dev` / `npm run build` leave `BASE_PATH` unset, so they
 stay at `/` and are unaffected. Deploying to a custom domain or `user.github.io`
 root instead? Remove the `BASE_PATH` env from `deploy.yml` to build at `/`.
 
+## Disclaimer
+
+ChessRetabled is a hobby project, provided **as is**, with no warranty of any
+kind. It's made for **learning and fun**:
+
+- The lessons and puzzles may contain mistakes and are **not professional chess
+  instruction**. Bot "Elo" and puzzle ratings are **approximate and unofficial**
+  (not FIDE/USCF ratings).
+- I'm a software developer — **not a chess coach, doctor, or lawyer** — so nothing
+  here is professional advice of any kind.
+- Not affiliated with or endorsed by Stockfish, FIDE, chess.com, or Lichess.
+
+## Privacy
+
+No accounts, servers, analytics, or cookies. Your progress (level, ratings,
+streak, lesson stars) is stored **only in your browser** via `localStorage` and
+never leaves your device. Note: the host (GitHub Pages) serves the site and may
+log standard web requests per GitHub's privacy policy, and fonts are loaded from
+Google Fonts (which receives your IP) unless self-hosted.
+
 ## License
 
-Stockfish is GPL-licensed; see the `stockfish` npm package for details.
+ChessRetabled is Copyright © 2026 Adam Eryavec, licensed under the **GNU General
+Public License v3.0** — see [`LICENSE`](./LICENSE).
+
+It bundles the **Stockfish 16** engine, which is also GPL-3.0. See
+[`THIRD-PARTY-NOTICES.md`](./THIRD-PARTY-NOTICES.md) for every third-party
+component and its license (Stockfish, chess.js, React, react-router, zustand,
+fonts) and for the Stockfish corresponding-source links.
