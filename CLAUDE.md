@@ -57,6 +57,25 @@ overview; this file captures the non-obvious decisions.
 - `useProgress` (zustand + persist) → localStorage key
   `chessretabled.progress.v1`. Bump the key name on breaking shape changes.
 
+## CI/CD (`.github/workflows/`)
+
+- `ci.yml` (PRs to `main` + pushes to non-`main` branches): `npm ci` → typecheck
+  → `validate-lessons.mjs` → **puzzle drift check** (re-run `build-puzzles.mjs`
+  and fail if `puzzles.generated.json` changes — enforces "derive, don't
+  hand-edit") → build. Runs on **Node 24** (the content scripts need
+  type-stripping). `main` is skipped here — it's covered by deploy.
+- `deploy.yml` (push to `main` / manual): validate → build → **GitHub Pages**.
+  One-time: set repo Pages source to "GitHub Actions". Ships an SPA `404.html`
+  (copy of `index.html`) so deep links survive a refresh.
+- **Sub-path base** — Pages serves at `/<repo>/`, so `deploy.yml` builds with
+  `BASE_PATH=/<repo>/`. `vite.config.ts` reads it into `base`; everything else
+  derives from `import.meta.env.BASE_URL` (= `base`): router `basename`
+  (`main.tsx`), favicon (`index.html`, via Vite's `%BASE_URL%`), and the
+  Stockfish worker URL (`engine/stockfish.ts`; its `.wasm`/`.nnue` resolve
+  relative to the worker). **Don't hardcode root-absolute asset URLs** (`/foo`) —
+  they skip the base prefix and 404 on Pages. Dev/`build` without `BASE_PATH`
+  stay at `/`.
+
 ## Gotchas
 
 - The dev **preview/screenshot tooling was flaky** in this environment

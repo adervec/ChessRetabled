@@ -6,7 +6,10 @@ import {
   parseUci,
 } from "./types";
 
-const ENGINE_URL = "/engine/stockfish-nnue-16-single.js";
+// Base-relative so the worker (and the .wasm/.nnue it loads relative to itself)
+// resolves under the deploy's base path — "/" in dev, "/<repo>/" on GitHub Pages.
+// import.meta.env.BASE_URL always ends in "/", so no leading slash here.
+const ENGINE_URL = `${import.meta.env.BASE_URL}engine/stockfish-nnue-16-single.js`;
 
 type LineListener = (line: string) => void;
 

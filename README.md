@@ -80,6 +80,29 @@ src/
 scripts/        setup-engine, build-puzzles, validate-lessons
 ```
 
+## Deploying
+
+Two GitHub Actions workflows live in `.github/workflows/`:
+
+- **`ci.yml`** — on pull requests to `main` and pushes to other branches:
+  type-checks, validates lesson content, verifies the generated puzzle set is in
+  sync (re-runs `build-puzzles.mjs` and fails if the committed JSON drifts), and
+  runs a production build.
+- **`deploy.yml`** — on every push to `main` (or run manually): validates,
+  builds, and publishes to **GitHub Pages**.
+
+**One-time setup:** in the repo, open **Settings → Pages → Build and deployment**
+and set **Source** to **GitHub Actions**. The next push to `main` then deploys to
+`https://<user>.github.io/<repo>/`.
+
+Because Pages serves the app from a project sub-path, the deploy build sets
+`BASE_PATH=/<repo>/`. Vite's `base` — and everything derived from it
+(`import.meta.env.BASE_URL`, the router `basename`, the favicon, and the
+Stockfish worker URL) — picks that up, so assets and routes resolve under the
+sub-path. Local `npm run dev` / `npm run build` leave `BASE_PATH` unset, so they
+stay at `/` and are unaffected. Deploying to a custom domain or `user.github.io`
+root instead? Remove the `BASE_PATH` env from `deploy.yml` to build at `/`.
+
 ## License
 
 Stockfish is GPL-licensed; see the `stockfish` npm package for details.
