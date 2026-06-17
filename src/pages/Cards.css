@@ -119,3 +119,27 @@
 .k-win__card { background: var(--surface-raised); color: var(--text); border: var(--outline); border-radius: var(--radius-l); padding: 30px; text-align: center; box-shadow: var(--shadow-pop); }
 .k-win__emoji { font-size: 3.2rem; }
 .k-win__card h2 { font-family: var(--font-display); margin: 8px 0 4px; }
+
+/* ---- War ---- */
+.war-row { display: flex; align-items: center; justify-content: center; gap: 24px; margin: 10px 0; }
+.war-side { text-align: center; }
+.war-vs { font-family: var(--font-display); font-size: 1.3rem; color: var(--gold); min-width: 90px; text-align: center; }
+
+/* ---- Go Fish ---- */
+.gf-info { display: flex; justify-content: space-between; font-weight: 800; font-size: 0.9rem; margin-bottom: 8px; }
+.gf-info .is-turn { color: var(--gold); }
+.gf-books { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; min-height: 26px; margin-bottom: 8px; }
+.gf-book { font-weight: 800; font-size: 0.78rem; padding: 2px 8px; border-radius: var(--radius-pill); border: 2px solid var(--ink); }
+.gf-book--you { background: var(--mint); color: var(--text-on-light); }
+.gf-book--opp { background: var(--coral); color: #fff; }
+
+/* ---- Memory ---- */
+.mem-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  justify-items: center;
+  max-width: 420px;
+  margin: 8px auto;
+}
+.gf-info .is-turn { color: var(--gold); }

@@ -39,4 +39,32 @@ export const CARD_GAMES: CardGameMeta[] = [
     blurb: "Trick-taking — dodge the hearts and the Queen of Spades.",
     players: "vs 3 AI",
   },
+  {
+    id: "poker",
+    name: "Five-Card Draw",
+    icon: "🂫",
+    blurb: "Ante, draw, and make the best five-card hand to take the pot.",
+    players: "vs dealer",
+  },
+  {
+    id: "gofish",
+    name: "Go Fish",
+    icon: "🐟",
+    blurb: "Ask for ranks and collect books of four. Most books wins.",
+    players: "vs AI",
+  },
+  {
+    id: "memory",
+    name: "Memory",
+    icon: "🧠",
+    blurb: "Flip and match pairs from memory. Remember where they are!",
+    players: "vs AI",
+  },
+  {
+    id: "war",
+    name: "War",
+    icon: "⚔️",
+    blurb: "Pure luck of the draw — high card wins, ties mean war.",
+    players: "2 players",
+  },
 ];
