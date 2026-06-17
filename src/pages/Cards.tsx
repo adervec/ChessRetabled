@@ -11,6 +11,7 @@ import { Poker } from "../cards/games/poker/Poker";
 import { Holdem } from "../cards/games/holdem/Holdem";
 import { Gin } from "../cards/games/gin/Gin";
 import { OldMaid } from "../cards/games/oldmaid/OldMaid";
+import { Briscola } from "../cards/games/briscola/Briscola";
 import "./Cards.css";
 
 export function Cards() {
@@ -31,6 +32,7 @@ export function Cards() {
         {gameId === "holdem" && <Holdem onExit={exit} />}
         {gameId === "gin" && <Gin onExit={exit} />}
         {gameId === "oldmaid" && <OldMaid onExit={exit} />}
+        {gameId === "briscola" && <Briscola onExit={exit} />}
       </div>
     );
   }

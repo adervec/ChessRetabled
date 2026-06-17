@@ -51,6 +51,10 @@ jobs:
       - name: Validate card games
         run: node scripts/validate-cards.mjs
 
+      # Logic Lab: Sudoku generator/solver/uniqueness + Mastermind feedback/solver.
+      - name: Validate logic puzzles
+        run: node scripts/validate-logic.mjs
+
       # Puzzles are derived, not hand-typed: regenerate and fail if the committed
       # JSON drifts from what the generator produces (stale file or a hand-edit).
       - name: Verify generated puzzles are up to date

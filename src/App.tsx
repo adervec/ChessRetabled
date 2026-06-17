@@ -8,6 +8,7 @@ import { Play } from "./pages/Play";
 import { Arcade } from "./pages/Arcade";
 import { Simul } from "./pages/Simul";
 import { Cards } from "./pages/Cards";
+import { Logic } from "./pages/Logic";
 import { Puzzles } from "./pages/Puzzles";
 import { Learn } from "./pages/Learn";
 import { LessonPlayer } from "./pages/LessonPlayer";
@@ -41,6 +42,7 @@ export default function App() {
           <Route path="/games" element={<Arcade />} />
           <Route path="/simul" element={<Simul />} />
           <Route path="/cards" element={<Cards />} />
+          <Route path="/logic" element={<Logic />} />
           <Route path="/puzzles" element={<Puzzles />} />
           <Route path="/learn" element={<Learn />} />
           <Route path="/learn/:courseId/:lessonId" element={<LessonPlayer />} />

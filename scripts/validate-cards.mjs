@@ -11,6 +11,8 @@ import { initOldMaid, step as omStep } from "../src/cards/games/oldmaid/logic.ts
 import { initHoldem, deal as heDeal, playerCheck, playerCall, playerFold as heFold, nextRound as heNext, bestHand } from "../src/cards/games/holdem/logic.ts";
 import { initGin, aiTurn as ginTurn } from "../src/cards/games/gin/logic.ts";
 import { bestMeld, bestDiscard } from "../src/cards/games/gin/melds.ts";
+import { initBriscola, applyMove as briscApply, aiMove as briscAi, legalPlays as briscLegal } from "../src/cards/games/briscola/logic.ts";
+import { makeDeck40 } from "../src/cards/core/italian.ts";
 
 function parseCards(codes) {
   return codes.map((c) => {
@@ -266,6 +268,24 @@ for (const seed of SEEDS) {
   while (s.phase !== "done" && guard++ < 300) s = ginTurn(s);
   check(s.phase === "done", `gin seed ${seed}: terminates`);
   check(s.winner !== null && s.scores[s.winner] >= 0, `gin seed ${seed}: resolves with a winner`);
+}
+
+console.log("\nBriscola (AI vs AI):");
+check(makeDeck40().length === 40 && uniqueCount(makeDeck40()) === 40, "Italian deck has 40 unique cards");
+for (const seed of SEEDS) {
+  let s = initBriscola(seed);
+  let guard = 0, illegal = false;
+  while (s.phase === "play" && guard++ < 200) {
+    const seat = s.turn;
+    const m = briscAi(s, seat);
+    if (!briscLegal(s, seat).some((c) => c.id === m.cardId)) illegal = true;
+    s = briscApply(s, m);
+  }
+  check(!illegal, `briscola seed ${seed}: AI plays a card from hand`);
+  check(s.phase === "done", `briscola seed ${seed}: terminates`);
+  const cap = s.captured[0].length + s.captured[1].length;
+  check(cap === 40, `briscola seed ${seed}: all 40 cards captured`);
+  check(s.scores[0] + s.scores[1] === 120, `briscola seed ${seed}: points total 120 (got ${s.scores[0] + s.scores[1]})`);
 }
 
 console.log(`\n[validate-cards] checks=${checks} problems=${problems}`);

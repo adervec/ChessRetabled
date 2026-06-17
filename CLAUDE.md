@@ -161,6 +161,20 @@ item → `pages/Cards.tsx`, a lobby that dispatches to a per-game component).
   watchable delay (`aiThinkFloorMs`); finished games log to the shared `useArchive`.
 - Two reusable cores worth knowing: `poker/eval.ts` (hand ranking) and
   `gin/melds.ts` (`bestMeld`/`bestDiscard`) — both heavily covered by the harness.
+- Briscola (Italian trick-taking) uses the 40-card Italian deck + value tables in
+  `cards/core/italian.ts`; 12 card games total. (Scopa is a natural next add on the
+  same deck.)
+
+## Logic Lab (`src/logic/`)
+
+Single-player deduction puzzles at `/logic` (`pages/Logic.tsx`), separate from the
+opponent-based games. Same discipline — pure logic in `.ts`, verified headlessly by
+`scripts/validate-logic.mjs` (in CI).
+- **Sudoku** (`sudoku.ts`): randomized-backtracking generator that removes clues
+  only while a `countSolutions(…, 2)` check keeps the solution unique; `solve`,
+  `isValidComplete`, and `conflicts` back the UI. Difficulty = clue count.
+- **Mastermind** (`mastermind.ts`): `feedback` (black/white pegs) + a
+  consistency-filter solver. The harness proves the solver always cracks ≤10.
 
 ## Gotchas
 

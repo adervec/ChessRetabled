@@ -8,6 +8,7 @@ const LINKS = [
   { to: "/play", label: "Play", ico: "♟" },
   { to: "/games", label: "Games", ico: "🎲" },
   { to: "/cards", label: "Cards", ico: "🃏" },
+  { to: "/logic", label: "Logic", ico: "💡" },
   { to: "/simul", label: "Simul", ico: "♞" },
   { to: "/puzzles", label: "Puzzles", ico: "🧩" },
   { to: "/learn", label: "Learn", ico: "🎓" },

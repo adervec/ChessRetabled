@@ -146,3 +146,10 @@
 /* ---- Hold'em / Gin ---- */
 .he-board { text-align: center; margin: 10px 0; }
 .gin-piles { display: flex; gap: 28px; justify-content: center; align-items: flex-end; margin: 8px 0; }
+
+/* ---- Briscola ---- */
+.brisc-table { display: flex; align-items: center; justify-content: center; gap: 28px; min-height: calc(var(--card-w) * 1.5); margin: 6px 0; }
+.brisc-trick { display: flex; gap: 10px; min-height: calc(var(--card-w) * 1.4); align-items: center; }
+.brisc-trick__card.mine { transform: translateY(6px); }
+.brisc-trick__card.theirs { transform: translateY(-6px); }
+.brisc-trump { text-align: center; opacity: 0.85; }

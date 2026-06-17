@@ -88,4 +88,11 @@ export const CARD_GAMES: CardGameMeta[] = [
     blurb: "Match and discard pairs — don't get stuck with the lone queen.",
     players: "vs 2 AI",
   },
+  {
+    id: "briscola",
+    name: "Briscola",
+    icon: "🇮🇹",
+    blurb: "Italian trick-taking with a trump suit — capture points to 61.",
+    players: "vs AI",
+  },
 ];
