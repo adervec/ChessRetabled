@@ -7,6 +7,8 @@ import { generate as lightsGen, toggle as lightsToggle, isSolved as lightsSolved
 import { generate as binGen, countSolutions as binCount, solve as binSolveMaybe, isValid as binValid, conflicts as binConflicts } from "../src/logic/binairo.ts";
 import { initSlide, slide, neighbors, isSolved as slideSolved, isSolvable, solvedTiles } from "../src/logic/slide.ts";
 import { generate as futGen, countSolutions as futCount, solve as futSolve, conflicts as futConflicts } from "../src/logic/futoshiki.ts";
+import { generate as kkGen, countSolutions as kkCount, solve as kkSolve, isSolved as kkSolved } from "../src/logic/kenken.ts";
+import { generate as hitGen, isSolved as hitSolved } from "../src/logic/hitori.ts";
 
 let problems = 0;
 let checks = 0;
@@ -135,6 +137,34 @@ for (const seed of SEEDS) {
   check(solved !== null && solved.join() === solution.join(), `futoshiki ${seed}: solver recovers the solution`);
   check(givens.every((g, i) => g === (puzzle[i] !== 0)), `futoshiki ${seed}: givens mark clues`);
   check(futConflicts(puzzle, size, constraints).every((b) => !b), `futoshiki ${seed}: fresh puzzle has no conflicts`);
+}
+
+console.log("\nKenKen:");
+for (const seed of SEEDS) {
+  const p = kkGen(seed, 5);
+  // solution is a Latin square
+  let latin = true;
+  for (let r = 0; r < 5; r++) {
+    const rs = new Set(), cs = new Set();
+    for (let c = 0; c < 5; c++) { rs.add(p.solution[r * 5 + c]); cs.add(p.solution[c * 5 + r]); }
+    if (rs.size !== 5 || cs.size !== 5) latin = false;
+  }
+  check(latin, `kenken ${seed}: solution is a Latin square`);
+  check(p.cellCage.length === 25 && p.cellCage.every((id) => id >= 0), `kenken ${seed}: every cell is in a cage`);
+  check(kkSolved(p.solution, p), `kenken ${seed}: the solution satisfies every cage`);
+  check(kkCount(p, 2) === 1, `kenken ${seed}: puzzle has a unique solution`);
+  const solved = kkSolve(p);
+  check(solved !== null && solved.join() === p.solution.join(), `kenken ${seed}: solver recovers the solution`);
+}
+
+console.log("\nHitori:");
+for (const seed of SEEDS) {
+  const p = hitGen(seed, 6);
+  check(p.board.length === 36, `hitori ${seed}: 6×6 board`);
+  check(p.solution.some(Boolean), `hitori ${seed}: at least one cell is shaded`);
+  check(hitSolved(p.board, p.solution, 6), `hitori ${seed}: the baked-in shading satisfies all rules`);
+  // shading nothing should fail (the board has forced duplicates)
+  check(!hitSolved(p.board, new Array(36).fill(false), 6), `hitori ${seed}: shading nothing is not a solution`);
 }
 
 console.log(`\n[validate-logic] checks=${checks} problems=${problems}`);

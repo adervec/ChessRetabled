@@ -236,3 +236,63 @@
   min-width: 14px;
   min-height: 14px;
 }
+
+/* ---- KenKen ---- */
+.kenken {
+  display: grid;
+  max-width: 360px;
+  margin: 0 auto;
+  background: var(--surface);
+  border: 3px solid var(--ink);
+  border-radius: var(--radius-s);
+  overflow: hidden;
+}
+.kk-cell {
+  position: relative;
+  aspect-ratio: 1;
+  border: 1px solid color-mix(in srgb, var(--ink) 25%, transparent);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1.1rem, 5vw, 1.5rem);
+  cursor: pointer;
+}
+.kk-cell.edge-t { border-top: 3px solid var(--ink); }
+.kk-cell.edge-l { border-left: 3px solid var(--ink); }
+.kk-cell.edge-r { border-right: 3px solid var(--ink); }
+.kk-cell.edge-b { border-bottom: 3px solid var(--ink); }
+.kk-cell.sel { background: color-mix(in srgb, var(--gold) 40%, var(--surface)); color: var(--text-on-light); }
+.kk-cell.bad { background: color-mix(in srgb, var(--coral) 24%, var(--surface)); }
+.kk-label {
+  position: absolute;
+  top: 2px;
+  left: 4px;
+  font-family: var(--font-body);
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: var(--text-dim);
+}
+
+/* ---- Hitori ---- */
+.hitori {
+  display: grid;
+  max-width: 340px;
+  margin: 0 auto;
+  border: var(--outline);
+  border-radius: var(--radius-s);
+  overflow: hidden;
+  box-shadow: var(--shadow-sticker);
+}
+.hit-cell {
+  aspect-ratio: 1;
+  border: 1px solid color-mix(in srgb, var(--ink) 22%, transparent);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1rem, 5vw, 1.4rem);
+  cursor: pointer;
+}
+.hit-cell.shaded { background: var(--ink); color: var(--ink); }
+.hit-cell.bad { background: color-mix(in srgb, var(--coral) 26%, var(--surface)); color: var(--coral); }
