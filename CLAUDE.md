@@ -107,10 +107,15 @@ reachable at `/games` (the "Games" nav item → `pages/Arcade.tsx`).
 
 ## Presentation, settings & data (added in the expansion)
 
-- **Settings** (`state/useSettings.ts`, persisted): `theme` (`dusk` default / `pastel`),
-  `animSpeed`, `boardTilt`. App.tsx reflects them onto `<html data-theme>` and the
-  `--anim-dur` CSS var. Themes are pure token overrides in `tokens.css`
-  (`:root[data-theme="pastel"]`) — every component re-themes through the variables.
+- **Settings** (`state/useSettings.ts`, persisted): `theme` (`dusk` default /
+  `pastel` / `croanada`), `animSpeed`, `boardTilt`. App.tsx reflects them onto
+  `<html data-theme>` and the `--anim-dur` CSS var. Chrome/board/card colours are
+  pure token overrides in `tokens.css` (`:root[data-theme="…"]`) incl. `--felt`.
+- **Themed pieces** (`theme/pieces.ts`): chess SVGs (`PieceArt`) and arcade tokens
+  (`GamePiece`) recolour per theme. A theme may supply a `light`/`dark` piece pair;
+  each game's two sides map to it **by luminance** (so the lighter side stays light
+  and only the hue changes). Dusk has no entry → native per-game colours; Pastel
+  and Croanada fully reskin (Croanada = snow white vs maple red).
 - **Animation**: the generic board animates via stable-id tokens (`ui/boardView.ts`
   `Token`), reconciled in `useGenericGame`; CSS transitions read `--anim-dur`.
   Captures fall into a rendered graveyard. The computer never replies instantly —

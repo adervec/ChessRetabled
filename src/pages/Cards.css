@@ -9,7 +9,7 @@
 .cardtable {
   max-width: 760px;
   margin: 0 auto;
-  background: radial-gradient(circle at 50% 0%, #2f9e74, #1c5f47);
+  background: radial-gradient(circle at 50% 0%, var(--felt), var(--felt-2));
   border: var(--outline);
   border-radius: var(--radius-l);
   box-shadow: var(--shadow-sticker), var(--shadow-drop);

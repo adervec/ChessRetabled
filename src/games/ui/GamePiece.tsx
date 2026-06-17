@@ -1,5 +1,6 @@
 import { useId } from "react";
 import { darken, lighten, luminance } from "./color";
+import { useThemePieces } from "../../theme/pieces";
 
 // A cel-shaded game piece for the 2.5D boards — the generic counterpart to the
 // chess PieceArt. Discs (checkers/reversi/connect-four/morris) render as short
@@ -13,27 +14,33 @@ export function GamePiece({
   shape,
   color,
   player,
+  isLight,
   crowned,
   className,
 }: {
   shape: PieceShape;
+  /** Native colour for this side (used when the theme doesn't reskin pieces). */
   color: string;
   player: 0 | 1;
+  /** Whether this is the lighter of the game's two sides (for theme mapping). */
+  isLight?: boolean;
   crowned?: boolean;
   className?: string;
 }) {
   const uid = useId().replace(/:/g, "");
-  const light = lighten(color, 0.18);
-  const shade = darken(color, 0.28);
-  const edge = darken(color, 0.46);
+  const themed = useThemePieces();
+  const c = themed ? (isLight ? themed.light.body : themed.dark.body) : color;
+  const light = lighten(c, 0.18);
+  const shade = darken(c, 0.28);
+  const edge = darken(c, 0.46);
   const ink = "#160f29";
-  const detail = luminance(color) > 150 ? darken(color, 0.55) : lighten(color, 0.55);
+  const detail = luminance(c) > 150 ? darken(c, 0.55) : lighten(c, 0.55);
 
   if (shape === "mark") {
     return (
       <svg viewBox="0 0 100 100" className={className} width="100%" height="100%" style={{ overflow: "visible" }}>
         {player === 0 ? (
-          <g stroke={color} strokeWidth="16" strokeLinecap="round" fill="none">
+          <g stroke={c} strokeWidth="16" strokeLinecap="round" fill="none">
             <path d="M26,26 L74,74" />
             <path d="M74,26 L26,74" />
             <g stroke={ink} strokeWidth="3" opacity="0.5">
@@ -43,7 +50,7 @@ export function GamePiece({
           </g>
         ) : (
           <g>
-            <circle cx="50" cy="50" r="26" fill="none" stroke={color} strokeWidth="16" />
+            <circle cx="50" cy="50" r="26" fill="none" stroke={c} strokeWidth="16" />
             <circle cx="50" cy="50" r="26" fill="none" stroke={ink} strokeWidth="3" opacity="0.5" />
           </g>
         )}
@@ -82,7 +89,7 @@ export function GamePiece({
         strokeWidth="3.5"
       />
       {/* highlight */}
-      <ellipse cx="36" cy={domed ? "26" : "28"} rx="14" ry="6" fill={lighten(color, 0.4)} opacity="0.6" />
+      <ellipse cx="36" cy={domed ? "26" : "28"} rx="14" ry="6" fill={lighten(c, 0.4)} opacity="0.6" />
       {/* king ring / crown */}
       {crowned && (
         <g>

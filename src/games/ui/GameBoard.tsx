@@ -2,6 +2,7 @@ import { Fragment } from "react";
 import type { BoardView, Token } from "./boardView";
 import { GamePiece } from "./GamePiece";
 import { useSettings } from "../../state/useSettings";
+import { useThemePieces, isLighterSide, resolveBody } from "../../theme/pieces";
 import "./GameBoard.css";
 
 export function GameBoard({ game }: { game: BoardView }) {
@@ -74,6 +75,7 @@ function GridBoard({ game, flat }: { game: BoardView; flat: boolean }) {
                     shape={def.pieceShape}
                     color={def.pieceColors[t.owner]}
                     player={t.owner}
+                    isLight={isLighterSide(def.pieceColors, t.owner)}
                     crowned={t.crowned}
                   />
                 </span>
@@ -110,6 +112,7 @@ function GridBoard({ game, flat }: { game: BoardView; flat: boolean }) {
 function PointsBoard({ game, flat }: { game: BoardView; flat: boolean }) {
   const { def } = game;
   const geo = def.geometry;
+  const tp = useThemePieces();
   if (geo.kind !== "points") return null;
   const { width, height, points, edges } = geo;
 
@@ -144,7 +147,7 @@ function PointsBoard({ game, flat }: { game: BoardView; flat: boolean }) {
               key={t.id}
               x={p.x}
               y={p.y}
-              color={def.pieceColors[t.owner]}
+              color={resolveBody(def.pieceColors, t.owner, tp)}
               removal={removal}
             />
           );
@@ -178,7 +181,7 @@ function Graveyard({ game }: { game: BoardView }) {
             <div className="ggrave__pieces">
               {byOwner[owner].map((t) => (
                 <span className="ggrave__piece" key={t.id}>
-                  <GamePiece shape={def.pieceShape} color={def.pieceColors[owner]} player={owner} crowned={t.crowned} />
+                  <GamePiece shape={def.pieceShape} color={def.pieceColors[owner]} player={owner} isLight={isLighterSide(def.pieceColors, owner)} crowned={t.crowned} />
                 </span>
               ))}
             </div>

@@ -55,6 +55,10 @@
   --sq-target: rgba(68, 224, 164, 0.0); /* dots are drawn separately */
   --sq-check: #ff6b6b;
 
+  /* ---- Card table felt ---- */
+  --felt: #2f9e74;
+  --felt-2: #1c5f47;
+
   /* ---- Text ---- */
   --text: #fbf4e4;
   --text-dim: #c7bbe6;
@@ -138,6 +142,8 @@
   --board-frame-edge: #d7c2e6;
   --sq-highlight: #ffe6a3;
   --sq-check: #ff8f8f;
+  --felt: #5fb893;
+  --felt-2: #3a8f6e;
 
   --text: #4a3a63;
   --text-dim: #6f6088;
@@ -199,6 +205,8 @@
   --board-frame-edge: #8a4d2a;
   --sq-highlight: #ffcf5c;
   --sq-check: #ff8a3d;
+  --felt: #2e6b4a;
+  --felt-2: #1b4530;
 
   --text: #2b1410;
   --text-dim: #6a4434;

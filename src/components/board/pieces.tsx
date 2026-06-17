@@ -1,5 +1,6 @@
 import { useId } from "react";
 import type { Color, PieceSymbol } from "../../chess/types";
+import { useThemePieces, deriveChess } from "../../theme/pieces";
 
 /**
  * Cel-shaded chess pieces, built from chunky primitives with a hard-edged
@@ -48,7 +49,12 @@ export function PieceArt({
   className?: string;
 }) {
   const uid = useId().replace(/:/g, "");
-  const p = color === "w" ? WHITE : BLACK;
+  const themed = useThemePieces();
+  const p = themed
+    ? deriveChess(color === "w" ? themed.light : themed.dark)
+    : color === "w"
+    ? WHITE
+    : BLACK;
   const body = `url(#body-${uid})`;
   const baseFill = `url(#base-${uid})`;
 
