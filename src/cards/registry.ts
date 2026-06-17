@@ -67,4 +67,25 @@ export const CARD_GAMES: CardGameMeta[] = [
     blurb: "Pure luck of the draw — high card wins, ties mean war.",
     players: "2 players",
   },
+  {
+    id: "holdem",
+    name: "Texas Hold'em",
+    icon: "🃏",
+    blurb: "Hole cards, a community board, and a bet round — best five wins.",
+    players: "vs dealer",
+  },
+  {
+    id: "gin",
+    name: "Gin Rummy",
+    icon: "🌿",
+    blurb: "Build sets and runs, cut your deadwood, and knock to win.",
+    players: "vs AI",
+  },
+  {
+    id: "oldmaid",
+    name: "Old Maid",
+    icon: "👵",
+    blurb: "Match and discard pairs — don't get stuck with the lone queen.",
+    players: "vs 2 AI",
+  },
 ];

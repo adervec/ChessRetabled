@@ -142,4 +142,7 @@
   max-width: 420px;
   margin: 8px auto;
 }
-.gf-info .is-turn { color: var(--gold); }
+
+/* ---- Hold'em / Gin ---- */
+.he-board { text-align: center; margin: 10px 0; }
+.gin-piles { display: flex; gap: 28px; justify-content: center; align-items: flex-end; margin: 8px 0; }

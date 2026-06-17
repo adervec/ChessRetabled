@@ -8,6 +8,9 @@ import { War } from "../cards/games/war/War";
 import { GoFish } from "../cards/games/gofish/GoFish";
 import { Memory } from "../cards/games/memory/Memory";
 import { Poker } from "../cards/games/poker/Poker";
+import { Holdem } from "../cards/games/holdem/Holdem";
+import { Gin } from "../cards/games/gin/Gin";
+import { OldMaid } from "../cards/games/oldmaid/OldMaid";
 import "./Cards.css";
 
 export function Cards() {
@@ -25,6 +28,9 @@ export function Cards() {
         {gameId === "gofish" && <GoFish onExit={exit} />}
         {gameId === "memory" && <Memory onExit={exit} />}
         {gameId === "war" && <War onExit={exit} />}
+        {gameId === "holdem" && <Holdem onExit={exit} />}
+        {gameId === "gin" && <Gin onExit={exit} />}
+        {gameId === "oldmaid" && <OldMaid onExit={exit} />}
       </div>
     );
   }

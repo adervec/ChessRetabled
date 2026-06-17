@@ -7,6 +7,19 @@ import { initGoFish, applyMove as gfApply, aiMove as gfAi, legalRanks } from "..
 import { initMemory, reveal as memReveal, resolve as memResolve, aiPick } from "../src/cards/games/memory/logic.ts";
 import { rankHand, compareHands } from "../src/cards/games/poker/eval.ts";
 import { initPoker, deal as pokerDeal, draw as pokerDraw, nextRound as pokerNext, aiDiscards } from "../src/cards/games/poker/logic.ts";
+import { initOldMaid, step as omStep } from "../src/cards/games/oldmaid/logic.ts";
+import { initHoldem, deal as heDeal, playerCheck, playerCall, playerFold as heFold, nextRound as heNext, bestHand } from "../src/cards/games/holdem/logic.ts";
+import { initGin, aiTurn as ginTurn } from "../src/cards/games/gin/logic.ts";
+import { bestMeld, bestDiscard } from "../src/cards/games/gin/melds.ts";
+
+function parseCards(codes) {
+  return codes.map((c) => {
+    const suit = c[c.length - 1];
+    const r = c.slice(0, -1);
+    const rank = r === "A" ? 1 : r === "K" ? 13 : r === "Q" ? 12 : r === "J" ? 11 : r === "T" ? 10 : Number(r);
+    return makeCard(suit, rank);
+  });
+}
 import { blackjackValue } from "../src/cards/core/helpers.ts";
 import { initBlackjack, placeBet, hit, stand, nextRound } from "../src/cards/games/blackjack/logic.ts";
 import {
@@ -210,6 +223,49 @@ for (const seed of SEEDS) {
     s = pokerNext(s);
   }
   check(ok, `poker seed ${seed}: rounds resolve with 5-card hands and sane chips`);
+}
+
+console.log("\nOld Maid (auto):");
+for (const seed of SEEDS) {
+  let s = initOldMaid(seed);
+  let guard = 0;
+  while (s.phase === "play" && guard++ < 3000) s = omStep(s);
+  check(s.phase === "done", `oldmaid seed ${seed}: terminates`);
+  check(s.loser !== null, `oldmaid seed ${seed}: has a loser`);
+  const left = s.hands.flat();
+  check(left.length === 1 && left[0].rank === 12, `oldmaid seed ${seed}: ends on the lone queen`);
+}
+
+console.log("\nTexas Hold'em:");
+check(bestHand(parseCards(["AS", "KS", "QS", "JS", "TS", "2H", "3D"])).category === 8, "best-of-7 finds the royal flush");
+check(bestHand(parseCards(["7S", "7H", "7D", "KS", "KH", "2C", "9D"])).category === 6, "best-of-7 finds the full house");
+check(bestHand(parseCards(["2S", "5S", "9S", "JS", "KS", "AS", "3D"])).category === 5, "best-of-7 finds the flush");
+for (const seed of SEEDS) {
+  let s = initHoldem(seed, 100, 10, 20);
+  let guard = 0, ok = true;
+  while (s.chips >= s.ante && guard++ < 60) {
+    s = heDeal(s);
+    if (s.phase !== "bet") break;
+    s = playerCheck(s);
+    if (s.phase === "callfold") s = s.chips >= s.betSize ? playerCall(s) : heFold(s);
+    if (s.phase !== "showdown" || s.result === null) ok = false;
+    if (s.chips < 0 || !Number.isInteger(s.chips)) ok = false;
+    s = heNext(s);
+  }
+  check(ok, `holdem seed ${seed}: rounds resolve with sane chips`);
+}
+
+console.log("\nGin Rummy:");
+check(bestMeld(parseCards(["AS", "2S", "3S", "4S", "5H", "6H", "7H", "8D", "9D", "TD"])).deadwoodValue === 0, "a fully-melded hand is gin (0 deadwood)");
+check(bestMeld(parseCards(["AS", "2S", "3S", "5H", "6H", "7H", "8D", "9D", "TD", "KC"])).deadwoodValue === 10, "a lone king is 10 deadwood");
+check(bestDiscard(parseCards(["AS", "2S", "3S", "4S", "5H", "6H", "7H", "8D", "9D", "TD", "KC"])).deadwoodValue === 0, "discarding the junk king yields gin");
+check(bestMeld(parseCards(["7S", "7H", "7D", "8C", "9C", "TC", "2S", "3S", "4S", "KD"])).deadwoodValue === 10, "set + two runs leaves the lone king");
+for (const seed of SEEDS) {
+  let s = initGin(seed);
+  let guard = 0;
+  while (s.phase !== "done" && guard++ < 300) s = ginTurn(s);
+  check(s.phase === "done", `gin seed ${seed}: terminates`);
+  check(s.winner !== null && s.scores[s.winner] >= 0, `gin seed ${seed}: resolves with a winner`);
 }
 
 console.log(`\n[validate-cards] checks=${checks} problems=${problems}`);

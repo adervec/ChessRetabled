@@ -149,11 +149,13 @@ item → `pages/Cards.tsx`, a lobby that dispatches to a per-game component).
   cross-import core with **explicit `.ts` extensions** so
   `scripts/validate-cards.mjs` can drive them headlessly (AI-vs-AI / policy sims
   checking legality, termination, scoring, and 52-card conservation). In CI.
-- **Games:** Klondike Solitaire (single-player, `legalMoves`/`applyMove`/`isWon`),
-  Blackjack (vs dealer, chips, 3:2), Crazy Eights (4-seat shedding, 8s wild,
-  deadlock guard), Hearts (4-seat trick-taking, Q♠/hearts, shoot-the-moon, ace
-  high). AI seats move on a watchable delay (`aiThinkFloorMs`); finished games
-  are logged to the shared `useArchive`.
+- **Games (11):** Klondike Solitaire, Blackjack, Crazy Eights, Hearts, Five-Card
+  Draw + Texas Hold'em (sharing `poker/eval.ts`, a 5-card evaluator; Hold'em adds
+  best-5-of-7), Gin Rummy (`gin/melds.ts` is an exact deadwood/meld optimiser via
+  bitmask set-packing), Go Fish, Memory, War, Old Maid. AI seats move on a
+  watchable delay (`aiThinkFloorMs`); finished games log to the shared `useArchive`.
+- Two reusable cores worth knowing: `poker/eval.ts` (hand ranking) and
+  `gin/melds.ts` (`bestMeld`/`bestDiscard`) — both heavily covered by the harness.
 
 ## Gotchas
 
