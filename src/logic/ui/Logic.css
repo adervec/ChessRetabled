@@ -296,3 +296,56 @@
 }
 .hit-cell.shaded { background: var(--ink); color: var(--ink); }
 .hit-cell.bad { background: color-mix(in srgb, var(--coral) 26%, var(--surface)); color: var(--coral); }
+
+/* ---- Skyscrapers ---- */
+.sky {
+  display: grid;
+  max-width: 380px;
+  margin: 0 auto;
+  gap: 2px;
+}
+.sky-clue {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+.sky-cell {
+  aspect-ratio: 1;
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-s);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1rem, 5vw, 1.4rem);
+  cursor: pointer;
+}
+.sky-cell.sel { background: color-mix(in srgb, var(--gold) 40%, var(--surface)); color: var(--text-on-light); }
+.sky-cell.bad { background: color-mix(in srgb, var(--coral) 24%, var(--surface)); color: var(--coral); }
+
+/* ---- Hidato ---- */
+.hidato {
+  display: grid;
+  max-width: 360px;
+  margin: 0 auto;
+  border: var(--outline);
+  border-radius: var(--radius-s);
+  overflow: hidden;
+  box-shadow: var(--shadow-sticker);
+}
+.hidato-cell {
+  aspect-ratio: 1;
+  border: 1px solid color-mix(in srgb, var(--ink) 22%, transparent);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(0.85rem, 4vw, 1.2rem);
+  cursor: pointer;
+}
+.hidato-cell.given { background: var(--surface-2); font-weight: 900; }
+.hidato-cell.sel { background: color-mix(in srgb, var(--gold) 40%, var(--surface)); color: var(--text-on-light); }
+.hidato-cell.bad { background: color-mix(in srgb, var(--coral) 24%, var(--surface)); color: var(--coral); }

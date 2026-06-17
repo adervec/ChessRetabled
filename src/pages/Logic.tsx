@@ -8,6 +8,8 @@ import { Futoshiki } from "../logic/ui/Futoshiki";
 import { SlidePuzzle } from "../logic/ui/SlidePuzzle";
 import { KenKen } from "../logic/ui/KenKen";
 import { Hitori } from "../logic/ui/Hitori";
+import { Skyscrapers } from "../logic/ui/Skyscrapers";
+import { Hidato } from "../logic/ui/Hidato";
 import "../logic/ui/Logic.css";
 
 const PUZZLES = [
@@ -17,6 +19,8 @@ const PUZZLES = [
   { id: "nonogram", name: "Nonogram", icon: "🖼", blurb: "Reveal the hidden picture from the row and column run clues." },
   { id: "binairo", name: "Binairo", icon: "⚫", blurb: "Fill 0s and 1s: no three in a row, balanced lines, all rows unique." },
   { id: "hitori", name: "Hitori", icon: "▦", blurb: "Shade out duplicates so no number repeats — and the rest stays joined." },
+  { id: "skyscrapers", name: "Skyscrapers", icon: "🏙", blurb: "A Latin square of heights; each edge clue counts the buildings you can see." },
+  { id: "hidato", name: "Hidato", icon: "🐍", blurb: "Fill 1…36 so consecutive numbers are always neighbours (diagonals count)." },
   { id: "lightsout", name: "Lights Out", icon: "💡", blurb: "Tap to toggle crosses of lights — turn the whole board off." },
   { id: "slide", name: "15-Puzzle", icon: "🧩", blurb: "Slide the tiles through the gap to put them back in order." },
   { id: "mastermind", name: "Mastermind", icon: "🎯", blurb: "Crack the hidden 4-colour code from the black/white peg clues." },
@@ -35,6 +39,8 @@ export function Logic() {
         {id === "nonogram" && <Nonogram onExit={exit} />}
         {id === "binairo" && <Binairo onExit={exit} />}
         {id === "hitori" && <Hitori onExit={exit} />}
+        {id === "skyscrapers" && <Skyscrapers onExit={exit} />}
+        {id === "hidato" && <Hidato onExit={exit} />}
         {id === "lightsout" && <LightsOut onExit={exit} />}
         {id === "slide" && <SlidePuzzle onExit={exit} />}
         {id === "mastermind" && <Mastermind onExit={exit} />}

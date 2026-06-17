@@ -9,6 +9,8 @@ import { initSlide, slide, neighbors, isSolved as slideSolved, isSolvable, solve
 import { generate as futGen, countSolutions as futCount, solve as futSolve, conflicts as futConflicts } from "../src/logic/futoshiki.ts";
 import { generate as kkGen, countSolutions as kkCount, solve as kkSolve, isSolved as kkSolved } from "../src/logic/kenken.ts";
 import { generate as hitGen, isSolved as hitSolved } from "../src/logic/hitori.ts";
+import { generate as skyGen, countSolutions as skyCount, solve as skySolve, isSolved as skySolved, visible } from "../src/logic/skyscrapers.ts";
+import { generate as hidGen, countSolutions as hidCount, isSolved as hidSolved } from "../src/logic/hidato.ts";
 
 let problems = 0;
 let checks = 0;
@@ -165,6 +167,35 @@ for (const seed of SEEDS) {
   check(hitSolved(p.board, p.solution, 6), `hitori ${seed}: the baked-in shading satisfies all rules`);
   // shading nothing should fail (the board has forced duplicates)
   check(!hitSolved(p.board, new Array(36).fill(false), 6), `hitori ${seed}: shading nothing is not a solution`);
+}
+
+console.log("\nSkyscrapers:");
+check(visible([1, 2, 3, 4, 5]) === 5, "ascending row: all 5 visible");
+check(visible([5, 4, 3, 2, 1]) === 1, "descending row: 1 visible");
+check(visible([2, 1, 4, 3, 5]) === 3, "visibility counts new maxima");
+for (const seed of SEEDS) {
+  const { size, solution, clues } = skyGen(seed, 5);
+  let latin = true;
+  for (let r = 0; r < size; r++) {
+    const rs = new Set(), cs = new Set();
+    for (let c = 0; c < size; c++) { rs.add(solution[r * size + c]); cs.add(solution[c * size + r]); }
+    if (rs.size !== size || cs.size !== size) latin = false;
+  }
+  check(latin, `skyscrapers ${seed}: solution is a Latin square`);
+  check(skySolved(solution, size, clues), `skyscrapers ${seed}: solution satisfies its clues`);
+  check(skyCount(size, clues, 2) === 1, `skyscrapers ${seed}: unique solution`);
+  const solved = skySolve(size, clues);
+  check(solved !== null && solved.join() === solution.join(), `skyscrapers ${seed}: solver recovers the solution`);
+}
+
+console.log("\nHidato:");
+for (const seed of SEEDS) {
+  const { size, board, solution, givens } = hidGen(seed, 6);
+  check(hidSolved(solution, size), `hidato ${seed}: solution is a valid consecutive path`);
+  check(board[solution.indexOf(1)] === 1 && board[solution.indexOf(size * size)] === size * size, `hidato ${seed}: endpoints are given`);
+  check(hidCount(board, size, 2) === 1, `hidato ${seed}: unique reconstruction`);
+  check(givens.every((g, i) => g === (board[i] !== 0)), `hidato ${seed}: givens mark clues`);
+  check(board.every((v, i) => v === 0 || v === solution[i]), `hidato ${seed}: clues agree with the solution`);
 }
 
 console.log(`\n[validate-logic] checks=${checks} problems=${problems}`);
