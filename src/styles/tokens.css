@@ -149,3 +149,64 @@
   --shadow-drop: 0 10px 24px -8px rgba(120, 90, 140, 0.35);
   --shadow-pop: 0 14px 40px -10px rgba(120, 90, 140, 0.4);
 }
+
+/*
+ * Croanada — Croatia × Canada. Both flags are red-and-white, so the board
+ * squares become the red/white Croatian checkerboard (šahovnica); maple-leaf
+ * amber/gold and a warm maple-brown ink carry the Canadian half, over a snowy
+ * warm-white backdrop.
+ */
+:root[data-theme="croanada"] {
+  --ink: #2b1410;
+  --ink-soft: #4a2418;
+  --paper: #fff8f1;
+
+  --bg-0: #fdeee7;
+  --bg-1: #fbe2da;
+  --bg-2: #f7d6cb;
+  --bg-3: #f1c9bb;
+  --bg-grad-top: #fbe0d5;
+  --bg-grad-bottom: #fff7f1;
+
+  --surface: #ffffff;
+  --surface-2: #fdeee8;
+  --surface-raised: #ffffff;
+
+  --coral: #d52b1e;
+  --coral-dark: #a81d12;
+  --gold: #e7a33c;
+  --gold-dark: #c07e1a;
+  --mint: #2e9e6b;
+  --mint-dark: #1f7a50;
+  --violet: #b5532a;
+  --violet-dark: #8a3d1c;
+  --sky: #4f93c4;
+  --sky-dark: #2f6f9e;
+  --rose: #e8607a;
+  --rose-dark: #c43e58;
+
+  --good: var(--mint);
+  --good-dark: var(--mint-dark);
+  --bad: var(--coral);
+  --bad-dark: var(--coral-dark);
+
+  /* the Croatian checkerboard: white + maple red */
+  --sq-light: #fbf3ec;
+  --sq-light-shade: #ecdccd;
+  --sq-dark: #d52b1e;
+  --sq-dark-shade: #b21f15;
+  --board-frame: #6e3b1f;
+  --board-frame-edge: #8a4d2a;
+  --sq-highlight: #ffcf5c;
+  --sq-check: #ff8a3d;
+
+  --text: #2b1410;
+  --text-dim: #6a4434;
+  --text-muted: #9c7868;
+  --text-on-light: #2b1410;
+
+  --shadow-sticker: 0 6px 0 0 rgba(43, 20, 16, 0.4);
+  --shadow-sticker-sm: 0 4px 0 0 rgba(43, 20, 16, 0.35);
+  --shadow-drop: 0 10px 24px -8px rgba(120, 40, 30, 0.35);
+  --shadow-pop: 0 14px 40px -10px rgba(120, 40, 30, 0.4);
+}
