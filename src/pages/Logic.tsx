@@ -12,6 +12,8 @@ import { Skyscrapers } from "../logic/ui/Skyscrapers";
 import { Hidato } from "../logic/ui/Hidato";
 import { Kakurasu } from "../logic/ui/Kakurasu";
 import { Akari } from "../logic/ui/Akari";
+import { Suguru } from "../logic/ui/Suguru";
+import { Kakuro } from "../logic/ui/Kakuro";
 import "../logic/ui/Logic.css";
 
 const PUZZLES = [
@@ -24,6 +26,8 @@ const PUZZLES = [
   { id: "skyscrapers", name: "Skyscrapers", icon: "🏙", blurb: "A Latin square of heights; each edge clue counts the buildings you can see." },
   { id: "hidato", name: "Hidato", icon: "🐍", blurb: "Fill 1…36 so consecutive numbers are always neighbours (diagonals count)." },
   { id: "akari", name: "Akari", icon: "🔦", blurb: "Place bulbs to light every square; numbers count adjacent bulbs." },
+  { id: "kakuro", name: "Kakuro", icon: "➗", blurb: "Fill runs with distinct digits 1–9 that add up to each crossing clue." },
+  { id: "suguru", name: "Suguru", icon: "🧩", blurb: "Fill each cage 1…size; no equal digits may touch, even diagonally." },
   { id: "kakurasu", name: "Kakurasu", icon: "➕", blurb: "Shade cells so each row and column hits its weighted-sum clue." },
   { id: "lightsout", name: "Lights Out", icon: "💡", blurb: "Tap to toggle crosses of lights — turn the whole board off." },
   { id: "slide", name: "15-Puzzle", icon: "🧩", blurb: "Slide the tiles through the gap to put them back in order." },
@@ -46,6 +50,8 @@ export function Logic() {
         {id === "skyscrapers" && <Skyscrapers onExit={exit} />}
         {id === "hidato" && <Hidato onExit={exit} />}
         {id === "akari" && <Akari onExit={exit} />}
+        {id === "kakuro" && <Kakuro onExit={exit} />}
+        {id === "suguru" && <Suguru onExit={exit} />}
         {id === "kakurasu" && <Kakurasu onExit={exit} />}
         {id === "lightsout" && <LightsOut onExit={exit} />}
         {id === "slide" && <SlidePuzzle onExit={exit} />}

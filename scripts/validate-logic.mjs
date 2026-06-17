@@ -13,6 +13,8 @@ import { generate as skyGen, countSolutions as skyCount, solve as skySolve, isSo
 import { generate as hidGen, countSolutions as hidCount, isSolved as hidSolved } from "../src/logic/hidato.ts";
 import { generate as kkrGen, countSolutions as kkrCount, isSolved as kkrSolved, rowTargetsOf, colTargetsOf } from "../src/logic/kakurasu.ts";
 import { generate as akGen, countSolutions as akCount, solve as akSolve, isSolved as akSolved } from "../src/logic/akari.ts";
+import { generate as sugGen, countSolutions as sugCount, solve as sugSolve, isSolved as sugSolved } from "../src/logic/suguru.ts";
+import { generate as kkuGen, countSolutions as kkuCount, solve as kkuSolve, isSolved as kkuSolved } from "../src/logic/kakuro.ts";
 
 let problems = 0;
 let checks = 0;
@@ -218,6 +220,26 @@ for (const seed of SEEDS) {
   check(solved !== null && akSolved(walls, solved, 7), `akari ${seed}: solver finds a valid solution`);
   // a board with no bulbs is not solved (something must be lit)
   check(!akSolved(walls, new Array(size * size).fill(false), 7), `akari ${seed}: empty board is not a solution`);
+}
+
+console.log("\nSuguru:");
+for (const seed of SEEDS) {
+  const { size, solution, puzzle, givens, regionId, regionSize } = sugGen(seed, 6);
+  check(sugSolved(solution, size, regionId, regionSize), `suguru ${seed}: solution obeys region + adjacency rules`);
+  check(solution.every((v, i) => v >= 1 && v <= regionSize[i]), `suguru ${seed}: each region uses 1..size`);
+  check(sugCount(puzzle, size, regionId, regionSize, 2) === 1, `suguru ${seed}: unique solution`);
+  const solved = sugSolve(puzzle, size, regionId, regionSize);
+  check(solved !== null && solved.join() === solution.join(), `suguru ${seed}: solver recovers the solution`);
+  check(givens.every((g, i) => g === (puzzle[i] !== 0)), `suguru ${seed}: givens mark clues`);
+}
+
+console.log("\nKakuro:");
+for (const seed of SEEDS) {
+  const p = kkuGen(seed, 7);
+  check(kkuSolved(p.solution, p), `kakuro ${seed}: solution satisfies every run (distinct + sum)`);
+  check(kkuCount(p, 2) === 1, `kakuro ${seed}: unique solution`);
+  const solved = kkuSolve(p);
+  check(solved !== null && kkuSolved(solved, p), `kakuro ${seed}: solver finds a valid solution`);
 }
 
 console.log(`\n[validate-logic] checks=${checks} problems=${problems}`);
