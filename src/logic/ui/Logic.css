@@ -181,3 +181,58 @@
 .binairo-cell.zero { color: var(--sky-dark); }
 .binairo-cell.one { color: var(--coral-dark); }
 .binairo-cell.bad { background: color-mix(in srgb, var(--coral) 24%, var(--surface)); }
+
+/* ---- 15-puzzle ---- */
+.slide {
+  display: grid;
+  grid-template-columns: repeat(var(--n), 1fr);
+  gap: 6px;
+  max-width: 360px;
+  margin: 0 auto;
+}
+.slide-tile {
+  aspect-ratio: 1;
+  border: var(--outline);
+  border-radius: var(--radius-s);
+  background: var(--surface-2);
+  color: var(--text);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1.1rem, 6vw, 1.7rem);
+}
+.slide-tile.blank { background: transparent; border-style: dashed; cursor: default; }
+.slide-tile.movable { background: var(--gold); color: var(--text-on-light); cursor: pointer; }
+
+/* ---- Futoshiki ---- */
+.fut {
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
+  margin: 0 auto;
+}
+.fut-cell {
+  width: clamp(38px, 12vw, 54px);
+  aspect-ratio: 1;
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-s);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+.fut-cell.given { background: var(--surface-2); }
+.fut-cell.sel { background: color-mix(in srgb, var(--gold) 40%, var(--surface)); color: var(--text-on-light); }
+.fut-cell.bad { background: color-mix(in srgb, var(--coral) 24%, var(--surface)); color: var(--coral); }
+.fut-sign {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.2rem;
+  color: var(--violet);
+  min-width: 14px;
+  min-height: 14px;
+}

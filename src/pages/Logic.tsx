@@ -4,13 +4,17 @@ import { Mastermind } from "../logic/ui/Mastermind";
 import { Nonogram } from "../logic/ui/Nonogram";
 import { LightsOut } from "../logic/ui/LightsOut";
 import { Binairo } from "../logic/ui/Binairo";
+import { Futoshiki } from "../logic/ui/Futoshiki";
+import { SlidePuzzle } from "../logic/ui/SlidePuzzle";
 import "../logic/ui/Logic.css";
 
 const PUZZLES = [
   { id: "sudoku", name: "Sudoku", icon: "🔢", blurb: "Fill the 9×9 so every row, column, and box holds 1–9. Unique solution, always." },
+  { id: "futoshiki", name: "Futoshiki", icon: "⟨⟩", blurb: "A 5×5 Latin square that also obeys the greater-than signs between cells." },
   { id: "nonogram", name: "Nonogram", icon: "🖼", blurb: "Reveal the hidden picture from the row and column run clues." },
   { id: "binairo", name: "Binairo", icon: "⚫", blurb: "Fill 0s and 1s: no three in a row, balanced lines, all rows unique." },
   { id: "lightsout", name: "Lights Out", icon: "💡", blurb: "Tap to toggle crosses of lights — turn the whole board off." },
+  { id: "slide", name: "15-Puzzle", icon: "🧩", blurb: "Slide the tiles through the gap to put them back in order." },
   { id: "mastermind", name: "Mastermind", icon: "🎯", blurb: "Crack the hidden 4-colour code from the black/white peg clues." },
 ];
 
@@ -22,9 +26,11 @@ export function Logic() {
     return (
       <div className="page">
         {id === "sudoku" && <Sudoku onExit={exit} />}
+        {id === "futoshiki" && <Futoshiki onExit={exit} />}
         {id === "nonogram" && <Nonogram onExit={exit} />}
         {id === "binairo" && <Binairo onExit={exit} />}
         {id === "lightsout" && <LightsOut onExit={exit} />}
+        {id === "slide" && <SlidePuzzle onExit={exit} />}
         {id === "mastermind" && <Mastermind onExit={exit} />}
       </div>
     );

@@ -5,6 +5,8 @@ import { feedback, makeSecret, allCodes, consistentGuess, CODE_LENGTH } from "..
 import { generate as nonoGen, satisfies, lineClues } from "../src/logic/nonogram.ts";
 import { generate as lightsGen, toggle as lightsToggle, isSolved as lightsSolved } from "../src/logic/lightsout.ts";
 import { generate as binGen, countSolutions as binCount, solve as binSolveMaybe, isValid as binValid, conflicts as binConflicts } from "../src/logic/binairo.ts";
+import { initSlide, slide, neighbors, isSolved as slideSolved, isSolvable, solvedTiles } from "../src/logic/slide.ts";
+import { generate as futGen, countSolutions as futCount, solve as futSolve, conflicts as futConflicts } from "../src/logic/futoshiki.ts";
 
 let problems = 0;
 let checks = 0;
@@ -95,6 +97,44 @@ for (const seed of SEEDS) {
   const g = new Array(36).fill(-1);
   g[0] = 1; g[1] = 1; g[2] = 1;
   check(binConflicts(g, 6)[0] && binConflicts(g, 6)[2], "binairo: three-in-a-row flagged");
+}
+
+console.log("\n15-puzzle:");
+for (const seed of SEEDS) {
+  const s = initSlide(seed, 4, 120);
+  const sorted = s.tiles.slice().sort((a, b) => a - b);
+  check(sorted.join() === [...Array(16).keys()].join(), `slide ${seed}: tiles are a permutation of 0..15`);
+  check(isSolvable(s.tiles, 4), `slide ${seed}: scramble is solvable`);
+  check(!slideSolved(s), `slide ${seed}: starts unsolved`);
+  check(s.tiles[s.blank] === 0, `slide ${seed}: blank index is consistent`);
+  // sliding a neighbour then sliding back returns the original
+  const n0 = neighbors(s.blank, 4)[0];
+  const there = slide(s, n0);
+  const back = slide(there, s.blank);
+  check(back.tiles.join() === s.tiles.join(), `slide ${seed}: a slide and its reverse cancel`);
+}
+{
+  const goal = { size: 4, tiles: solvedTiles(4), blank: 15, moves: 0 };
+  check(slideSolved(goal), "slide: the ordered arrangement is solved");
+}
+
+console.log("\nFutoshiki:");
+for (const seed of SEEDS) {
+  const { puzzle, solution, givens, constraints, size } = futGen(seed, 5);
+  // solution is a Latin square
+  let latin = true;
+  for (let r = 0; r < size; r++) {
+    const rs = new Set(), cs = new Set();
+    for (let c = 0; c < size; c++) { rs.add(solution[r * size + c]); cs.add(solution[c * size + r]); }
+    if (rs.size !== size || cs.size !== size) latin = false;
+  }
+  check(latin, `futoshiki ${seed}: solution is a Latin square`);
+  check(constraints.every((k) => solution[k.a] < solution[k.b]), `futoshiki ${seed}: constraints hold for the solution`);
+  check(futCount(puzzle, size, constraints, 2) === 1, `futoshiki ${seed}: puzzle has a unique solution`);
+  const solved = futSolve(puzzle, size, constraints);
+  check(solved !== null && solved.join() === solution.join(), `futoshiki ${seed}: solver recovers the solution`);
+  check(givens.every((g, i) => g === (puzzle[i] !== 0)), `futoshiki ${seed}: givens mark clues`);
+  check(futConflicts(puzzle, size, constraints).every((b) => !b), `futoshiki ${seed}: fresh puzzle has no conflicts`);
 }
 
 console.log(`\n[validate-logic] checks=${checks} problems=${problems}`);
