@@ -67,6 +67,8 @@ export const reversi: GameDefinition<ReversiState> = {
   blurb: "Outflank your opponent to flip their discs. Own the board by the end.",
   players: ["Black", "White"],
   geometry: { kind: "grid", cols: N, rows: N },
+  pieceShape: "disc",
+  pieceColors: ["#2a2540", "#f1e7d2"],
   interaction: "place",
   rules:
     "Place a disc so it traps one or more of your opponent's discs in a straight line between the new disc and another of yours — every trapped disc flips to your colour. No legal move? You pass automatically. Most discs when neither side can move wins.",

@@ -72,6 +72,8 @@ export const connectFour: GameDefinition<C4State> = {
   blurb: "Drop discs and connect four in a row before your rival does.",
   players: ["Red", "Yellow"],
   geometry: { kind: "grid", cols: COLS, rows: ROWS, dropColumns: true },
+  pieceShape: "disc",
+  pieceColors: ["#ff5a4d", "#ffd23f"],
   interaction: "place",
   rules:
     "Pick a column — your disc falls to the lowest open slot. Connect four of your colour in a line (horizontal, vertical, or diagonal) to win. Fill the grid with no four for a draw.",

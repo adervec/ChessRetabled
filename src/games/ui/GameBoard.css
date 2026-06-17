@@ -1,164 +1,230 @@
-/* Generic cel-shaded board for the combinatorial-games suite. */
+/* 2.5D cel-shaded board for the combinatorial-games suite — same visual
+   language as the chess board (tilt, extruded slab, standing pieces that
+   counter-rotate, gliding move animation). */
 
-.gb-grid {
+.gboard-scene {
+  --tilt: 44deg;
   width: 100%;
-  max-width: var(--board-max, 560px);
+  max-width: var(--board-max, 540px);
   margin: 0 auto;
-  display: grid;
-  gap: 0;
-  container-type: inline-size;
-  border: var(--outline-w) solid var(--ink);
-  border-radius: var(--radius-m);
-  overflow: hidden;
-  box-shadow: var(--shadow-sticker), var(--shadow-drop);
-  background: var(--surface);
-  touch-action: manipulation;
+  perspective: 1300px;
+  perspective-origin: 50% 34%;
+  padding-top: 9%;
+  box-sizing: content-box;
+}
+.gboard-scene.flat {
+  --tilt: 0deg;
+  padding-top: 0;
 }
 
-.gb-cell {
+.gboard3d {
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 100%;
+  transform-style: preserve-3d;
+  transform: rotateX(var(--tilt));
+  transition: transform 0.5s var(--ease-out);
+}
+
+.gboard3d__slab {
+  position: absolute;
+  inset: -14px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, var(--board-frame-edge), var(--board-frame));
+  border: var(--outline);
+  box-shadow: 0 24px 0 -2px var(--ink), 0 40px 60px -20px rgba(0, 0, 0, 0.7);
+  transform: translateZ(-16px);
+}
+.gboard3d__frame {
+  position: absolute;
+  inset: -10px;
+  border-radius: 14px;
+  border: var(--outline);
+  background: var(--board-frame);
+}
+.gboard3d__grid {
+  position: relative;
+  display: grid;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 2px solid var(--ink);
+  aspect-ratio: inherit;
+}
+
+.gcell {
+  position: relative;
   border: 0;
   padding: 0;
   margin: 0;
   background: var(--surface-2);
+  aspect-ratio: 1;
   cursor: default;
-  font-family: inherit;
 }
-.gb-cell:not(:disabled) {
+.gboard-scene .gcell:not(:disabled) {
   cursor: pointer;
 }
-.gb-cell.is-void {
-  cursor: default;
-}
-
-.gb-piece__glyph {
-  font-size: calc(72cqw / var(--cols));
-  line-height: 1;
-  filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.35));
-  user-select: none;
-}
-.gb-piece {
-  position: relative;
-  display: inline-flex;
-  animation: gb-pop 160ms var(--ease-pop);
-}
-.gb-piece__crown {
+.gcell__hl {
   position: absolute;
   inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(34cqw / var(--cols));
-  color: var(--gold);
-  text-shadow: 0 1px 0 var(--ink), 0 0 3px var(--ink);
   pointer-events: none;
 }
-
-@keyframes gb-pop {
-  from { transform: scale(0.4); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+.gcell.last .gcell__hl {
+  background: var(--sq-highlight);
+  opacity: 0.4;
+}
+.gcell.sel .gcell__hl {
+  box-shadow: inset 0 0 0 4px var(--gold);
+  background: rgba(255, 226, 122, 0.25);
+}
+.gcell.removal .gcell__hl {
+  box-shadow: inset 0 0 0 4px var(--coral);
 }
 
-.gb-dot {
-  width: calc(26cqw / var(--cols));
-  height: calc(26cqw / var(--cols));
-  border-radius: 50%;
-  background: var(--mint);
-  border: 2px solid var(--ink);
-  opacity: 0.85;
-}
+/* checkered (checkers) */
+.gcell.light { background: var(--sq-light); }
+.gcell.dark { background: var(--sq-dark); }
+.gcell.void { background: var(--sq-light); }
 
-.gb-cell.is-selected {
-  outline: calc(8cqw / var(--cols)) solid var(--gold);
-  outline-offset: calc(-8cqw / var(--cols));
-  z-index: 2;
-}
-.gb-cell.is-last {
-  box-shadow: inset 0 0 0 calc(6cqw / var(--cols)) var(--sq-highlight);
-}
-.gb-cell.is-removal {
-  box-shadow: inset 0 0 0 calc(8cqw / var(--cols)) var(--coral);
-}
-
-/* ---- Checkered boards (checkers) ---- */
-.gb-cell.is-light { background: var(--sq-light); }
-.gb-cell.is-dark { background: var(--sq-dark); }
-.gb-cell.is-void { background: var(--sq-light); }
-
-/* ---- Tic-Tac-Toe ---- */
-.gb--tic-tac-toe { background: var(--paper); }
-.gb--tic-tac-toe .gb-cell {
-  background: var(--paper);
-  border: 2px solid var(--ink);
-}
-.gb--tic-tac-toe .gb-piece__glyph { color: var(--ink); }
-
-/* ---- Connect Four ---- */
-.gb--connect-four { background: var(--sky-dark); }
-.gb--connect-four .gb-cell {
-  background: var(--sky-dark);
-}
-.gb--connect-four .gb-cell::after {
+/* per-game board surfaces */
+.gb--connect-four .gcell { background: var(--sky-dark); }
+.gb--connect-four .gcell::after {
   content: "";
   position: absolute;
-  width: 76%;
-  height: 76%;
+  inset: 12%;
   border-radius: 50%;
   background: var(--bg-1);
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
 }
-.gb--connect-four .gb-piece,
-.gb--connect-four .gb-dot { position: relative; z-index: 1; }
+.gb--reversi .gcell { background: #2f9e74; border: 1px solid rgba(0, 0, 0, 0.35); }
+.gb--gomoku .gcell { background: #e8b75a; border: 1px solid rgba(90, 50, 0, 0.4); }
+.gb--tic-tac-toe .gcell { background: var(--paper); border: 2px solid var(--ink); }
 
-/* ---- Reversi ---- */
-.gb--reversi { background: var(--mint-dark); }
-.gb--reversi .gb-cell {
-  background: #2f9e74;
-  border: 1px solid rgba(0, 0, 0, 0.4);
+/* ---- pieces ---- */
+.gpieces {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  pointer-events: none;
+}
+.gpiece {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--cell);
+  height: var(--cell);
+  transform-style: preserve-3d;
+  transform: translate(var(--tx), var(--ty));
+  transition: transform var(--anim-dur, 280ms) var(--ease-out);
+}
+.gpiece__shadow {
+  position: absolute;
+  left: 50%;
+  top: 62%;
+  width: 70%;
+  height: 24%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0.22) 50%, transparent 72%);
+  border-radius: 50%;
+}
+.gpiece__sprite {
+  position: absolute;
+  left: 50%;
+  bottom: 26%;
+  width: 88%;
+  height: 120%;
+  transform: translateX(-50%) rotateX(calc(var(--tilt) * -1));
+  transform-origin: bottom center;
+  animation: gpiece-pop var(--anim-dur, 280ms) var(--ease-pop);
+}
+@keyframes gpiece-pop {
+  0% { transform: translateX(-50%) rotateX(calc(var(--tilt) * -1)) scale(0.6); opacity: 0.4; }
+  100% { transform: translateX(-50%) rotateX(calc(var(--tilt) * -1)) scale(1); opacity: 1; }
 }
 
-/* ---- Gomoku ---- */
-.gb--gomoku { background: #d9a441; }
-.gb--gomoku .gb-cell {
-  background: #e8b75a;
-  border: 1px solid rgba(90, 50, 0, 0.45);
+/* ---- targets ---- */
+.gtargets {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  pointer-events: none;
+}
+.gtarget {
+  position: absolute;
+  width: var(--cell);
+  height: var(--cell);
+  display: grid;
+  place-items: center;
+  pointer-events: auto;
+  cursor: pointer;
+  transform: translate(var(--tx), var(--ty)) translateZ(2px);
+}
+.gtarget__dot {
+  width: 34%;
+  height: 34%;
+  border-radius: 50%;
+  background: rgba(68, 224, 164, 0.7);
+  border: 3px solid rgba(26, 19, 48, 0.8);
+  transition: transform 0.12s var(--ease-pop);
+}
+.gtarget:hover .gtarget__dot {
+  transform: scale(1.2);
 }
 
-/* ---- Points board (Nine Men's Morris) ---- */
-.gb-points {
+/* ---- points board (Nine Men's Morris) ---- */
+.gpoints {
   width: 100%;
-  max-width: var(--board-max, 560px);
+  max-width: var(--board-max, 540px);
   margin: 0 auto;
   aspect-ratio: 1 / 1;
   background: #e8b75a;
-  border: var(--outline-w) solid var(--ink);
+  border: var(--outline);
   border-radius: var(--radius-m);
   box-shadow: var(--shadow-sticker), var(--shadow-drop);
   padding: 4%;
 }
-.gb-svg { width: 100%; height: 100%; display: block; }
+.gpoints__svg { width: 100%; height: 100%; display: block; }
+.gpoints__edges line { stroke: var(--ink); stroke-width: 6; stroke-linecap: round; }
+.gpoints__base { fill: var(--ink); }
+.gpoints__dot { fill: var(--mint); stroke: var(--ink); stroke-width: 3; }
+.gpoints__sel { fill: none; stroke: var(--gold); stroke-width: 6; }
+.gpoints__hit { fill: transparent; cursor: pointer; }
+.gpoints__token circle { transition: cx var(--anim-dur, 280ms) var(--ease-out), cy var(--anim-dur, 280ms) var(--ease-out); }
+.gpoints__token.removal { animation: gpoints-pulse 0.9s infinite; }
+@keyframes gpoints-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-.gb-edges line {
-  stroke: var(--ink);
-  stroke-width: 6;
-  stroke-linecap: round;
+/* ---- graveyard / stockpile ---- */
+.ggrave {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 16px;
 }
-.gb-node__base { fill: var(--ink); }
-.gb-node__hit { fill: transparent; cursor: default; }
-.gb-node__hit.is-clickable,
-.gb-points .is-clickable { cursor: pointer; }
-
-.gb-node.is-p0 { fill: var(--sky); stroke: var(--ink); stroke-width: 5; }
-.gb-node.is-p1 { fill: var(--coral); stroke: var(--ink); stroke-width: 5; }
-.gb-node.is-selected { stroke: var(--gold); stroke-width: 9; }
-.gb-node.is-removal { stroke: var(--coral); stroke-width: 9; animation: gb-pulse 0.9s infinite; }
-.gb-node.is-last { stroke: var(--gold); stroke-width: 7; }
-.gb-node__dot { fill: var(--mint); stroke: var(--ink); stroke-width: 3; }
-
-@keyframes gb-pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+.ggrave__tray {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface);
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-pill);
+  padding: 4px 12px;
+}
+.ggrave__label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.ggrave__pieces {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+.ggrave__piece {
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  animation: ggrave-in 0.3s var(--ease-pop);
+}
+@keyframes ggrave-in {
+  from { transform: scale(0) translateY(-8px); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }

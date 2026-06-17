@@ -90,6 +90,8 @@ export const gomoku: GameDefinition<GomokuState> = {
   blurb: "Five stones in an unbroken row on a 15×15 grid. Simple, deep, ruthless.",
   players: ["Black", "White"],
   geometry: { kind: "grid", cols: N, rows: N },
+  pieceShape: "stone",
+  pieceColors: ["#1f1a33", "#f1e7d2"],
   interaction: "place",
   rules:
     "Place a stone on any empty point. The first player to get five of their stones in an unbroken row — horizontally, vertically, or diagonally — wins.",

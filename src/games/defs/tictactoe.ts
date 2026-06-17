@@ -29,6 +29,8 @@ export const ticTacToe: GameDefinition<TttState> = {
   blurb: "Three in a row on a 3×3 grid. The friendly classic.",
   players: ["Crosses", "Noughts"],
   geometry: { kind: "grid", cols: 3, rows: 3 },
+  pieceShape: "mark",
+  pieceColors: ["#ff6b4a", "#4fc3ff"],
   interaction: "place",
   rules:
     "Take turns placing your mark. First to line up three in a row — across, down, or diagonally — wins. Fill the board with no line for a draw.",

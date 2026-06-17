@@ -114,6 +114,8 @@ export const checkers: GameDefinition<CheckersState> = {
   blurb: "English draughts: jump to capture, crown your men, and trap the enemy.",
   players: ["Red", "White"],
   geometry: { kind: "grid", cols: N, rows: N, checkered: true, darkOnly: true },
+  pieceShape: "disc",
+  pieceColors: ["#d8442a", "#f1e7d2"],
   interaction: "select",
   rules:
     "Move diagonally forward onto a dark square. Jump an adjacent enemy to capture it — captures are forced, and you must keep jumping with the same piece while you can. Reach the far row to crown a King, which moves and jumps in all four directions. Capture every enemy piece, or leave your opponent with no move, to win.",

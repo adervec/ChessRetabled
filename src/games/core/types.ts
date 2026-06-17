@@ -102,6 +102,10 @@ export interface GameDefinition<S = unknown> {
   players: [string, string];
 
   geometry: BoardGeometry;
+  /** Visual style of a piece for the 2.5D renderer. */
+  pieceShape: "disc" | "stone" | "mark";
+  /** Base colour per player (0, 1); the renderer derives cel shades from these. */
+  pieceColors: [string, string];
   /** "place": click a target cell. "select": click a piece, then its destination. */
   interaction: "place" | "select";
   /**

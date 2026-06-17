@@ -8,19 +8,29 @@ import type {
   GameStatus,
   Player,
 } from "../core/types";
+import { useSettings, aiThinkFloorMs } from "../../state/useSettings";
+
+/** A rendered piece with a stable id so it animates across moves (no teleport). */
+export interface Token {
+  id: string;
+  cell: number;
+  owner: Player;
+  crowned?: boolean;
+}
 
 export interface GenericGame<S> {
   def: GameDefinition<S>;
   state: S;
   cells: (CellView | null)[];
+  /** Placed pieces with stable ids — drive the animated 2.5D renderer. */
+  tokens: Token[];
+  /** Captured/removed pieces, accumulated for the side graveyard. */
+  graveyard: Token[];
   status: GameStatus;
-  /** Highlighted destination/placement dots the human can click right now. */
   targets: number[];
-  /** Currently selected origin cell (select-interaction games). */
   selected: number | null;
-  /** Enemy cells awaiting a capture pick after a mill (Nine Men's Morris). */
   removalTargets: number[];
-  /** Cells touched by the last move, for highlighting. */
+  lastMove: GameMove | null;
   lastMoveCells: number[];
   thinking: boolean;
   isHumanTurn: boolean;
@@ -30,7 +40,14 @@ export interface GenericGame<S> {
   canUndo: boolean;
 }
 
-function cellsFor(m: GameMove): number[] {
+interface Snapshot<S> {
+  state: S;
+  tokens: Token[];
+  graveyard: Token[];
+  lastMove: GameMove | null;
+}
+
+function moveCells(m: GameMove): number[] {
   const out: number[] = [];
   if (m.from !== undefined) out.push(m.from);
   out.push(m.to);
@@ -40,18 +57,97 @@ function cellsFor(m: GameMove): number[] {
   return out;
 }
 
+/** Diff prev tokens against the post-move cells to keep stable ids across a move. */
+function reconcile(
+  prevTokens: Token[],
+  m: GameMove,
+  newCells: (CellView | null)[],
+  nextId: () => string
+): { tokens: Token[]; captured: Token[] } {
+  const prevByCell = new Map(prevTokens.map((t) => [t.cell, t]));
+  const out = new Map<number, Token>();
+  const captured: Token[] = [];
+  const consumed = new Set<number>();
+
+  // moving piece keeps its id
+  if (m.from !== undefined && prevByCell.has(m.from)) {
+    const t = prevByCell.get(m.from)!;
+    const nc = newCells[m.to];
+    if (nc) out.set(m.to, { ...t, cell: m.to, owner: nc.owner, crowned: nc.crowned });
+    consumed.add(m.from);
+  } else if (m.from === undefined) {
+    const nc = newCells[m.to];
+    if (nc) out.set(m.to, { id: nextId(), cell: m.to, owner: nc.owner, crowned: nc.crowned });
+  }
+
+  // removals that are now empty -> graveyard
+  const removals = [...(m.affected ?? [])];
+  if (m.remove !== undefined) removals.push(m.remove);
+  for (const c of removals) {
+    if (newCells[c] === null && prevByCell.has(c) && !consumed.has(c)) {
+      captured.push(prevByCell.get(c)!);
+      consumed.add(c);
+    }
+  }
+
+  // affected cells still occupied -> a flip (reversi): keep id, change owner
+  for (const c of m.affected ?? []) {
+    if (newCells[c] !== null && prevByCell.has(c) && !consumed.has(c) && !out.has(c)) {
+      const t = prevByCell.get(c)!;
+      out.set(c, { ...t, owner: newCells[c]!.owner, crowned: newCells[c]!.crowned });
+      consumed.add(c);
+    }
+  }
+
+  // carry over everything unchanged
+  for (const t of prevTokens) {
+    if (consumed.has(t.cell) || out.has(t.cell)) continue;
+    const nc = newCells[t.cell];
+    if (nc !== null) out.set(t.cell, { ...t, owner: nc.owner, crowned: nc.crowned });
+    else captured.push(t);
+  }
+
+  // safety: any occupied cell not yet represented becomes a fresh token
+  for (let i = 0; i < newCells.length; i++) {
+    if (newCells[i] !== null && !out.has(i)) {
+      out.set(i, { id: nextId(), cell: i, owner: newCells[i]!.owner, crowned: newCells[i]!.crowned });
+    }
+  }
+
+  return { tokens: [...out.values()], captured };
+}
+
 export function useGenericGame<S>(
   def: GameDefinition<S>,
   humanPlayer: Player,
   difficulty: Difficulty
 ): GenericGame<S> {
+  const idRef = useRef(0);
+  const nextId = useCallback(() => `t${idRef.current++}`, []);
+
+  const buildTokens = useCallback(
+    (cells: (CellView | null)[]): Token[] => {
+      const out: Token[] = [];
+      for (let i = 0; i < cells.length; i++) {
+        const c = cells[i];
+        if (c) out.push({ id: nextId(), cell: i, owner: c.owner, crowned: c.crowned });
+      }
+      return out;
+    },
+    [nextId]
+  );
+
   const [state, setState] = useState<S>(() => def.initial());
-  const [history, setHistory] = useState<S[]>([]);
+  const [tokens, setTokens] = useState<Token[]>(() => buildTokens(def.cells(def.initial())));
+  const [graveyard, setGraveyard] = useState<Token[]>([]);
+  const [history, setHistory] = useState<Snapshot<S>[]>([]);
   const [selected, setSelected] = useState<number | null>(null);
-  const [pending, setPending] = useState<GameMove[] | null>(null); // removal choices
+  const [pending, setPending] = useState<GameMove[] | null>(null);
   const [lastMove, setLastMove] = useState<GameMove | null>(null);
   const [thinking, setThinking] = useState(false);
   const aiToken = useRef(0);
+
+  const animSpeed = useSettings((s) => s.animSpeed);
 
   const status = useMemo(() => def.status(state), [def, state]);
   const legal = useMemo(() => def.legalMoves(state), [def, state]);
@@ -63,35 +159,49 @@ export function useGenericGame<S>(
 
   const isHumanTurn = !status.over && def.currentPlayer(state) === humanPlayer && !thinking;
 
-  const apply = useCallback(
-    (m: GameMove) => {
-      setHistory((h) => [...h, state]);
-      setState(def.applyMove(state, m));
+  const commit = useCallback(
+    (m: GameMove, fromState: S, fromTokens: Token[], fromGrave: Token[]) => {
+      const newState = def.applyMove(fromState, m);
+      const rec = reconcile(fromTokens, m, def.cells(newState), nextId);
+      setHistory((h) => [...h, { state: fromState, tokens: fromTokens, graveyard: fromGrave, lastMove }]);
+      setState(newState);
+      setTokens(rec.tokens);
+      setGraveyard([...fromGrave, ...rec.captured]);
       setLastMove(m);
       setSelected(null);
       setPending(null);
     },
-    [def, state]
+    [def, nextId, lastMove]
   );
 
-  // Drive the AI whenever it is its turn.
+  const apply = useCallback(
+    (m: GameMove) => commit(m, state, tokens, graveyard),
+    [commit, state, tokens, graveyard]
+  );
+
+  // Drive the AI; never reply instantly — wait at least one animation.
   useEffect(() => {
     if (status.over) return;
     if (def.currentPlayer(state) === humanPlayer) return;
     const token = ++aiToken.current;
     setThinking(true);
-    const timer = setTimeout(() => {
+    const floor = aiThinkFloorMs(animSpeed);
+    let moveTimer: ReturnType<typeof setTimeout> | undefined;
+    const startTimer = setTimeout(() => {
+      const t0 = Date.now();
       const choice = chooseMove(def, state, difficulty);
-      if (token !== aiToken.current) return; // superseded (undo / new game)
-      setThinking(false);
-      if (choice.move) {
-        setHistory((h) => [...h, state]);
-        setState(def.applyMove(state, choice.move));
-        setLastMove(choice.move);
-      }
-    }, 40);
-    return () => clearTimeout(timer);
-  }, [def, state, humanPlayer, difficulty, status.over]);
+      const wait = Math.max(0, floor - (Date.now() - t0));
+      moveTimer = setTimeout(() => {
+        if (token !== aiToken.current) return;
+        setThinking(false);
+        if (choice.move) commit(choice.move, state, tokens, graveyard);
+      }, wait);
+    }, 30);
+    return () => {
+      clearTimeout(startTimer);
+      if (moveTimer) clearTimeout(moveTimer);
+    };
+  }, [def, state, humanPlayer, difficulty, status.over, animSpeed, commit, tokens, graveyard]);
 
   const targets = useMemo(() => {
     if (!isHumanTurn) return [];
@@ -111,14 +221,11 @@ export function useGenericGame<S>(
   const onCellClick = useCallback(
     (index: number) => {
       if (!isHumanTurn) return;
-
-      // Resolving a capture choice after forming a mill.
       if (pending) {
         const m = pending.find((x) => x.remove === index);
         if (m) apply(m);
         return;
       }
-
       const geo = def.geometry;
       const isDrop = geo.kind === "grid" && geo.dropColumns === true;
 
@@ -132,11 +239,10 @@ export function useGenericGame<S>(
         }
         if (matches.length === 0) return;
         if (matches.length === 1) apply(matches[0]);
-        else setPending(matches); // multiple => differ by removal target
+        else setPending(matches);
         return;
       }
 
-      // select interaction
       const ownMove = legal.find((m) => m.from === index);
       if (selected === null) {
         if (ownMove) setSelected(index);
@@ -144,7 +250,6 @@ export function useGenericGame<S>(
       }
       const matches = legal.filter((m) => m.from === selected && m.to === index);
       if (matches.length === 0) {
-        // clicked elsewhere — reselect another own piece or clear
         setSelected(ownMove ? index : null);
         return;
       }
@@ -156,37 +261,38 @@ export function useGenericGame<S>(
 
   const undo = useCallback(() => {
     if (thinking) return;
-    aiToken.current++; // cancel any in-flight AI move
+    aiToken.current++;
     setThinking(false);
     setSelected(null);
     setPending(null);
-    setLastMove(null);
     setHistory((h) => {
       if (h.length === 0) return h;
       const copy = h.slice();
-      let target = copy.pop()!;
-      // rewind to the most recent human decision point
-      while (copy.length > 0 && def.currentPlayer(target) !== humanPlayer) {
-        target = copy.pop()!;
+      let snap = copy.pop()!;
+      while (copy.length > 0 && def.currentPlayer(snap.state) !== humanPlayer) {
+        snap = copy.pop()!;
       }
-      setState(target);
+      setState(snap.state);
+      setTokens(snap.tokens);
+      setGraveyard(snap.graveyard);
+      setLastMove(snap.lastMove);
       return copy;
     });
   }, [thinking, def, humanPlayer]);
 
-  const lastMoveCells = useMemo(
-    () => (lastMove ? cellsFor(lastMove) : []),
-    [lastMove]
-  );
+  const lastMoveCells = useMemo(() => (lastMove ? moveCells(lastMove) : []), [lastMove]);
 
   return {
     def,
     state,
     cells,
+    tokens,
+    graveyard,
     status,
     targets,
     selected,
     removalTargets,
+    lastMove,
     lastMoveCells,
     thinking,
     isHumanTurn,

@@ -121,6 +121,8 @@ export const nineMensMorris: GameDefinition<MorrisState> = {
   blurb: "Form mills to capture. An ancient game of lines and traps.",
   players: ["Blue", "Orange"],
   geometry: { kind: "points", width: 600, height: 600, points: POINTS, edges: EDGES },
+  pieceShape: "disc",
+  pieceColors: ["#4fc3ff", "#ff8a3d"],
   interaction: "place",
   interactionFor: (s) => (s.placed[s.turn] < MEN ? "place" : "select"),
   rules:
