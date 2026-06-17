@@ -86,4 +86,66 @@
   /* ---- Motion ---- */
   --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Move-animation duration, overridden at runtime from settings (App.tsx). */
+  --anim-dur: 300ms;
+}
+
+/*
+ * Pastel theme — a soft, light counterpart to the default dusk palette. Only the
+ * color tokens are overridden; every component reads them through the variables
+ * above, so the whole app (and all game boards) re-themes from this one block.
+ */
+:root[data-theme="pastel"] {
+  --ink: #4a3a63;
+  --ink-soft: #6a577f;
+  --paper: #fffaf3;
+
+  --bg-0: #fbeef2;
+  --bg-1: #f3e9fb;
+  --bg-2: #eef1fc;
+  --bg-3: #e7f6f0;
+  --bg-grad-top: #f6edfb;
+  --bg-grad-bottom: #fdeef3;
+
+  --surface: #ffffff;
+  --surface-2: #f6f1fb;
+  --surface-raised: #ffffff;
+
+  --coral: #ff9a8b;
+  --coral-dark: #f4715f;
+  --gold: #ffcf7a;
+  --gold-dark: #eaa94a;
+  --mint: #7ad6b0;
+  --mint-dark: #46b88c;
+  --violet: #b8a6ff;
+  --violet-dark: #8e76e6;
+  --sky: #8ecdf5;
+  --sky-dark: #4ea7e0;
+  --rose: #ff9ec2;
+  --rose-dark: #ef6fa0;
+
+  --good: var(--mint);
+  --good-dark: var(--mint-dark);
+  --bad: var(--coral);
+  --bad-dark: var(--coral-dark);
+
+  --sq-light: #f6e7c9;
+  --sq-light-shade: #ecd6ad;
+  --sq-dark: #b7d7c9;
+  --sq-dark-shade: #9cc4b3;
+  --board-frame: #e6d7ee;
+  --board-frame-edge: #d7c2e6;
+  --sq-highlight: #ffe6a3;
+  --sq-check: #ff8f8f;
+
+  --text: #4a3a63;
+  --text-dim: #6f6088;
+  --text-muted: #9d8fb6;
+  --text-on-light: #4a3a63;
+
+  --shadow-sticker: 0 6px 0 0 rgba(74, 58, 99, 0.35);
+  --shadow-sticker-sm: 0 4px 0 0 rgba(74, 58, 99, 0.3);
+  --shadow-drop: 0 10px 24px -8px rgba(120, 90, 140, 0.35);
+  --shadow-pop: 0 14px 40px -10px rgba(120, 90, 140, 0.4);
 }

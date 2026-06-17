@@ -1,0 +1,63 @@
+.settings {
+  margin-top: 28px;
+  background: var(--surface);
+  border: var(--outline);
+  border-radius: var(--radius-l);
+  box-shadow: var(--shadow-sticker);
+  padding: 22px;
+}
+.settings__title {
+  font-family: var(--font-display);
+  margin: 0 0 16px;
+  color: var(--text);
+}
+.settings__group {
+  margin-bottom: 18px;
+}
+.settings__group h3 {
+  margin: 0 0 10px;
+  color: var(--text);
+  font-family: var(--font-display);
+}
+.settings__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.settings__hint {
+  margin-top: 8px;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+.theme-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px 8px 8px;
+  border: var(--outline);
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+  color: var(--text);
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.1s var(--ease-pop);
+}
+.theme-chip:hover {
+  transform: translateY(-2px);
+}
+.theme-chip.is-on {
+  background: var(--violet);
+  color: #fff;
+  box-shadow: var(--shadow-sticker-sm);
+}
+.theme-chip__swatches {
+  display: inline-flex;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  border: 2px solid var(--ink);
+}
+.theme-chip__swatches span {
+  width: 14px;
+  height: 22px;
+}

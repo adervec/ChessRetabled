@@ -2,6 +2,7 @@ import { useProgress, useLevel } from "../state/useProgress";
 import { COURSES, TOTAL_LESSONS } from "../content/lessons";
 import { DRILLS } from "../content/drills";
 import { PUZZLES } from "../content/puzzles";
+import { SettingsPanel } from "../components/ui/SettingsPanel";
 import "./Profile.css";
 
 export function Profile() {
@@ -109,6 +110,8 @@ export function Profile() {
           <div className="statcard__sub">{p.xp} XP earned</div>
         </div>
       </div>
+
+      <SettingsPanel />
 
       <div className="profile__danger">
         <button

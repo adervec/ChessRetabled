@@ -183,7 +183,7 @@
   height: var(--cell);
   transform-style: preserve-3d;
   transform: translate(var(--tx), var(--ty));
-  transition: transform 0.26s var(--ease-out);
+  transition: transform var(--anim-dur, 260ms) var(--ease-out);
 }
 .piece__shadow {
   position: absolute;

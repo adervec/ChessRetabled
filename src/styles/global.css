@@ -284,6 +284,27 @@ p {
   aspect-ratio: 1;
 }
 
+/* Pill toggle used across settings, game setup, etc. */
+.chip-btn {
+  padding: 10px 18px;
+  border: var(--outline);
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+  color: var(--text);
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.1s var(--ease-pop);
+}
+.chip-btn:hover {
+  transform: translateY(-2px);
+}
+.chip-btn.is-on {
+  background: var(--gold);
+  color: var(--text-on-light);
+  box-shadow: var(--shadow-sticker-sm);
+}
+
 /* ============================ Cards & panels ============================ */
 .card {
   position: relative;
