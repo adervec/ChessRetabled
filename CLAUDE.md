@@ -12,6 +12,8 @@ overview; this file captures the non-obvious decisions.
 - `node scripts/build-puzzles.mjs` — regenerate `src/content/puzzles.generated.json`.
 - `node scripts/validate-lessons.mjs` — validate interactive lesson moves.
   (Both scripts import the `.ts` content directly via Node 24 type-stripping.)
+- `node scripts/validate-games.mjs` — exercise the combinatorial-games suite
+  (rules, terminal detection, AI legality + tactics). Same `.ts`-import trick.
 
 ## The 2.5D board (`src/components/board/`)
 
@@ -75,6 +77,33 @@ overview; this file captures the non-obvious decisions.
   relative to the worker). **Don't hardcode root-absolute asset URLs** (`/foo`) —
   they skip the base prefix and 404 on Pages. Dev/`build` without `BASE_PATH`
   stay at `/`.
+
+## Combinatorial games (`src/games/`)
+
+A self-contained suite of perfect-information games (Checkers, Reversi, Connect
+Four, Gomoku, Nine Men's Morris, Tic-Tac-Toe) living **beside** the chess app,
+reachable at `/games` (the "Games" nav item → `pages/Arcade.tsx`).
+
+- **All original code, no new dependencies.** Nothing is pulled in for these
+  games, so the GPL-3.0 licensing story is unchanged — `THIRD-PARTY-NOTICES.md`
+  needs no additions. (This was the deliberate choice over bundling
+  Fairy-Stockfish/`ffish.js` etc.: those are GPL-compatible but would add a WASM
+  download; the self-written route keeps the static client-side build trivial.)
+- **One abstraction, many games.** `core/types.ts` defines `GameDefinition<S>`
+  (immutable state, `legalMoves`/`applyMove`/`status`/`evaluate`, render metadata).
+  `core/ai.ts` is a generic negamax + alpha-beta with iterative deepening and a
+  per-move time budget — the same shape as the chess `MinimaxEngine`, but
+  game-agnostic. Add a game = write one `defs/*.ts` and list it in `registry.ts`.
+- **Logic is `.ts`, UI is `.tsx`.** `defs/` + `core/` carry only data + pure
+  logic and cross-import with **explicit `.ts` extensions**, so
+  `scripts/validate-games.mjs` can import and test them headlessly under Node 24
+  type-stripping (JSX can't be stripped, so definitions never touch `.tsx`).
+- **Generic UI.** `ui/GameBoard.tsx` renders both geometries — `"grid"` (square
+  boards) and `"points"` (SVG node-and-line boards, e.g. Morris).
+  `ui/useGenericGame.ts` owns interaction: `"place"` vs `"select"` (per-turn via
+  `interactionFor`, since Morris alternates), plus a generic capture-pick step
+  driven by a move's optional `remove` field. The AI runs on the main thread
+  behind a `setTimeout` yield (like the chess fallback); time budgets are capped.
 
 ## Gotchas
 

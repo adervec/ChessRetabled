@@ -1,0 +1,164 @@
+/* Generic cel-shaded board for the combinatorial-games suite. */
+
+.gb-grid {
+  width: 100%;
+  max-width: var(--board-max, 560px);
+  margin: 0 auto;
+  display: grid;
+  gap: 0;
+  container-type: inline-size;
+  border: var(--outline-w) solid var(--ink);
+  border-radius: var(--radius-m);
+  overflow: hidden;
+  box-shadow: var(--shadow-sticker), var(--shadow-drop);
+  background: var(--surface);
+  touch-action: manipulation;
+}
+
+.gb-cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: var(--surface-2);
+  cursor: default;
+  font-family: inherit;
+}
+.gb-cell:not(:disabled) {
+  cursor: pointer;
+}
+.gb-cell.is-void {
+  cursor: default;
+}
+
+.gb-piece__glyph {
+  font-size: calc(72cqw / var(--cols));
+  line-height: 1;
+  filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.35));
+  user-select: none;
+}
+.gb-piece {
+  position: relative;
+  display: inline-flex;
+  animation: gb-pop 160ms var(--ease-pop);
+}
+.gb-piece__crown {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(34cqw / var(--cols));
+  color: var(--gold);
+  text-shadow: 0 1px 0 var(--ink), 0 0 3px var(--ink);
+  pointer-events: none;
+}
+
+@keyframes gb-pop {
+  from { transform: scale(0.4); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.gb-dot {
+  width: calc(26cqw / var(--cols));
+  height: calc(26cqw / var(--cols));
+  border-radius: 50%;
+  background: var(--mint);
+  border: 2px solid var(--ink);
+  opacity: 0.85;
+}
+
+.gb-cell.is-selected {
+  outline: calc(8cqw / var(--cols)) solid var(--gold);
+  outline-offset: calc(-8cqw / var(--cols));
+  z-index: 2;
+}
+.gb-cell.is-last {
+  box-shadow: inset 0 0 0 calc(6cqw / var(--cols)) var(--sq-highlight);
+}
+.gb-cell.is-removal {
+  box-shadow: inset 0 0 0 calc(8cqw / var(--cols)) var(--coral);
+}
+
+/* ---- Checkered boards (checkers) ---- */
+.gb-cell.is-light { background: var(--sq-light); }
+.gb-cell.is-dark { background: var(--sq-dark); }
+.gb-cell.is-void { background: var(--sq-light); }
+
+/* ---- Tic-Tac-Toe ---- */
+.gb--tic-tac-toe { background: var(--paper); }
+.gb--tic-tac-toe .gb-cell {
+  background: var(--paper);
+  border: 2px solid var(--ink);
+}
+.gb--tic-tac-toe .gb-piece__glyph { color: var(--ink); }
+
+/* ---- Connect Four ---- */
+.gb--connect-four { background: var(--sky-dark); }
+.gb--connect-four .gb-cell {
+  background: var(--sky-dark);
+}
+.gb--connect-four .gb-cell::after {
+  content: "";
+  position: absolute;
+  width: 76%;
+  height: 76%;
+  border-radius: 50%;
+  background: var(--bg-1);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+.gb--connect-four .gb-piece,
+.gb--connect-four .gb-dot { position: relative; z-index: 1; }
+
+/* ---- Reversi ---- */
+.gb--reversi { background: var(--mint-dark); }
+.gb--reversi .gb-cell {
+  background: #2f9e74;
+  border: 1px solid rgba(0, 0, 0, 0.4);
+}
+
+/* ---- Gomoku ---- */
+.gb--gomoku { background: #d9a441; }
+.gb--gomoku .gb-cell {
+  background: #e8b75a;
+  border: 1px solid rgba(90, 50, 0, 0.45);
+}
+
+/* ---- Points board (Nine Men's Morris) ---- */
+.gb-points {
+  width: 100%;
+  max-width: var(--board-max, 560px);
+  margin: 0 auto;
+  aspect-ratio: 1 / 1;
+  background: #e8b75a;
+  border: var(--outline-w) solid var(--ink);
+  border-radius: var(--radius-m);
+  box-shadow: var(--shadow-sticker), var(--shadow-drop);
+  padding: 4%;
+}
+.gb-svg { width: 100%; height: 100%; display: block; }
+
+.gb-edges line {
+  stroke: var(--ink);
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+.gb-node__base { fill: var(--ink); }
+.gb-node__hit { fill: transparent; cursor: default; }
+.gb-node__hit.is-clickable,
+.gb-points .is-clickable { cursor: pointer; }
+
+.gb-node.is-p0 { fill: var(--sky); stroke: var(--ink); stroke-width: 5; }
+.gb-node.is-p1 { fill: var(--coral); stroke: var(--ink); stroke-width: 5; }
+.gb-node.is-selected { stroke: var(--gold); stroke-width: 9; }
+.gb-node.is-removal { stroke: var(--coral); stroke-width: 9; animation: gb-pulse 0.9s infinite; }
+.gb-node.is-last { stroke: var(--gold); stroke-width: 7; }
+.gb-node__dot { fill: var(--mint); stroke: var(--ink); stroke-width: 3; }
+
+@keyframes gb-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}

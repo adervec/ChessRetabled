@@ -4,6 +4,7 @@ import { NavBar } from "./components/ui/NavBar";
 import { useProgress } from "./state/useProgress";
 import { Home } from "./pages/Home";
 import { Play } from "./pages/Play";
+import { Arcade } from "./pages/Arcade";
 import { Puzzles } from "./pages/Puzzles";
 import { Learn } from "./pages/Learn";
 import { LessonPlayer } from "./pages/LessonPlayer";
@@ -23,6 +24,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/play" element={<Play />} />
+          <Route path="/games" element={<Arcade />} />
           <Route path="/puzzles" element={<Puzzles />} />
           <Route path="/learn" element={<Learn />} />
           <Route path="/learn/:courseId/:lessonId" element={<LessonPlayer />} />

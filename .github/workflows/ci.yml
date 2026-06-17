@@ -37,6 +37,11 @@ jobs:
       - name: Validate lesson content
         run: node scripts/validate-lessons.mjs
 
+      # Exercises the combinatorial-games suite (rules, terminal detection, AI)
+      # headlessly via the same .ts type-stripping the content scripts use.
+      - name: Validate games suite
+        run: node scripts/validate-games.mjs
+
       # Puzzles are derived, not hand-typed: regenerate and fail if the committed
       # JSON drifts from what the generator produces (stale file or a hand-edit).
       - name: Verify generated puzzles are up to date

@@ -6,6 +6,7 @@ import "./NavBar.css";
 
 const LINKS = [
   { to: "/play", label: "Play", ico: "♟" },
+  { to: "/games", label: "Games", ico: "🎲" },
   { to: "/puzzles", label: "Puzzles", ico: "🧩" },
   { to: "/learn", label: "Learn", ico: "🎓" },
   { to: "/practice", label: "Practice", ico: "🎯" },
