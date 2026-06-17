@@ -104,3 +104,80 @@
   transition: transform 0.1s var(--ease-pop);
 }
 .mm-swatch:hover { transform: translateY(-3px); }
+
+/* ---- Nonogram ---- */
+.nono {
+  display: grid;
+  grid-template-columns: auto repeat(var(--n), 1fr);
+  max-width: 520px;
+  margin: 0 auto;
+  gap: 0;
+}
+.nono-corner { background: transparent; }
+.nono-colclue, .nono-rowclue {
+  display: flex;
+  gap: 3px;
+  font-weight: 800;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+.nono-colclue { flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 4px; }
+.nono-rowclue { flex-direction: row; align-items: center; justify-content: flex-end; padding-right: 6px; }
+.nono-cell {
+  aspect-ratio: 1;
+  border: 1px solid color-mix(in srgb, var(--ink) 20%, transparent);
+  background: var(--surface);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text-muted); font-size: 0.7rem;
+}
+.nono-cell.fill { background: var(--ink); }
+.nono-cell.block-l { border-left: 2px solid var(--ink); }
+.nono-cell.block-t { border-top: 2px solid var(--ink); }
+
+/* ---- Lights Out ---- */
+.lights {
+  display: grid;
+  grid-template-columns: repeat(var(--n), 1fr);
+  gap: 8px;
+  max-width: 340px;
+  margin: 0 auto;
+}
+.lights-cell {
+  aspect-ratio: 1;
+  border: var(--outline);
+  border-radius: var(--radius-s);
+  background: var(--surface-2);
+  cursor: pointer;
+  transition: background 0.12s, box-shadow 0.12s;
+}
+.lights-cell.on {
+  background: var(--gold);
+  box-shadow: 0 0 16px var(--gold), inset 0 0 0 2px var(--gold-dark);
+}
+
+/* ---- Binairo ---- */
+.binairo {
+  display: grid;
+  grid-template-columns: repeat(var(--n), 1fr);
+  max-width: 360px;
+  margin: 0 auto;
+  border: var(--outline);
+  border-radius: var(--radius-s);
+  overflow: hidden;
+  box-shadow: var(--shadow-sticker);
+}
+.binairo-cell {
+  aspect-ratio: 1;
+  border: 1px solid color-mix(in srgb, var(--ink) 22%, transparent);
+  background: var(--surface);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1rem, 5vw, 1.4rem);
+  cursor: pointer;
+  color: var(--text);
+}
+.binairo-cell.given { background: var(--surface-2); }
+.binairo-cell.zero { color: var(--sky-dark); }
+.binairo-cell.one { color: var(--coral-dark); }
+.binairo-cell.bad { background: color-mix(in srgb, var(--coral) 24%, var(--surface)); }
