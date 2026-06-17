@@ -305,6 +305,12 @@ p {
   box-shadow: var(--shadow-sticker-sm);
 }
 
+/* Outcome badge colours (history rows, simul scoreboard). */
+.badge-win { background: var(--mint); color: var(--text-on-light); }
+.badge-loss { background: var(--coral); color: #fff; }
+.badge-draw { background: var(--gold); color: var(--text-on-light); }
+.badge-abandoned { background: var(--surface-raised); color: var(--text-dim); }
+
 /* ============================ Cards & panels ============================ */
 .card {
   position: relative;

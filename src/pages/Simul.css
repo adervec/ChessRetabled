@@ -1,0 +1,139 @@
+/* ---- setup ---- */
+.simul-setup__presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+.simul-setup__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+.simul-type {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px;
+  background: var(--surface-raised);
+  border: var(--outline);
+  border-radius: var(--radius-m);
+  box-shadow: var(--shadow-sticker-sm);
+}
+.simul-type__icon { font-size: 1.8rem; }
+.simul-type__name { font-weight: 800; color: var(--text); }
+.simul-type__stepper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.simul-type__stepper button {
+  width: 32px;
+  height: 32px;
+  border: var(--outline);
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--text);
+  font-weight: 800;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+.simul-type__stepper span {
+  min-width: 20px;
+  text-align: center;
+  font-weight: 800;
+  color: var(--text);
+}
+.simul-setup__foot {
+  margin-top: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 18px;
+  justify-content: space-between;
+}
+.simul-setup__level span {
+  display: block;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.simul-setup__warn { color: var(--coral); font-weight: 700; }
+
+/* ---- play ---- */
+.simul-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.simul-score {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.simul-score span {
+  font-weight: 800;
+  font-size: 0.85rem;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  border: 2px solid var(--ink);
+}
+.simul-score__sub {
+  border: none !important;
+  color: var(--text-muted);
+}
+.simul-done {
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  color: var(--gold);
+  background: var(--surface);
+  border: var(--outline);
+  border-radius: var(--radius-m);
+  padding: 14px;
+  margin-bottom: 16px;
+}
+
+.simul-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 18px;
+  align-items: start;
+}
+.simul-slot {
+  background: var(--surface);
+  border: var(--outline);
+  border-radius: var(--radius-m);
+  padding: 12px;
+  box-shadow: var(--shadow-sticker-sm);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.simul-slot.is-yours {
+  box-shadow: 0 0 0 3px var(--mint), var(--shadow-sticker);
+}
+.simul-slot.is-focused {
+  box-shadow: 0 0 0 4px var(--gold), var(--shadow-pop);
+  transform: translateY(-2px);
+}
+.simul-slot.is-over {
+  opacity: 0.78;
+}
+.simul-slot__bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.simul-slot__icon { font-size: 1.2rem; }
+.simul-slot__name { font-weight: 800; color: var(--text); }
+.simul-slot__status {
+  margin-left: auto;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
