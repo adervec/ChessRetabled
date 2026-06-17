@@ -11,6 +11,8 @@ import { generate as kkGen, countSolutions as kkCount, solve as kkSolve, isSolve
 import { generate as hitGen, isSolved as hitSolved } from "../src/logic/hitori.ts";
 import { generate as skyGen, countSolutions as skyCount, solve as skySolve, isSolved as skySolved, visible } from "../src/logic/skyscrapers.ts";
 import { generate as hidGen, countSolutions as hidCount, isSolved as hidSolved } from "../src/logic/hidato.ts";
+import { generate as kkrGen, countSolutions as kkrCount, isSolved as kkrSolved, rowTargetsOf, colTargetsOf } from "../src/logic/kakurasu.ts";
+import { generate as akGen, countSolutions as akCount, solve as akSolve, isSolved as akSolved } from "../src/logic/akari.ts";
 
 let problems = 0;
 let checks = 0;
@@ -196,6 +198,26 @@ for (const seed of SEEDS) {
   check(hidCount(board, size, 2) === 1, `hidato ${seed}: unique reconstruction`);
   check(givens.every((g, i) => g === (board[i] !== 0)), `hidato ${seed}: givens mark clues`);
   check(board.every((v, i) => v === 0 || v === solution[i]), `hidato ${seed}: clues agree with the solution`);
+}
+
+console.log("\nKakurasu:");
+for (const seed of SEEDS) {
+  const { size, solution, rowTargets, colTargets } = kkrGen(seed, 5);
+  check(rowTargetsOf(solution, size).join() === rowTargets.join(), `kakurasu ${seed}: row targets match the solution`);
+  check(colTargetsOf(solution, size).join() === colTargets.join(), `kakurasu ${seed}: col targets match the solution`);
+  check(kkrSolved(solution, size, rowTargets, colTargets), `kakurasu ${seed}: solution satisfies its clues`);
+  check(kkrCount(size, rowTargets, colTargets, 2) === 1, `kakurasu ${seed}: unique solution`);
+}
+
+console.log("\nAkari:");
+for (const seed of SEEDS) {
+  const { size, walls, solution } = akGen(seed, 7);
+  check(akSolved(walls, solution, 7), `akari ${seed}: baked solution lights the board legally`);
+  check(akCount(walls, 7, 2) === 1, `akari ${seed}: unique solution`);
+  const solved = akSolve(walls, 7);
+  check(solved !== null && akSolved(walls, solved, 7), `akari ${seed}: solver finds a valid solution`);
+  // a board with no bulbs is not solved (something must be lit)
+  check(!akSolved(walls, new Array(size * size).fill(false), 7), `akari ${seed}: empty board is not a solution`);
 }
 
 console.log(`\n[validate-logic] checks=${checks} problems=${problems}`);

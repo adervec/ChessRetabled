@@ -10,6 +10,8 @@ import { KenKen } from "../logic/ui/KenKen";
 import { Hitori } from "../logic/ui/Hitori";
 import { Skyscrapers } from "../logic/ui/Skyscrapers";
 import { Hidato } from "../logic/ui/Hidato";
+import { Kakurasu } from "../logic/ui/Kakurasu";
+import { Akari } from "../logic/ui/Akari";
 import "../logic/ui/Logic.css";
 
 const PUZZLES = [
@@ -21,6 +23,8 @@ const PUZZLES = [
   { id: "hitori", name: "Hitori", icon: "▦", blurb: "Shade out duplicates so no number repeats — and the rest stays joined." },
   { id: "skyscrapers", name: "Skyscrapers", icon: "🏙", blurb: "A Latin square of heights; each edge clue counts the buildings you can see." },
   { id: "hidato", name: "Hidato", icon: "🐍", blurb: "Fill 1…36 so consecutive numbers are always neighbours (diagonals count)." },
+  { id: "akari", name: "Akari", icon: "🔦", blurb: "Place bulbs to light every square; numbers count adjacent bulbs." },
+  { id: "kakurasu", name: "Kakurasu", icon: "➕", blurb: "Shade cells so each row and column hits its weighted-sum clue." },
   { id: "lightsout", name: "Lights Out", icon: "💡", blurb: "Tap to toggle crosses of lights — turn the whole board off." },
   { id: "slide", name: "15-Puzzle", icon: "🧩", blurb: "Slide the tiles through the gap to put them back in order." },
   { id: "mastermind", name: "Mastermind", icon: "🎯", blurb: "Crack the hidden 4-colour code from the black/white peg clues." },
@@ -41,6 +45,8 @@ export function Logic() {
         {id === "hitori" && <Hitori onExit={exit} />}
         {id === "skyscrapers" && <Skyscrapers onExit={exit} />}
         {id === "hidato" && <Hidato onExit={exit} />}
+        {id === "akari" && <Akari onExit={exit} />}
+        {id === "kakurasu" && <Kakurasu onExit={exit} />}
         {id === "lightsout" && <LightsOut onExit={exit} />}
         {id === "slide" && <SlidePuzzle onExit={exit} />}
         {id === "mastermind" && <Mastermind onExit={exit} />}

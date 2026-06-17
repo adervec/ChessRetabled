@@ -349,3 +349,55 @@
 .hidato-cell.given { background: var(--surface-2); font-weight: 900; }
 .hidato-cell.sel { background: color-mix(in srgb, var(--gold) 40%, var(--surface)); color: var(--text-on-light); }
 .hidato-cell.bad { background: color-mix(in srgb, var(--coral) 24%, var(--surface)); color: var(--coral); }
+
+/* ---- Kakurasu ---- */
+.kakurasu {
+  display: grid;
+  max-width: 360px;
+  margin: 0 auto;
+  gap: 3px;
+}
+.kkr-cell {
+  aspect-ratio: 1;
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-s);
+  background: var(--surface);
+  color: var(--text-on-light);
+  font-weight: 800;
+  cursor: pointer;
+}
+.kkr-cell.on { background: var(--violet); color: #fff; }
+.kkr-cell.bad { background: var(--coral); color: #fff; }
+.kkr-target {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 800;
+  color: var(--gold-dark);
+}
+
+/* ---- Akari ---- */
+.akari {
+  display: grid;
+  max-width: 380px;
+  margin: 0 auto;
+  border: var(--outline);
+  border-radius: var(--radius-s);
+  overflow: hidden;
+  box-shadow: var(--shadow-sticker);
+}
+.ak-cell {
+  aspect-ratio: 1;
+  border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: clamp(0.8rem, 4vw, 1.2rem);
+}
+.ak-cell.white { background: var(--surface); cursor: pointer; }
+.ak-cell.lit { background: color-mix(in srgb, var(--gold) 32%, var(--surface)); }
+.ak-cell.bulb { background: color-mix(in srgb, var(--gold) 50%, var(--surface)); }
+.ak-cell.bad { background: color-mix(in srgb, var(--coral) 40%, var(--surface)); }
+.ak-cell.wall { background: var(--ink); color: var(--paper); }
