@@ -4,13 +4,16 @@ import { persist } from "zustand/middleware";
 // App-wide presentation + behaviour settings. Persisted separately from
 // progress so a settings change never risks the player's record.
 
-export type ThemeId = "dusk" | "pastel" | "croanada";
+export type ThemeId = "dusk" | "pastel" | "croanada" | "penguin" | "volcano" | "vegas";
 export type AnimSpeedId = "off" | "fast" | "normal" | "slow";
 
 export const THEMES: { id: ThemeId; name: string; swatch: string[] }[] = [
   { id: "dusk", name: "Dusk", swatch: ["#1e1640", "#9b6bff", "#44e0a4", "#ffce4f"] },
   { id: "pastel", name: "Pastel", swatch: ["#fdf0f4", "#b8a6ff", "#7ad6b0", "#ffd28a"] },
   { id: "croanada", name: "Croanada", swatch: ["#d52b1e", "#fbf3ec", "#e8a33d", "#6e3b1f"] },
+  { id: "penguin", name: "Penguin", swatch: ["#7fb4d8", "#f5fbff", "#14202b", "#ffb02e"] },
+  { id: "volcano", name: "Volcano", swatch: ["#160b08", "#ff5a2b", "#ffb02e", "#6e3320"] },
+  { id: "vegas", name: "Vegas", swatch: ["#9a1530", "#ffd24a", "#0c0a0e", "#2fe07a"] },
 ];
 
 /** Move-animation durations in ms, keyed by the user's chosen speed. */

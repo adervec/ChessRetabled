@@ -27,6 +27,21 @@ export const THEME_PIECES: Partial<Record<ThemeId, ThemePieceSet>> = {
     light: { body: "#f7efe2", base: "#e7a33c", ink: "#2b1410" },
     dark: { body: "#d52b1e", base: "#a81d12", ink: "#2b1410" },
   },
+  penguin: {
+    // tuxedo: white belly vs black back, orange beak/feet
+    light: { body: "#f5fbff", base: "#ffb02e", ink: "#14202b" },
+    dark: { body: "#2a3744", base: "#ff8a2b", ink: "#0e1620" },
+  },
+  volcano: {
+    // glowing molten ember vs cooled obsidian
+    light: { body: "#ffb46a", base: "#ff5a2b", ink: "#160b08" },
+    dark: { body: "#2e1b16", base: "#ff7a2b", ink: "#0e0604" },
+  },
+  vegas: {
+    // high-roller gold vs velvet black, neon-red trim
+    light: { body: "#f0d98a", base: "#ffd24a", ink: "#0c0a0e" },
+    dark: { body: "#2a1820", base: "#ff3b5c", ink: "#0c0a0e" },
+  },
 };
 
 export function useThemePieces(): ThemePieceSet | null {

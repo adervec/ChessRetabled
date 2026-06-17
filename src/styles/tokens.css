@@ -218,3 +218,174 @@
   --shadow-drop: 0 10px 24px -8px rgba(120, 40, 30, 0.35);
   --shadow-pop: 0 14px 40px -10px rgba(120, 40, 30, 0.4);
 }
+
+/* Penguin — an icy Antarctic theme: snow + glacier blue, tuxedo black, beak orange. */
+:root[data-theme="penguin"] {
+  --ink: #14202b;
+  --ink-soft: #2a3a48;
+  --paper: #f5fbff;
+
+  --bg-0: #eaf4fb;
+  --bg-1: #e0eef8;
+  --bg-2: #d3e6f4;
+  --bg-3: #c4dcef;
+  --bg-grad-top: #dceefa;
+  --bg-grad-bottom: #f5fbff;
+
+  --surface: #ffffff;
+  --surface-2: #eaf3fa;
+  --surface-raised: #ffffff;
+
+  --coral: #ff7a3d;
+  --coral-dark: #e0561f;
+  --gold: #ffc24a;
+  --gold-dark: #e0991f;
+  --mint: #2fc2a4;
+  --mint-dark: #1c9a82;
+  --violet: #6f86e0;
+  --violet-dark: #4a61c4;
+  --sky: #4fb8ff;
+  --sky-dark: #1f8fd6;
+  --rose: #ff8fbe;
+  --rose-dark: #e0699c;
+
+  --good: var(--mint);
+  --good-dark: var(--mint-dark);
+  --bad: var(--coral);
+  --bad-dark: var(--coral-dark);
+
+  --sq-light: #eef6fc;
+  --sq-light-shade: #dcebf5;
+  --sq-dark: #7fb4d8;
+  --sq-dark-shade: #659bc2;
+  --board-frame: #3a5a72;
+  --board-frame-edge: #557790;
+  --sq-highlight: #ffd86a;
+  --sq-check: #ff6b6b;
+
+  --text: #14202b;
+  --text-dim: #46586a;
+  --text-muted: #8499aa;
+  --text-on-light: #14202b;
+
+  --shadow-sticker: 0 6px 0 0 rgba(20, 32, 43, 0.35);
+  --shadow-sticker-sm: 0 4px 0 0 rgba(20, 32, 43, 0.3);
+  --shadow-drop: 0 10px 24px -8px rgba(40, 70, 95, 0.35);
+  --shadow-pop: 0 14px 40px -10px rgba(40, 70, 95, 0.4);
+  --felt: #1f8c8c;
+  --felt-2: #0f5a5a;
+}
+
+/* Volcano — molten dark theme: basalt + obsidian, lava red, ember gold. */
+:root[data-theme="volcano"] {
+  --ink: #160b08;
+  --ink-soft: #2e1812;
+  --paper: #f7e6d6;
+
+  --bg-0: #190c09;
+  --bg-1: #271310;
+  --bg-2: #371a14;
+  --bg-3: #47211a;
+  --bg-grad-top: #3a1408;
+  --bg-grad-bottom: #140805;
+
+  --surface: #2a1512;
+  --surface-2: #371c16;
+  --surface-raised: #44231b;
+
+  --coral: #ff5a2b;
+  --coral-dark: #d83a12;
+  --gold: #ffb02e;
+  --gold-dark: #e08a1a;
+  --mint: #6fcf4a;
+  --mint-dark: #4aa82e;
+  --violet: #b05ae0;
+  --violet-dark: #8a3ac0;
+  --sky: #4fb0e0;
+  --sky-dark: #2f80b0;
+  --rose: #ff5a8c;
+  --rose-dark: #e0356a;
+
+  --good: var(--mint);
+  --good-dark: var(--mint-dark);
+  --bad: var(--coral);
+  --bad-dark: var(--coral-dark);
+
+  --sq-light: #d4925c;
+  --sq-light-shade: #bd7a45;
+  --sq-dark: #6e3320;
+  --sq-dark-shade: #561f12;
+  --board-frame: #1a0d0a;
+  --board-frame-edge: #3a1c14;
+  --sq-highlight: #ffb02e;
+  --sq-check: #ff4a2b;
+
+  --text: #fbe9dc;
+  --text-dim: #d6b3a0;
+  --text-muted: #9c7c6a;
+  --text-on-light: #160b08;
+
+  --shadow-sticker: 0 6px 0 0 rgba(0, 0, 0, 0.5);
+  --shadow-sticker-sm: 0 4px 0 0 rgba(0, 0, 0, 0.45);
+  --shadow-drop: 0 10px 24px -8px rgba(0, 0, 0, 0.7);
+  --shadow-pop: 0 14px 40px -10px rgba(60, 10, 4, 0.6);
+  --felt: #5a1e12;
+  --felt-2: #350f08;
+}
+
+/* Vegas — casino glam: velvet red/black, neon, and plenty of gold, on green felt. */
+:root[data-theme="vegas"] {
+  --ink: #0c0a0e;
+  --ink-soft: #221820;
+  --paper: #fdf3df;
+
+  --bg-0: #120308;
+  --bg-1: #200a12;
+  --bg-2: #2e0f1c;
+  --bg-3: #3c1426;
+  --bg-grad-top: #2c0a14;
+  --bg-grad-bottom: #0c0206;
+
+  --surface: #241019;
+  --surface-2: #311623;
+  --surface-raised: #3d1c2c;
+
+  --coral: #ff3b5c;
+  --coral-dark: #d81f3e;
+  --gold: #ffd24a;
+  --gold-dark: #e0a417;
+  --mint: #2fe07a;
+  --mint-dark: #1faa55;
+  --violet: #b15aff;
+  --violet-dark: #8a2fe0;
+  --sky: #3ce0e0;
+  --sky-dark: #1faaaa;
+  --rose: #ff4aa8;
+  --rose-dark: #e01f86;
+
+  --good: var(--mint);
+  --good-dark: var(--mint-dark);
+  --bad: var(--coral);
+  --bad-dark: var(--coral-dark);
+
+  --sq-light: #e8d6a0;
+  --sq-light-shade: #d4bd7e;
+  --sq-dark: #9a1530;
+  --sq-dark-shade: #7a0e24;
+  --board-frame: #14060a;
+  --board-frame-edge: #3a1020;
+  --sq-highlight: #ffd24a;
+  --sq-check: #ff3b5c;
+
+  --text: #fdf0e0;
+  --text-dim: #e6c9a8;
+  --text-muted: #b8967e;
+  --text-on-light: #0c0a0e;
+
+  --shadow-sticker: 0 6px 0 0 rgba(0, 0, 0, 0.5);
+  --shadow-sticker-sm: 0 4px 0 0 rgba(0, 0, 0, 0.45);
+  --shadow-drop: 0 10px 24px -8px rgba(0, 0, 0, 0.7);
+  --shadow-pop: 0 14px 40px -10px rgba(120, 10, 40, 0.55);
+  --felt: #1f7a3c;
+  --felt-2: #0e4a22;
+}
