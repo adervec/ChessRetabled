@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { GAMES } from "../games/registry";
 import { GameBoard } from "../games/ui/GameBoard";
 import { useGenericGame } from "../games/ui/useGenericGame";
 import type { Difficulty, GameDefinition, Player } from "../games/core/types";
+import { useArchive, newId } from "../state/useArchive";
+import { useProgress } from "../state/useProgress";
 import "./Arcade.css";
 
 type Setup = { difficulty: Difficulty; humanPlayer: Player; key: number };
@@ -152,6 +154,33 @@ function GameScreen({
   const game = useGenericGame(def, humanPlayer, difficulty);
   const aiPlayer: Player = humanPlayer === 0 ? 1 : 0;
   const { status } = game;
+
+  const addRecord = useArchive((s) => s.add);
+  const addXp = useProgress((s) => s.addXp);
+  const startedRef = useRef(new Date().toISOString());
+  const recordedRef = useRef(false);
+
+  useEffect(() => {
+    if (!status.over || recordedRef.current) return;
+    recordedRef.current = true;
+    const outcome =
+      status.winner == null ? "draw" : status.winner === humanPlayer ? "win" : "loss";
+    addRecord({
+      id: newId(),
+      gameId: def.id,
+      gameName: def.name,
+      startedISO: startedRef.current,
+      endedISO: new Date().toISOString(),
+      outcome,
+      humanSide: String(humanPlayer),
+      opponent: `AI · ${difficulty.name}`,
+      difficulty: difficulty.id,
+      moveCount: game.moveLog.length,
+      moves: game.moveLog,
+      reason: status.reason,
+    });
+    addXp(outcome === "win" ? 20 : outcome === "draw" ? 8 : 4);
+  }, [status, humanPlayer, def, difficulty, game.moveLog, addRecord, addXp]);
 
   const turnNote = status.over
     ? resultText(def, status, humanPlayer)

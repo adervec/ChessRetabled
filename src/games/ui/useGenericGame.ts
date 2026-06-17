@@ -35,6 +35,8 @@ export interface GenericGame<S> {
   thinking: boolean;
   isHumanTurn: boolean;
   interactionModel: "place" | "select";
+  /** Every move applied so far, in order — for archival / replay. */
+  moveLog: GameMove[];
   onCellClick: (index: number) => void;
   undo: () => void;
   canUndo: boolean;
@@ -141,6 +143,7 @@ export function useGenericGame<S>(
   const [tokens, setTokens] = useState<Token[]>(() => buildTokens(def.cells(def.initial())));
   const [graveyard, setGraveyard] = useState<Token[]>([]);
   const [history, setHistory] = useState<Snapshot<S>[]>([]);
+  const [moveLog, setMoveLog] = useState<GameMove[]>([]);
   const [selected, setSelected] = useState<number | null>(null);
   const [pending, setPending] = useState<GameMove[] | null>(null);
   const [lastMove, setLastMove] = useState<GameMove | null>(null);
@@ -164,6 +167,7 @@ export function useGenericGame<S>(
       const newState = def.applyMove(fromState, m);
       const rec = reconcile(fromTokens, m, def.cells(newState), nextId);
       setHistory((h) => [...h, { state: fromState, tokens: fromTokens, graveyard: fromGrave, lastMove }]);
+      setMoveLog((l) => [...l, m]);
       setState(newState);
       setTokens(rec.tokens);
       setGraveyard([...fromGrave, ...rec.captured]);
@@ -276,6 +280,7 @@ export function useGenericGame<S>(
       setTokens(snap.tokens);
       setGraveyard(snap.graveyard);
       setLastMove(snap.lastMove);
+      setMoveLog((l) => l.slice(0, copy.length));
       return copy;
     });
   }, [thinking, def, humanPlayer]);
@@ -297,6 +302,7 @@ export function useGenericGame<S>(
     thinking,
     isHumanTurn,
     interactionModel: model,
+    moveLog,
     onCellClick,
     undo,
     canUndo: history.length > 0 && !thinking,

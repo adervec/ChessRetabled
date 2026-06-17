@@ -9,7 +9,8 @@ import { GameOverModal } from "../components/game/GameOverModal";
 import { useBotGame, capturedFromHistory } from "../chess/useBotGame";
 import { getEngine } from "../engine";
 import { useProgress } from "../state/useProgress";
-import { PIECE_VALUE, type Color } from "../chess/types";
+import { useArchive, newId } from "../state/useArchive";
+import { PIECE_VALUE, START_FEN, type Color } from "../chess/types";
 import type { Bot } from "../content/bots";
 import "./Play.css";
 
@@ -59,7 +60,9 @@ function BotGame({
 }) {
   const g = useBotGame(bot, humanColor);
   const recordGame = useProgress((s) => s.recordGame);
+  const addRecord = useArchive((s) => s.add);
   const recordedRef = useRef(false);
+  const startedRef = useRef(new Date().toISOString());
   const [showModal, setShowModal] = useState(false);
   const [backend, setBackend] = useState("");
 
@@ -76,10 +79,26 @@ function BotGame({
     if (g.gameOver && !recordedRef.current) {
       recordedRef.current = true;
       const w = g.result.winner;
-      recordGame(w == null ? "draw" : w === humanColor ? "win" : "loss");
+      const outcome = w == null ? "draw" : w === humanColor ? "win" : "loss";
+      recordGame(outcome);
+      addRecord({
+        id: newId(),
+        gameId: "chess",
+        gameName: "Chess",
+        startedISO: startedRef.current,
+        endedISO: new Date().toISOString(),
+        outcome,
+        humanSide: humanColor,
+        opponent: `${bot.name} · ${bot.rating}`,
+        difficulty: bot.id,
+        moveCount: g.history.length,
+        moves: g.history,
+        reason: g.result.reason ?? undefined,
+        startFen: START_FEN,
+      });
       setShowModal(true);
     }
-  }, [g.gameOver, g.result, humanColor, recordGame]);
+  }, [g.gameOver, g.result, g.history, humanColor, bot, recordGame, addRecord]);
 
   const botColor: Color = humanColor === "w" ? "b" : "w";
   const { byWhite, byBlack } = capturedFromHistory(g.history);

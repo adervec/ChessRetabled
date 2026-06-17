@@ -1,0 +1,95 @@
+.history {
+  margin-top: 28px;
+  background: var(--surface);
+  border: var(--outline);
+  border-radius: var(--radius-l);
+  box-shadow: var(--shadow-sticker);
+  padding: 22px;
+}
+.history__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.history__title {
+  font-family: var(--font-display);
+  margin: 0 0 14px;
+  color: var(--text);
+}
+.history__empty {
+  color: var(--text-muted);
+}
+
+.history__summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.history-sum {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface-2);
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-pill);
+  padding: 6px 14px;
+}
+.history-sum__icon { font-size: 1.2rem; }
+.history-sum__name { font-weight: 800; color: var(--text); }
+.history-sum__rec { color: var(--text-dim); font-weight: 700; }
+.history-sum__rec span {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin: 0 4px 0 1px;
+}
+
+.history__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.history-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface-2);
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-m);
+  padding: 10px 14px;
+}
+.history-row__icon {
+  font-size: 1.4rem;
+  width: 28px;
+  text-align: center;
+}
+.history-row__main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.history-row__name { font-weight: 800; color: var(--text); }
+.history-row__sub {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.history-row__badge {
+  font-weight: 800;
+  font-size: 0.78rem;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  border: 2px solid var(--ink);
+}
+.badge-win { background: var(--mint); color: var(--text-on-light); }
+.badge-loss { background: var(--coral); color: #fff; }
+.badge-draw { background: var(--gold); color: var(--text-on-light); }
+.badge-abandoned { background: var(--surface-raised); color: var(--text-dim); }
+.history-row__date {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}

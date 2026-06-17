@@ -3,6 +3,7 @@ import { COURSES, TOTAL_LESSONS } from "../content/lessons";
 import { DRILLS } from "../content/drills";
 import { PUZZLES } from "../content/puzzles";
 import { SettingsPanel } from "../components/ui/SettingsPanel";
+import { GameHistory } from "../components/ui/GameHistory";
 import "./Profile.css";
 
 export function Profile() {
@@ -110,6 +111,8 @@ export function Profile() {
           <div className="statcard__sub">{p.xp} XP earned</div>
         </div>
       </div>
+
+      <GameHistory />
 
       <SettingsPanel />
 
