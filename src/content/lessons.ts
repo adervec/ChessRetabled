@@ -459,6 +459,271 @@ export const COURSES: Course[] = [
       },
     ],
   },
+  {
+    id: "tactics-2",
+    title: "Sharper Tactics",
+    icon: "⚡",
+    accent: "var(--rose)",
+    level: "Intermediate",
+    description: "Double attacks, discoveries, and the art of hitting two things at once.",
+    lessons: [
+      {
+        id: "double-attack",
+        title: "The Double Attack",
+        summary: "One move, two threats.",
+        steps: [
+          {
+            kind: "text",
+            title: "Two threats at once",
+            body: "A double attack hits two targets in a single move. If one of them is a check, your opponent must answer the check — and the other target falls.",
+          },
+          {
+            kind: "move",
+            title: "Check and grab",
+            body: "Find the queen move that checks the king AND attacks the loose bishop on b7.",
+            fen: "6k1/1b6/8/8/8/8/8/3Q2K1 w - - 0 1",
+            solver: "w",
+            answer: ["d1d5"],
+            success: "Double attack! The check must be met, and the bishop drops.",
+            hint: "Find a central square that sees both g8 and b7.",
+          },
+        ],
+      },
+      {
+        id: "discovered-check",
+        title: "Discovered Check",
+        summary: "Unmask a hidden attacker.",
+        steps: [
+          {
+            kind: "text",
+            title: "Step aside and reveal",
+            body: "When you move one piece out of the way, the piece behind it can deliver check. The moving piece is free to grab something while the opponent deals with the check.",
+          },
+          {
+            kind: "move",
+            title: "Reveal the rook",
+            body: "Move the knight so your rook checks the king — and the knight attacks the bishop on h7.",
+            fen: "4k3/7b/8/8/4N3/8/8/4R1K1 w - - 0 1",
+            solver: "w",
+            answer: ["e4g5"],
+            success: "Discovered check! They save the king; you take the bishop.",
+            hint: "The knight should both clear the e-file and hit h7.",
+          },
+        ],
+      },
+      {
+        id: "royal-fork-2",
+        title: "The Royal Fork",
+        summary: "Knight checks the king, forks the queen.",
+        steps: [
+          {
+            kind: "text",
+            title: "Knights forking royalty",
+            body: "A knight check that also attacks the queen is devastating — the king must move, and the queen is lost.",
+          },
+          {
+            kind: "move",
+            title: "Find the fork",
+            body: "Hop the knight to a square that checks the king and attacks the queen on f7.",
+            fen: "4k3/5q2/8/8/2N5/8/8/4K3 w - - 0 1",
+            solver: "w",
+            answer: ["c4d6"],
+            success: "Royal fork! Check the king, win the queen.",
+            hint: "From c4, which knight square hits both e8 and f7?",
+          },
+          {
+            kind: "text",
+            title: "Overloading & deflection",
+            body: "Two more ideas: a piece is OVERLOADED when it must guard two things at once — attack one and the other falls. DEFLECTION forces a defender away from its job. Both end in a winning double attack.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "mating-net",
+    title: "The Mating Net",
+    icon: "🕸️",
+    accent: "var(--gold)",
+    level: "Intermediate",
+    description: "Weave the threads that trap a king with no escape.",
+    lessons: [
+      {
+        id: "queen-king-mate",
+        title: "Queen + King Mate",
+        summary: "The queen needs her king's support.",
+        steps: [
+          {
+            kind: "text",
+            title: "Support the queen",
+            body: "A lone queen can't mate — she'd just be captured. But with her king guarding her, she boxes the enemy king to the edge and delivers mate from one square away.",
+          },
+          {
+            kind: "move",
+            title: "Mate in one",
+            body: "Your king on f6 guards g7. Bring the queen in for checkmate.",
+            fen: "7k/8/5K2/8/8/8/8/6Q1 w - - 0 1",
+            solver: "w",
+            answer: ["g1g7"],
+            success: "Checkmate! The king protects the queen so it can't be captured.",
+            hint: "Land the queen right next to the enemy king, defended by yours.",
+          },
+        ],
+      },
+      {
+        id: "arabian",
+        title: "The Arabian Mate",
+        summary: "Rook and knight in the corner.",
+        steps: [
+          {
+            kind: "text",
+            title: "An ancient pattern",
+            body: "A knight and rook can mate a king in the corner: the knight covers the king's flight square while the rook checks. It is one of the oldest known mates — hence 'Arabian'.",
+          },
+          {
+            kind: "text",
+            title: "Watch for corners",
+            body: "Kings driven into a corner are the most vulnerable. Many mating nets — Anastasia's, the Arabian, the smothered mate — all rely on the corner cutting off escape squares.",
+          },
+        ],
+      },
+      {
+        id: "greek-gift",
+        title: "The Greek Gift",
+        summary: "The classic bishop sacrifice on h7.",
+        steps: [
+          {
+            kind: "text",
+            title: "Bxh7+!",
+            body: "Against a castled king, the bishop sacrifice Bxh7+ can rip open the king. After Kxh7, the knight jumps to g5 with check and the queen joins the attack. It only works when specific conditions are met — but when they are, it's crushing.",
+          },
+          {
+            kind: "text",
+            title: "Calculate before you sacrifice",
+            body: "Sacrifices win games — but only with calculation. Count the attackers and defenders around the king, and make sure your follow-up checks actually lead somewhere before giving up material.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "pawn-power",
+    title: "Pawn Power",
+    icon: "♙",
+    accent: "var(--mint)",
+    level: "Intermediate",
+    description: "Pawns are the soul of chess — learn their structures and breaks.",
+    lessons: [
+      {
+        id: "passed-pawns",
+        title: "Passed Pawns",
+        summary: "A pawn with a clear run to promote.",
+        steps: [
+          {
+            kind: "text",
+            title: "Push them!",
+            body: "A passed pawn has no enemy pawns blocking or able to capture it on its way to promotion. 'Passed pawns must be pushed' — they tie down enemy pieces and often decide endgames.",
+            fen: "8/8/8/3P4/8/8/8/8 w - - 0 1",
+          },
+          {
+            kind: "text",
+            title: "The protected passer",
+            body: "A passed pawn defended by another pawn is especially strong: the enemy king can't approach it without help, and it cramps the whole position.",
+          },
+        ],
+      },
+      {
+        id: "pawn-chains",
+        title: "Pawn Chains",
+        summary: "Diagonal links of mutual defence.",
+        steps: [
+          {
+            kind: "text",
+            title: "Attack the base",
+            body: "Pawns defending each other diagonally form a chain. The front pawns are defended, but the BASE of the chain is not — so that's where you attack it.",
+          },
+          {
+            kind: "text",
+            title: "Space and direction",
+            body: "A pawn chain points in a direction — that's the side of the board where you have space and should attack. Your opponent attacks on the other side.",
+          },
+        ],
+      },
+      {
+        id: "weak-pawns",
+        title: "Isolated & Doubled Pawns",
+        summary: "Structural weaknesses to target.",
+        steps: [
+          {
+            kind: "text",
+            title: "The isolani",
+            body: "An isolated pawn has no friendly pawns on the files beside it, so no pawn can ever defend it. It can be a target — but the open files around it also give pieces activity. A classic double-edged structure.",
+          },
+          {
+            kind: "text",
+            title: "Doubled pawns",
+            body: "Two pawns on the same file can't defend each other and struggle to advance. They're often weak — but the half-open file they create can be useful for your rooks.",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "positional",
+    title: "Positional Play",
+    icon: "🧠",
+    accent: "var(--violet)",
+    level: "Advanced",
+    description: "Win slowly: activity, weak squares, and long-term planning.",
+    lessons: [
+      {
+        id: "piece-activity",
+        title: "Piece Activity",
+        summary: "Active pieces beat passive ones.",
+        steps: [
+          {
+            kind: "text",
+            title: "Every piece a job",
+            body: "A material count isn't everything — an active piece controlling key squares can be worth more than a passive one. Before each move, ask: is my worst-placed piece doing anything? Improve it.",
+          },
+        ],
+      },
+      {
+        id: "outposts",
+        title: "Outposts & Weak Squares",
+        summary: "Squares the enemy can't defend.",
+        steps: [
+          {
+            kind: "text",
+            title: "Knights love outposts",
+            body: "An outpost is a square in enemy territory that no enemy pawn can attack. A knight planted on an outpost — supported by a pawn — is a long-term thorn that can dominate the board.",
+          },
+          {
+            kind: "text",
+            title: "Good vs bad bishop",
+            body: "A bishop blocked by its own pawns (on its colour) is 'bad'; one with open diagonals is 'good'. Trade off bad bishops, and fix enemy pawns on the colour of their remaining bishop.",
+          },
+        ],
+      },
+      {
+        id: "planning",
+        title: "Making a Plan",
+        summary: "Prophylaxis and trading.",
+        steps: [
+          {
+            kind: "text",
+            title: "Ask what they want",
+            body: "Prophylaxis means preventing your opponent's ideas before pursuing your own. On every move, ask 'what does my opponent want to do?' — then stop it.",
+          },
+          {
+            kind: "text",
+            title: "Trade with purpose",
+            body: "Trade pieces when you're ahead in material or under attack; keep pieces on when you have the initiative or attacking chances. Every trade should make your position better, not just simpler.",
+          },
+        ],
+      },
+    ],
+  },
 ];
 
 export function getCourse(id: string): Course | undefined {

@@ -1,16 +1,16 @@
 import { Fragment } from "react";
-import type { GenericGame, Token } from "./useGenericGame";
+import type { BoardView, Token } from "./boardView";
 import { GamePiece } from "./GamePiece";
 import { useSettings } from "../../state/useSettings";
 import "./GameBoard.css";
 
-export function GameBoard({ game }: { game: GenericGame<unknown> }) {
+export function GameBoard({ game }: { game: BoardView }) {
   const tilt = useSettings((s) => s.boardTilt);
   if (game.def.geometry.kind === "points") return <PointsBoard game={game} flat={!tilt} />;
   return <GridBoard game={game} flat={!tilt} />;
 }
 
-function GridBoard({ game, flat }: { game: GenericGame<unknown>; flat: boolean }) {
+function GridBoard({ game, flat }: { game: BoardView; flat: boolean }) {
   const { def } = game;
   const geo = def.geometry;
   if (geo.kind !== "grid") return null;
@@ -107,7 +107,7 @@ function GridBoard({ game, flat }: { game: GenericGame<unknown>; flat: boolean }
   );
 }
 
-function PointsBoard({ game, flat }: { game: GenericGame<unknown>; flat: boolean }) {
+function PointsBoard({ game, flat }: { game: BoardView; flat: boolean }) {
   const { def } = game;
   const geo = def.geometry;
   if (geo.kind !== "points") return null;
@@ -164,7 +164,7 @@ function PointToken({ x, y, color, removal }: { x: number; y: number; color: str
   );
 }
 
-function Graveyard({ game }: { game: GenericGame<unknown> }) {
+function Graveyard({ game }: { game: BoardView }) {
   const { def, graveyard } = game;
   if (graveyard.length === 0) return null;
   const byOwner: [Token[], Token[]] = [[], []];

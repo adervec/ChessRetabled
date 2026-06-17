@@ -10,6 +10,7 @@ const LINKS = [
   { to: "/simul", label: "Simul", ico: "♞" },
   { to: "/puzzles", label: "Puzzles", ico: "🧩" },
   { to: "/learn", label: "Learn", ico: "🎓" },
+  { to: "/academy", label: "Academy", ico: "📚" },
   { to: "/practice", label: "Practice", ico: "🎯" },
 ];
 

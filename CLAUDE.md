@@ -105,6 +105,34 @@ reachable at `/games` (the "Games" nav item → `pages/Arcade.tsx`).
   driven by a move's optional `remove` field. The AI runs on the main thread
   behind a `setTimeout` yield (like the chess fallback); time budgets are capped.
 
+## Presentation, settings & data (added in the expansion)
+
+- **Settings** (`state/useSettings.ts`, persisted): `theme` (`dusk` default / `pastel`),
+  `animSpeed`, `boardTilt`. App.tsx reflects them onto `<html data-theme>` and the
+  `--anim-dur` CSS var. Themes are pure token overrides in `tokens.css`
+  (`:root[data-theme="pastel"]`) — every component re-themes through the variables.
+- **Animation**: the generic board animates via stable-id tokens (`ui/boardView.ts`
+  `Token`), reconciled in `useGenericGame`; CSS transitions read `--anim-dur`.
+  Captures fall into a rendered graveyard. The computer never replies instantly —
+  `aiThinkFloorMs(animSpeed)` floors its move to ≥ one animation.
+- **Archive / data** (`state/useArchive.ts`): every finished game (chess + arcade +
+  simul) is logged with its full move list. `state/dataTransfer.ts` does one-bundle
+  JSON export/import; `state/sync.ts` is the cloud-sync seam (a `SyncAdapter` + a
+  local-mirror impl + `syncNow()` last-write-wins) ready for a real backend.
+
+## More modes & content
+
+- **Simul** (`pages/Simul.tsx`, `games/simul/`): a simultaneous exhibition over an
+  arbitrary mix of chess + arcade boards. `ChessSlot` uses a **per-slot
+  MinimaxEngine** (not the shared Stockfish worker, to avoid contention);
+  `GenericSlot` uses the games framework. "Next board needing you" rotates focus.
+- **Games Academy** (`pages/Academy.tsx`, `games/learn/`): a learning path per game
+  (concept text + interactive challenges). `useLessonPosition` implements the same
+  `BoardView` surface so the standard board renders tutorials. Challenge setups +
+  answers are verified by `scripts/validate-game-lessons.mjs` (in CI).
+- The chess curriculum in `content/lessons.ts` is the other learning track (9
+  courses); its `move` steps are verified by `scripts/validate-lessons.mjs`.
+
 ## Gotchas
 
 - The dev **preview/screenshot tooling was flaky** in this environment

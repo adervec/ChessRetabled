@@ -9,14 +9,9 @@ import type {
   Player,
 } from "../core/types";
 import { useSettings, aiThinkFloorMs } from "../../state/useSettings";
+import type { Token } from "./boardView";
 
-/** A rendered piece with a stable id so it animates across moves (no teleport). */
-export interface Token {
-  id: string;
-  cell: number;
-  owner: Player;
-  crowned?: boolean;
-}
+export type { Token } from "./boardView";
 
 export interface GenericGame<S> {
   def: GameDefinition<S>;
