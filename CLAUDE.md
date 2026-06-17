@@ -133,6 +133,28 @@ reachable at `/games` (the "Games" nav item → `pages/Arcade.tsx`).
 - The chess curriculum in `content/lessons.ts` is the other learning track (9
   courses); its `move` steps are verified by `scripts/validate-lessons.mjs`.
 
+## Card games (`src/cards/`)
+
+A second wing alongside the board games, reachable at `/cards` (the "Cards" nav
+item → `pages/Cards.tsx`, a lobby that dispatches to a per-game component).
+
+- **Seeded, not deterministic-perfect-info.** Card games have hidden hands and
+  randomness, so unlike the board framework there's no single `GameDefinition`
+  or shared minimax. Instead: a shared `core/` (cards, `rng.ts` mulberry32 +
+  shuffle, scoring helpers) and a `ui/` toolkit (cel-shaded `PlayingCard`). Each
+  game has its own pure **logic** module + heuristic AI policy, and its own play
+  component. Seeding (every game derives its deck from a seed) keeps games
+  reproducible and archivable.
+- **Logic is `.ts`, UI is `.tsx`** — same rule as the board games: logic modules
+  cross-import core with **explicit `.ts` extensions** so
+  `scripts/validate-cards.mjs` can drive them headlessly (AI-vs-AI / policy sims
+  checking legality, termination, scoring, and 52-card conservation). In CI.
+- **Games:** Klondike Solitaire (single-player, `legalMoves`/`applyMove`/`isWon`),
+  Blackjack (vs dealer, chips, 3:2), Crazy Eights (4-seat shedding, 8s wild,
+  deadlock guard), Hearts (4-seat trick-taking, Q♠/hearts, shoot-the-moon, ace
+  high). AI seats move on a watchable delay (`aiThinkFloorMs`); finished games
+  are logged to the shared `useArchive`.
+
 ## Gotchas
 
 - The dev **preview/screenshot tooling was flaky** in this environment

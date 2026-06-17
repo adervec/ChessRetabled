@@ -305,6 +305,54 @@ p {
   box-shadow: var(--shadow-sticker-sm);
 }
 
+/* Shared lobby header + game-card grid (Arcade, Academy, Card Room). */
+.arcade__head {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.arcade__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
+  margin: 0;
+  color: var(--text);
+}
+.arcade__sub {
+  color: var(--text-dim);
+  max-width: 56ch;
+  margin: 6px auto 0;
+}
+.arcade__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 18px;
+}
+.arcade-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  text-align: left;
+  padding: 20px;
+  background: var(--surface-raised);
+  border: var(--outline);
+  border-radius: var(--radius-m);
+  box-shadow: var(--shadow-sticker);
+  cursor: pointer;
+  transition: transform 0.12s var(--ease-pop), box-shadow 0.12s var(--ease-out);
+  color: var(--text);
+}
+.arcade-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-sticker), var(--shadow-pop);
+}
+.arcade-card:active {
+  transform: translateY(2px);
+  box-shadow: var(--shadow-sticker-sm);
+}
+.arcade-card__icon { font-size: 2.4rem; line-height: 1; }
+.arcade-card__name { font-family: var(--font-display); font-size: 1.3rem; }
+.arcade-card__blurb { color: var(--text-dim); font-size: 0.92rem; }
+
 /* Outcome badge colours (history rows, simul scoreboard). */
 .badge-win { background: var(--mint); color: var(--text-on-light); }
 .badge-loss { background: var(--coral); color: #fff; }
