@@ -465,3 +465,64 @@
 }
 .kku-right { position: absolute; top: 1px; right: 3px; font-size: 0.62rem; font-weight: 800; color: var(--paper); }
 .kku-down { position: absolute; bottom: 1px; left: 3px; font-size: 0.62rem; font-weight: 800; color: var(--paper); }
+
+/* ---- Star Battle ---- */
+.starbattle {
+  display: grid;
+  max-width: 360px;
+  margin: 0 auto;
+  background: var(--surface);
+  border: 3px solid var(--ink);
+  border-radius: var(--radius-s);
+  overflow: hidden;
+}
+.sb-cell {
+  aspect-ratio: 1;
+  border: 1px solid color-mix(in srgb, var(--ink) 20%, transparent);
+  font-size: clamp(1.1rem, 5vw, 1.6rem);
+  color: var(--gold-dark);
+  cursor: pointer;
+}
+.sb-cell.reg-0 { background: color-mix(in srgb, var(--violet) 16%, var(--surface)); }
+.sb-cell.reg-1 { background: color-mix(in srgb, var(--sky) 16%, var(--surface)); }
+.sb-cell.reg-2 { background: color-mix(in srgb, var(--mint) 16%, var(--surface)); }
+.sb-cell.reg-3 { background: color-mix(in srgb, var(--gold) 18%, var(--surface)); }
+.sb-cell.reg-4 { background: color-mix(in srgb, var(--coral) 14%, var(--surface)); }
+.sb-cell.reg-5 { background: color-mix(in srgb, var(--rose) 14%, var(--surface)); }
+.sb-cell.edge-t { border-top: 3px solid var(--ink); }
+.sb-cell.edge-l { border-left: 3px solid var(--ink); }
+.sb-cell.edge-r { border-right: 3px solid var(--ink); }
+.sb-cell.edge-b { border-bottom: 3px solid var(--ink); }
+.sb-cell.bad { background: color-mix(in srgb, var(--coral) 40%, var(--surface)); }
+
+/* ---- Shikaku ---- */
+.shikaku {
+  display: grid;
+  max-width: 360px;
+  margin: 0 auto;
+  border: var(--outline);
+  border-radius: var(--radius-s);
+  overflow: hidden;
+  box-shadow: var(--shadow-sticker);
+}
+.shk-cell {
+  aspect-ratio: 1;
+  border: 1px solid color-mix(in srgb, var(--ink) 26%, transparent);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(0.95rem, 4.5vw, 1.3rem);
+  cursor: pointer;
+}
+.shk-cell.anchor { outline: 3px solid var(--gold); outline-offset: -3px; }
+.shk-cell.overlap { background: color-mix(in srgb, var(--coral) 36%, var(--surface)); }
+.shk-cell.bad { color: var(--coral); }
+.shk-cell.own-0 { background: color-mix(in srgb, var(--violet) 20%, var(--surface)); }
+.shk-cell.own-1 { background: color-mix(in srgb, var(--sky) 20%, var(--surface)); }
+.shk-cell.own-2 { background: color-mix(in srgb, var(--mint) 20%, var(--surface)); }
+.shk-cell.own-3 { background: color-mix(in srgb, var(--gold) 22%, var(--surface)); }
+.shk-cell.own-4 { background: color-mix(in srgb, var(--coral) 18%, var(--surface)); }
+.shk-cell.own-5 { background: color-mix(in srgb, var(--rose) 18%, var(--surface)); }
+.shk-cell.own-6 { background: color-mix(in srgb, var(--violet) 30%, var(--surface)); }
+.shk-cell.own-7 { background: color-mix(in srgb, var(--sky) 30%, var(--surface)); }

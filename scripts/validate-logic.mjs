@@ -15,6 +15,8 @@ import { generate as kkrGen, countSolutions as kkrCount, isSolved as kkrSolved, 
 import { generate as akGen, countSolutions as akCount, solve as akSolve, isSolved as akSolved } from "../src/logic/akari.ts";
 import { generate as sugGen, countSolutions as sugCount, solve as sugSolve, isSolved as sugSolved } from "../src/logic/suguru.ts";
 import { generate as kkuGen, countSolutions as kkuCount, solve as kkuSolve, isSolved as kkuSolved } from "../src/logic/kakuro.ts";
+import { generate as sbGen, countSolutions as sbCount, solve as sbSolve, isSolved as sbSolved } from "../src/logic/starbattle.ts";
+import { generate as shkGen, countSolutions as shkCount, solve as shkSolve, isSolved as shkSolved } from "../src/logic/shikaku.ts";
 
 let problems = 0;
 let checks = 0;
@@ -241,6 +243,26 @@ for (const seed of SEEDS) {
   const solved = kkuSolve(p);
   check(solved !== null && kkuSolved(solved, p), `kakuro ${seed}: solver finds a valid solution`);
 }
+
+console.log("\nStar Battle:");
+for (const seed of SEEDS) {
+  const { size, regionId, solution } = sbGen(seed, 6);
+  check(sbSolved(solution, regionId, size), `starbattle ${seed}: solution has 1 star per row/col/region, none touching`);
+  check(solution.filter(Boolean).length === size, `starbattle ${seed}: exactly ${6} stars`);
+  check(sbCount(regionId, size, 2) === 1, `starbattle ${seed}: unique solution`);
+  const solved = sbSolve(regionId, size);
+  check(solved !== null && solved.join() === solution.join(), `starbattle ${seed}: solver recovers the solution`);
+}
+
+console.log("\nShikaku:");
+for (const seed of SEEDS) {
+  const p = shkGen(seed, 6);
+  check(p.numbers.reduce((a, b) => a + b, 0) === 36, `shikaku ${seed}: clue areas tile the 6×6 grid`);
+  check(shkCount(p, 2) === 1, `shikaku ${seed}: unique solution`);
+  const assign = shkSolve(p);
+  check(assign !== null && isSolvedFromAssign(assign, p, shkSolved), `shikaku ${seed}: solver yields a valid partition`);
+}
+function isSolvedFromAssign(assign, p, fn) { return fn(assign, p); }
 
 console.log(`\n[validate-logic] checks=${checks} problems=${problems}`);
 process.exit(problems ? 1 : 0);
