@@ -16,6 +16,8 @@ import { Suguru } from "../logic/ui/Suguru";
 import { Kakuro } from "../logic/ui/Kakuro";
 import { StarBattle } from "../logic/ui/StarBattle";
 import { Shikaku } from "../logic/ui/Shikaku";
+import { Mosaic } from "../logic/ui/Mosaic";
+import { Aquarium } from "../logic/ui/Aquarium";
 import "../logic/ui/Logic.css";
 
 const PUZZLES = [
@@ -32,6 +34,8 @@ const PUZZLES = [
   { id: "suguru", name: "Suguru", icon: "🧩", blurb: "Fill each cage 1…size; no equal digits may touch, even diagonally." },
   { id: "starbattle", name: "Star Battle", icon: "⭐", blurb: "One star per row, column, and region — and no two may touch." },
   { id: "shikaku", name: "Shikaku", icon: "▭", blurb: "Cut the grid into rectangles, each holding one number = its area." },
+  { id: "mosaic", name: "Mosaic", icon: "🖌", blurb: "Shade cells so every number equals the shaded count in its 3×3." },
+  { id: "aquarium", name: "Aquarium", icon: "💧", blurb: "Flood the tanks so each row and column holds the clued amount of water." },
   { id: "kakurasu", name: "Kakurasu", icon: "➕", blurb: "Shade cells so each row and column hits its weighted-sum clue." },
   { id: "lightsout", name: "Lights Out", icon: "💡", blurb: "Tap to toggle crosses of lights — turn the whole board off." },
   { id: "slide", name: "15-Puzzle", icon: "🧩", blurb: "Slide the tiles through the gap to put them back in order." },
@@ -58,6 +62,8 @@ export function Logic() {
         {id === "suguru" && <Suguru onExit={exit} />}
         {id === "starbattle" && <StarBattle onExit={exit} />}
         {id === "shikaku" && <Shikaku onExit={exit} />}
+        {id === "mosaic" && <Mosaic onExit={exit} />}
+        {id === "aquarium" && <Aquarium onExit={exit} />}
         {id === "kakurasu" && <Kakurasu onExit={exit} />}
         {id === "lightsout" && <LightsOut onExit={exit} />}
         {id === "slide" && <SlidePuzzle onExit={exit} />}

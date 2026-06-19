@@ -526,3 +526,55 @@
 .shk-cell.own-5 { background: color-mix(in srgb, var(--rose) 18%, var(--surface)); }
 .shk-cell.own-6 { background: color-mix(in srgb, var(--violet) 30%, var(--surface)); }
 .shk-cell.own-7 { background: color-mix(in srgb, var(--sky) 30%, var(--surface)); }
+
+/* ---- Mosaic ---- */
+.mosaic {
+  display: grid;
+  max-width: 380px;
+  margin: 0 auto;
+  border: var(--outline);
+  border-radius: var(--radius-s);
+  overflow: hidden;
+  box-shadow: var(--shadow-sticker);
+}
+.mos-cell {
+  aspect-ratio: 1;
+  border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(0.8rem, 4vw, 1.1rem);
+  cursor: pointer;
+}
+.mos-cell.on { background: var(--ink); color: var(--paper); }
+.mos-cell.bad { background: var(--coral); color: #fff; }
+
+/* ---- Aquarium ---- */
+.aquarium {
+  display: grid;
+  max-width: 380px;
+  margin: 0 auto;
+  gap: 0;
+}
+.aq-cell {
+  aspect-ratio: 1;
+  border: 1px solid color-mix(in srgb, var(--ink) 22%, transparent);
+  background: var(--surface);
+  cursor: pointer;
+}
+.aq-cell.water { background: var(--sky); }
+.aq-cell.edge-t { border-top: 3px solid var(--ink); }
+.aq-cell.edge-l { border-left: 3px solid var(--ink); }
+.aq-cell.edge-r { border-right: 3px solid var(--ink); }
+.aq-cell.edge-b { border-bottom: 3px solid var(--ink); }
+.aq-clue {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 800;
+  color: var(--text-dim);
+}
+.aq-clue.ok { color: var(--mint-dark); }
+.aq-clue.over { color: var(--coral); }

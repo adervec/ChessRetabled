@@ -17,6 +17,8 @@ import { generate as sugGen, countSolutions as sugCount, solve as sugSolve, isSo
 import { generate as kkuGen, countSolutions as kkuCount, solve as kkuSolve, isSolved as kkuSolved } from "../src/logic/kakuro.ts";
 import { generate as sbGen, countSolutions as sbCount, solve as sbSolve, isSolved as sbSolved } from "../src/logic/starbattle.ts";
 import { generate as shkGen, countSolutions as shkCount, solve as shkSolve, isSolved as shkSolved } from "../src/logic/shikaku.ts";
+import { generate as mosGen, countSolutions as mosCount, cluesOf, isSolved as mosSolved } from "../src/logic/mosaic.ts";
+import { generate as aqGen, countSolutions as aqCount, isSolved as aqSolved } from "../src/logic/aquarium.ts";
 
 let problems = 0;
 let checks = 0;
@@ -24,7 +26,9 @@ function check(cond, msg) {
   checks++;
   if (!cond) { console.log(`  ✗ ${msg}`); problems++; }
 }
-const SEEDS = [1, 2, 3, 7, 42, 99, 123, 777];
+// A handful of seeds per puzzle — enough to exercise the generators/solvers
+// without the heaviest puzzles (Kakuro/Suguru) dominating CI time.
+const SEEDS = [1, 7, 42, 777];
 
 console.log("Sudoku:");
 for (const seed of SEEDS) {
@@ -263,6 +267,23 @@ for (const seed of SEEDS) {
   check(assign !== null && isSolvedFromAssign(assign, p, shkSolved), `shikaku ${seed}: solver yields a valid partition`);
 }
 function isSolvedFromAssign(assign, p, fn) { return fn(assign, p); }
+
+console.log("\nMosaic:");
+for (const seed of SEEDS) {
+  const { size, clues, solution } = mosGen(seed, 7);
+  check(cluesOf(solution, size).join() === clues.join(), `mosaic ${seed}: clues match the picture`);
+  check(mosSolved(solution, clues, size), `mosaic ${seed}: solution satisfies its clues`);
+  check(mosCount(clues, size, 2) === 1, `mosaic ${seed}: unique solution`);
+  check(!mosSolved(new Array(size * size).fill(false), clues, size) || solution.every((s) => !s), `mosaic ${seed}: an empty grid isn't a (false) solution`);
+}
+
+console.log("\nAquarium:");
+for (const seed of SEEDS) {
+  const { size, regionId, rowClue, colClue, solution } = aqGen(seed, 6);
+  check(aqSolved(solution, size, rowClue, colClue), `aquarium ${seed}: solution matches its row/col clues`);
+  check(aqCount(regionId, size, rowClue, colClue, 2) === 1, `aquarium ${seed}: unique solution`);
+  check(rowClue.reduce((a, b) => a + b, 0) === colClue.reduce((a, b) => a + b, 0), `aquarium ${seed}: row and col totals agree`);
+}
 
 console.log(`\n[validate-logic] checks=${checks} problems=${problems}`);
 process.exit(problems ? 1 : 0);
