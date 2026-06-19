@@ -14,6 +14,7 @@ const LINKS = [
   { to: "/learn", label: "Learn", ico: "🎓" },
   { to: "/academy", label: "Academy", ico: "📚" },
   { to: "/practice", label: "Practice", ico: "🎯" },
+  { to: "/dashboard", label: "Dashboard", ico: "📊" },
 ];
 
 export function NavBar() {

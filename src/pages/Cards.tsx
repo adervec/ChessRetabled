@@ -4,6 +4,8 @@ import { Blackjack } from "../cards/games/blackjack/Blackjack";
 import { CrazyEights } from "../cards/games/crazy-eights/CrazyEights";
 import { Hearts } from "../cards/games/hearts/Hearts";
 import { Klondike } from "../cards/games/klondike/Klondike";
+import { Pyramid } from "../cards/games/pyramid/Pyramid";
+import { Golf } from "../cards/games/golf/Golf";
 import { War } from "../cards/games/war/War";
 import { GoFish } from "../cards/games/gofish/GoFish";
 import { Memory } from "../cards/games/memory/Memory";
@@ -25,6 +27,8 @@ export function Cards() {
         {gameId === "crazy-eights" && <CrazyEights onExit={exit} />}
         {gameId === "hearts" && <Hearts onExit={exit} />}
         {gameId === "klondike" && <Klondike onExit={exit} />}
+        {gameId === "pyramid" && <Pyramid onExit={exit} />}
+        {gameId === "golf" && <Golf onExit={exit} />}
         {gameId === "poker" && <Poker onExit={exit} />}
         {gameId === "gofish" && <GoFish onExit={exit} />}
         {gameId === "memory" && <Memory onExit={exit} />}

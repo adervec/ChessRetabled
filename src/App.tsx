@@ -14,6 +14,7 @@ import { Learn } from "./pages/Learn";
 import { LessonPlayer } from "./pages/LessonPlayer";
 import { Academy } from "./pages/Academy";
 import { Practice } from "./pages/Practice";
+import { Dashboard } from "./pages/Dashboard";
 import { Profile } from "./pages/Profile";
 
 export default function App() {
@@ -48,6 +49,7 @@ export default function App() {
           <Route path="/learn/:courseId/:lessonId" element={<LessonPlayer />} />
           <Route path="/academy" element={<Academy />} />
           <Route path="/practice" element={<Practice />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

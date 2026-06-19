@@ -8,6 +8,8 @@ export interface CardGameMeta {
   icon: string;
   blurb: string;
   players: string;
+  /** "solo" = solitaire (clear/abandon); "versus" = win/loss/draw. Default versus. */
+  kind?: "solo" | "versus";
 }
 
 export const CARD_GAMES: CardGameMeta[] = [
@@ -17,6 +19,23 @@ export const CARD_GAMES: CardGameMeta[] = [
     icon: "🃏",
     blurb: "Klondike — build the foundations up from Ace to King.",
     players: "1 player",
+    kind: "solo",
+  },
+  {
+    id: "pyramid",
+    name: "Pyramid",
+    icon: "🔺",
+    blurb: "Pair exposed cards that add to 13 to dismantle the pyramid.",
+    players: "1 player",
+    kind: "solo",
+  },
+  {
+    id: "golf",
+    name: "Golf",
+    icon: "⛳",
+    blurb: "Clear the columns onto one pile, a rank up or down at a time.",
+    players: "1 player",
+    kind: "solo",
   },
   {
     id: "blackjack",

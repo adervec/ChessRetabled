@@ -31,6 +31,8 @@ import {
   initHearts, applyMove as hApply, aiMove as hAi, legalMoves as hLegal, pointsOf,
 } from "../src/cards/games/hearts/logic.ts";
 import { initKlondike, legalMoves as kLegal, applyMove as kApply, allCards, isWon } from "../src/cards/games/klondike/logic.ts";
+import { initPyramid, removeRefs, draw as pyDraw, recycle as pyRecycle, isWon as pyWon, value as pyVal, exposedSlots, WASTE_REF } from "../src/cards/games/pyramid/logic.ts";
+import { initGolf, playColumn, draw as golfDraw, playableColumns, isWon as golfWon, isStuck as golfStuck, canPlay } from "../src/cards/games/golf/logic.ts";
 
 let problems = 0;
 let checks = 0;
@@ -127,6 +129,69 @@ for (const seed of SEEDS) {
   check(ok, `klondike seed ${seed}: 52 cards conserved across random play`);
   check(typeof isWon(s) === "boolean", `klondike seed ${seed}: win check evaluates`);
 }
+
+console.log("\nPyramid:");
+for (const seed of SEEDS) {
+  let s = initPyramid(seed);
+  check(s.pyramid.filter(Boolean).length === 28 && s.stock.length === 24, `pyramid seed ${seed}: 28 pyramid + 24 stock`);
+  const remaining = (st) => [...st.pyramid.filter(Boolean), ...st.stock, ...st.waste];
+  check(uniqueCount(remaining(s)) === 52, `pyramid seed ${seed}: 52 unique at deal`);
+  let guard = 0, ok = true;
+  while (guard++ < 3000) {
+    const refs = exposedSlots(s);
+    if (s.waste.length) refs.push(WASTE_REF);
+    const valOf = (r) => (r === WASTE_REF ? pyVal(s.waste[s.waste.length - 1].rank) : pyVal(s.pyramid[r].rank));
+    const king = refs.find((r) => valOf(r) === 13);
+    let moved = false;
+    if (king !== undefined) { s = removeRefs(s, [king]); moved = true; }
+    else {
+      pair: for (let a = 0; a < refs.length; a++) for (let b = a + 1; b < refs.length; b++) {
+        if (valOf(refs[a]) + valOf(refs[b]) === 13) { s = removeRefs(s, [refs[a], refs[b]]); moved = true; break pair; }
+      }
+    }
+    if (!moved) {
+      if (s.stock.length) s = pyDraw(s);
+      else if (s.waste.length) s = pyRecycle(s);
+      else break;
+    }
+    const rem = remaining(s);
+    if (uniqueCount(rem) !== rem.length) { ok = false; break; }
+    if (pyWon(s) || s.recycles > 3) break;
+  }
+  check(ok, `pyramid seed ${seed}: no card duplicated or created across play`);
+  check(typeof pyWon(s) === "boolean", `pyramid seed ${seed}: win check evaluates`);
+  // non-13 pair removal must be a no-op
+  const fresh = initPyramid(seed);
+  const ex = exposedSlots(fresh);
+  const sum = pyVal(fresh.pyramid[ex[0]].rank) + pyVal(fresh.pyramid[ex[1]].rank);
+  if (sum !== 13) {
+    const before = remaining(fresh).length;
+    check(remaining(removeRefs(fresh, [ex[0], ex[1]])).length === before, `pyramid seed ${seed}: illegal pair is rejected`);
+  }
+  check(pyWon({ ...fresh, pyramid: new Array(28).fill(null) }), `pyramid seed ${seed}: cleared pyramid is a win`);
+}
+
+console.log("\nGolf:");
+for (const seed of SEEDS) {
+  let s = initGolf(seed);
+  const colCards = s.columns.reduce((n, c) => n + c.length, 0);
+  check(colCards === 35 && s.foundation.length === 1 && s.stock.length === 16, `golf seed ${seed}: 35 columns + 1 foundation + 16 stock`);
+  const all = (st) => [...st.columns.flat(), ...st.stock, ...st.foundation];
+  check(uniqueCount(all(s)) === 52, `golf seed ${seed}: 52 unique at deal`);
+  let guard = 0, ok = true;
+  while (guard++ < 200) {
+    if (golfWon(s) || golfStuck(s)) break;
+    const pc = playableColumns(s);
+    if (pc.length) s = playColumn(s, pc[(seed + guard) % pc.length]);
+    else if (s.stock.length) s = golfDraw(s);
+    else break;
+    if (uniqueCount(all(s)) !== 52) { ok = false; break; }
+  }
+  check(ok, `golf seed ${seed}: 52 cards conserved across play`);
+  check(golfWon(s) || golfStuck(s), `golf seed ${seed}: reaches a terminal state`);
+}
+check(canPlay(makeCard("S", 5), makeCard("H", 6)) && canPlay(makeCard("S", 5), makeCard("H", 4)), "golf: a 5 plays on a 4 or a 6");
+check(!canPlay(makeCard("S", 5), makeCard("H", 7)) && !canPlay(makeCard("S", 1), makeCard("H", 13)), "golf: no jumps and no A–K wrap");
 
 console.log("\nWar:");
 for (const seed of SEEDS) {

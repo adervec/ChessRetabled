@@ -55,6 +55,10 @@ jobs:
       - name: Validate logic puzzles
         run: node scripts/validate-logic.mjs
 
+      # Dashboard analytics: catalogue integrity + buildDashboard aggregation.
+      - name: Validate dashboard stats
+        run: node scripts/validate-stats.mjs
+
       # Puzzles are derived, not hand-typed: regenerate and fail if the committed
       # JSON drifts from what the generator produces (stale file or a hand-edit).
       - name: Verify generated puzzles are up to date
