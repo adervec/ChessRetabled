@@ -57,6 +57,19 @@ embedding, and web-serving. The full license text and copyright notices ship at
 
 ---
 
+## Optional runtime service (opt-in, not bundled)
+
+### Google Drive sync — Google Identity Services + Drive API
+
+**Off by default.** Only if the user enables Google Drive sync in Settings does the
+app dynamically load Google's Identity Services client (`accounts.google.com/gsi/
+client`) and call the Google Drive REST API to store one file in the user's own
+private app-data folder (`drive.appdata` scope). No Google SDK is bundled and no
+new npm dependency is added; nothing is requested from Google until the user
+consents and connects. Use of these APIs is governed by Google's terms.
+
+---
+
 ## Build-time only (not distributed)
 
 `vite`, `@vitejs/plugin-react` (MIT), `typescript` (Apache-2.0), and the

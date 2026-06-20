@@ -1,8 +1,7 @@
-// Headless verification for the cloud-sync infrastructure: the privacy gate,
-// the Firestore document encode/decode round-trip, the JWT decoder, and the
-// last-write-wins rule. Pure modules only — no fetch, localStorage, or zustand.
-import { encodeBundle, decodeFirestoreDoc } from "../src/state/cloud/firestore.ts";
-import { decodeJwt } from "../src/state/cloud/googleAuth.ts";
+// Headless verification for the cloud-sync infrastructure: the privacy gate, the
+// Google Drive bundle serialize/parse round-trip, and the last-write-wins rule.
+// Pure modules only — no fetch, GIS, localStorage, or zustand.
+import { serializeBundle, parseBundle } from "../src/state/cloud/googleDrive.ts";
 import {
   chooseAdapterKind, cloudUploadAllowed, remoteIsNewer, CLOUD_CONSENT_TEXT,
 } from "../src/state/cloud/policy.ts";
@@ -18,65 +17,45 @@ const bundle = () => ({
   app: "chessretabled",
   version: 1,
   exportedISO: "2026-06-19T12:00:00.000Z",
-  progress: { xp: 420, records: [{ id: "a" }] },
+  progress: { xp: 420 },
   settings: { theme: "vegas" },
   archive: { records: [{ id: "g1", gameId: "chess", outcome: "win" }] },
 });
 
 console.log("Privacy gate:");
 {
-  const base = { provider: "local", consented: false, projectId: "", apiKey: "" };
+  const base = { provider: "local", consented: false, clientId: "" };
   check(chooseAdapterKind(base) === "local", "default config → local (private by default)");
   check(!cloudUploadAllowed(base), "default config → upload NOT allowed");
 
-  check(chooseAdapterKind({ ...base, provider: "firestore" }) === "local",
-    "firestore selected but not consented + unconfigured → local");
-  check(chooseAdapterKind({ provider: "firestore", consented: true, projectId: "p", apiKey: "" }) === "local",
-    "consented but no API key → local");
-  check(chooseAdapterKind({ provider: "firestore", consented: true, projectId: "", apiKey: "k" }) === "local",
-    "consented but no project id → local");
-  check(chooseAdapterKind({ provider: "firestore", consented: false, projectId: "p", apiKey: "k" }) === "local",
-    "configured but NOT consented → local (consent is mandatory)");
-  check(chooseAdapterKind({ provider: "firestore", consented: true, projectId: "  ", apiKey: "  " }) === "local",
-    "whitespace-only config → local");
+  check(chooseAdapterKind({ provider: "drive", consented: false, clientId: "abc.apps.googleusercontent.com" }) === "local",
+    "client id set but NOT consented → local (consent is mandatory)");
+  check(chooseAdapterKind({ provider: "drive", consented: true, clientId: "" }) === "local",
+    "consented but no client id → local");
+  check(chooseAdapterKind({ provider: "drive", consented: true, clientId: "   " }) === "local",
+    "whitespace-only client id → local");
+  check(chooseAdapterKind({ provider: "local", consented: true, clientId: "abc" }) === "local",
+    "provider still local → local even if consented + configured");
 
-  const ok = { provider: "firestore", consented: true, projectId: "my-proj", apiKey: "AIzaXYZ" };
-  check(chooseAdapterKind(ok) === "firestore", "opted-in + consented + configured → firestore");
+  const ok = { provider: "drive", consented: true, clientId: "abc.apps.googleusercontent.com" };
+  check(chooseAdapterKind(ok) === "drive", "opted-in + consented + client id → drive");
   check(cloudUploadAllowed(ok), "fully configured + consented → upload allowed");
 
-  check(typeof CLOUD_CONSENT_TEXT === "string" && /google/i.test(CLOUD_CONSENT_TEXT),
-    "consent text exists and names Google");
+  check(typeof CLOUD_CONSENT_TEXT === "string" && /google drive/i.test(CLOUD_CONSENT_TEXT),
+    "consent text exists and names Google Drive");
 }
 
-console.log("\nFirestore encode/decode:");
+console.log("\nBundle serialize/parse:");
 {
   const b = bundle();
-  const enc = encodeBundle(b);
-  check(enc.fields.app.stringValue === "chessretabled", "app stored as stringValue");
-  check(enc.fields.version.integerValue === "1", "version stored as integerValue string");
-  check(enc.fields.exportedISO.stringValue === b.exportedISO, "exportedISO mirrored for cheap comparison");
-  check(typeof enc.fields.bundle.stringValue === "string", "whole bundle stored as one JSON string field");
-
-  const round = decodeFirestoreDoc(enc); // a GET doc has the same .fields shape
-  check(JSON.stringify(round) === JSON.stringify(b), "decode(encode(bundle)) round-trips exactly");
-
-  check(decodeFirestoreDoc(null) === null, "null doc → null");
-  check(decodeFirestoreDoc({}) === null, "doc without fields → null (no remote yet)");
-  check(decodeFirestoreDoc({ fields: {} }) === null, "fields without bundle → null");
-  check(decodeFirestoreDoc({ fields: { bundle: { stringValue: "{not json" } } }) === null, "malformed JSON → null (no throw)");
-}
-
-console.log("\nJWT decode:");
-{
-  const b64url = (obj) => Buffer.from(JSON.stringify(obj)).toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-  const make = (payload) => `${b64url({ alg: "none" })}.${b64url(payload)}.sig`;
-  const claims = decodeJwt(make({ sub: "108423", email: "player@example.com", name: "Renée Müller" }));
-  check(claims.sub === "108423", "JWT sub extracted");
-  check(claims.email === "player@example.com", "JWT email extracted");
-  check(claims.name === "Renée Müller", "JWT UTF-8 payload decoded correctly");
-  let threw = false;
-  try { decodeJwt("not-a-jwt"); } catch { threw = true; }
-  check(threw, "malformed token throws");
+  const text = serializeBundle(b);
+  check(typeof text === "string", "serialize → string");
+  check(JSON.stringify(parseBundle(text)) === JSON.stringify(b), "parse(serialize(bundle)) round-trips exactly");
+  check(parseBundle(null) === null, "null → null (no remote file yet)");
+  check(parseBundle("") === null, "empty body → null");
+  check(parseBundle("{}") !== null, "empty object is a valid (if empty) bundle");
+  check(parseBundle("{not json") === null, "malformed JSON → null (no throw)");
+  check(parseBundle("42") === null, "non-object JSON → null");
 }
 
 console.log("\nLast-write-wins:");

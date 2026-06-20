@@ -117,13 +117,21 @@ kind. It's made for **learning and fun**:
 
 ## Privacy
 
-No accounts, servers, analytics, cookies, or third-party CDNs. Fonts are
-**self-hosted** (bundled with the app), so the page makes no request to Google
-Fonts or any other outside service at runtime. Your progress (level, ratings,
-streak, lesson stars, game history) is stored **only in your browser** via
-`localStorage` and never leaves your device. The only network request is to load
-the app itself; the host (GitHub Pages) serves the site and may log standard web
-requests per GitHub's privacy policy.
+No accounts, servers, analytics, cookies, or third-party CDNs by default. Fonts
+are **self-hosted** (bundled with the app), so the page makes no request to
+Google Fonts or any other outside service at runtime. Your progress (level,
+ratings, streak, lesson stars, game history) is stored **only in your browser**
+via `localStorage` and never leaves your device. Out of the box, the only network
+request is to load the app itself; the host (GitHub Pages) serves the site and
+may log standard web requests per GitHub's privacy policy.
+
+**Optional Google Drive sync** (off by default): if you turn it on in Settings,
+tick consent, and connect a Google account, your data bundle is uploaded to a
+private per-app folder in *your own* Google Drive (the `drive.appdata` scope —
+hidden from your normal Drive files) so you can restore it on other devices.
+This is the only case where data leaves your device, it only happens after you
+explicitly connect, and you can disconnect at any time. The OAuth access token is
+held in memory only and never persisted.
 
 ## License
 

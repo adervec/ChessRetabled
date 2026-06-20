@@ -4,7 +4,7 @@ import { downloadExport, importJson } from "../../state/dataTransfer";
 import { syncNow } from "../../state/sync";
 import { useCloudConfig } from "../../state/cloudConfig";
 import { chooseAdapterKind, CLOUD_CONSENT_TEXT } from "../../state/cloud/policy";
-import { signInWithGoogle } from "../../state/cloud/googleAuth";
+import { ensureAccessToken, fetchGoogleAccount } from "../../state/cloud/googleDrive";
 import "./SettingsPanel.css";
 
 export function SettingsPanel() {
@@ -13,16 +13,17 @@ export function SettingsPanel() {
   const cloud = useCloudConfig();
   const [msg, setMsg] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
-  const cloudActive = chooseAdapterKind(cloud) === "firestore";
+  const cloudActive = chooseAdapterKind(cloud) === "drive";
 
-  async function onSignIn() {
-    setMsg("Opening Google sign-in…");
+  async function onConnect() {
+    setMsg("Opening Google Drive authorization…");
     try {
-      const id = await signInWithGoogle(cloud.clientId);
-      cloud.signedIn(id);
-      setMsg(`Signed in as ${id.email ?? id.sub}`);
+      const token = await ensureAccessToken(cloud.clientId, true);
+      const account = await fetchGoogleAccount(token);
+      cloud.connected(account);
+      setMsg(`Connected as ${account.email || account.name || "your Google account"}`);
     } catch (e) {
-      setMsg(`Sign-in failed: ${e instanceof Error ? e.message : "unknown error"}`);
+      setMsg(`Connect failed: ${e instanceof Error ? e.message : "unknown error"}`);
     }
   }
 
@@ -145,17 +146,17 @@ export function SettingsPanel() {
             🔒 On-device only
           </button>
           <button
-            className={"chip-btn" + (cloud.provider === "firestore" ? " is-on" : "")}
-            onClick={() => cloud.setProvider("firestore")}
+            className={"chip-btn" + (cloud.provider === "drive" ? " is-on" : "")}
+            onClick={() => cloud.setProvider("drive")}
           >
-            ☁ Google Cloud (Firestore)
+            ☁ Google Drive
           </button>
           <span className={"settings__badge settings__badge--" + (cloudActive ? "on" : "off")}>
-            {cloudActive ? "● cloud active" : "○ local mirror"}
+            {cloudActive ? "● Drive active" : "○ local mirror"}
           </span>
         </div>
 
-        {cloud.provider === "firestore" && (
+        {cloud.provider === "drive" && (
           <div className="settings__cloudbox">
             <label className="settings__consent">
               <input
@@ -166,70 +167,46 @@ export function SettingsPanel() {
               <span>{CLOUD_CONSENT_TEXT}</span>
             </label>
 
-            <div className="settings__fields">
-              <div className="settings__field">
-                <label htmlFor="cfg-project">Firebase project ID</label>
-                <input
-                  id="cfg-project"
-                  className="settings__input"
-                  value={cloud.projectId}
-                  placeholder="my-project-123"
-                  onChange={(e) => cloud.update({ projectId: e.target.value })}
-                />
-              </div>
-              <div className="settings__field">
-                <label htmlFor="cfg-key">Web API key</label>
-                <input
-                  id="cfg-key"
-                  className="settings__input"
-                  value={cloud.apiKey}
-                  placeholder="AIza…"
-                  onChange={(e) => cloud.update({ apiKey: e.target.value })}
-                />
-              </div>
-              <div className="settings__field">
-                <label htmlFor="cfg-collection">Collection</label>
-                <input
-                  id="cfg-collection"
-                  className="settings__input"
-                  value={cloud.collection}
-                  placeholder="chessretabled"
-                  onChange={(e) => cloud.update({ collection: e.target.value })}
-                />
-              </div>
-              <div className="settings__field">
-                <label htmlFor="cfg-client">Google OAuth client ID (optional)</label>
-                <input
-                  id="cfg-client"
-                  className="settings__input"
-                  value={cloud.clientId}
-                  placeholder="….apps.googleusercontent.com"
-                  onChange={(e) => cloud.update({ clientId: e.target.value })}
-                />
-              </div>
+            <div className="settings__field">
+              <label htmlFor="cfg-client">Google OAuth client ID</label>
+              <input
+                id="cfg-client"
+                className="settings__input"
+                value={cloud.clientId}
+                placeholder="….apps.googleusercontent.com"
+                onChange={(e) => cloud.update({ clientId: e.target.value })}
+              />
             </div>
 
             <div className="settings__account">
-              {cloud.userId ? (
+              {cloud.account ? (
                 <>
-                  <span className="settings__badge settings__badge--on">✓ {cloud.email || cloud.userId}</span>
-                  <button className="btn btn--sm btn--ghost" onClick={cloud.signOut}>Sign out</button>
+                  <span className="settings__badge settings__badge--on">
+                    ✓ {cloud.account.email || cloud.account.name || "Connected"}
+                  </span>
+                  <button className="btn btn--sm" onClick={onConnect}>Reconnect</button>
                 </>
               ) : (
-                <button className="btn btn--sm" onClick={onSignIn} disabled={!cloud.clientId.trim()}>
-                  Sign in with Google
+                <button
+                  className="btn btn--sm btn--mint"
+                  onClick={onConnect}
+                  disabled={!cloud.consented || !cloud.clientId.trim()}
+                >
+                  Connect Google Drive
                 </button>
               )}
               <button className="btn btn--sm btn--ghost" onClick={cloud.disconnect}>
-                Disconnect cloud
+                Disconnect
               </button>
             </div>
 
             <p className="settings__hint">
-              Bring your own Firebase/Firestore project (the web API key is public;
-              lock the data down with Firestore security rules). Sign-in is only
-              needed if your rules require auth. Nothing is uploaded until the box
-              above is checked.
+              Syncs to a private per-app folder in your own Google Drive (the
+              <code> drive.appdata </code> scope — hidden from your normal files).
+              Needs a Google OAuth client ID (an identifier, not a secret): create
+              one in the Google Cloud Console → OAuth consent screen → Credentials
+              → OAuth client ID (Web), and add this site’s URL as an authorized
+              JavaScript origin. Nothing uploads until you tick consent and connect.
             </p>
           </div>
         )}

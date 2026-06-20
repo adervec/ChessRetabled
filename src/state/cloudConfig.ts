@@ -1,47 +1,39 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { setSyncAdapter, LocalSyncAdapter } from "./sync";
-import { FirestoreSyncAdapter } from "./cloud/firestore";
+import {
+  GoogleDriveSyncAdapter, DEFAULT_GOOGLE_CLIENT_ID, clearAccessToken, forgetDriveFile,
+  type GoogleAccount,
+} from "./cloud/googleDrive";
 import { chooseAdapterKind, type SyncProvider } from "./cloud/policy";
 
 // User-facing cloud-sync configuration. The privacy gate lives in cloud/policy;
 // this store just holds the settings and, on every change, (re)registers the
 // active SyncAdapter through that gate — so the rest of the app keeps calling
-// syncNow() without knowing or caring whether a real backend is connected.
+// syncNow() without knowing whether Drive is connected.
 //
-// The Bearer idToken is intentionally NOT persisted (it is short-lived and
-// sensitive); on reload the user re-signs-in to refresh it.
+// The OAuth access token is NOT here: it lives in memory in cloud/googleDrive
+// and is never persisted. Only the public client id + the connected account
+// (name/email/avatar, for display) are stored.
 
 export interface CloudConfigState {
   provider: SyncProvider;
   consented: boolean;
-  projectId: string;
-  apiKey: string;
-  collection: string;
   clientId: string;
-  // signed-in identity (idToken not persisted)
-  userId: string;
-  email: string;
-  idToken: string;
+  account: GoogleAccount | null;
 
-  update: (patch: Partial<Omit<CloudConfigState, "update" | "setProvider" | "setConsent" | "signedIn" | "signOut" | "disconnect">>) => void;
+  update: (patch: Partial<Pick<CloudConfigState, "provider" | "consented" | "clientId" | "account">>) => void;
   setProvider: (p: SyncProvider) => void;
   setConsent: (b: boolean) => void;
-  signedIn: (id: { sub: string; email?: string; idToken: string }) => void;
-  signOut: () => void;
+  connected: (account: GoogleAccount) => void;
   disconnect: () => void;
 }
 
 const initial = {
   provider: "local" as SyncProvider,
   consented: false,
-  projectId: "",
-  apiKey: "",
-  collection: "chessretabled",
-  clientId: "",
-  userId: "",
-  email: "",
-  idToken: "",
+  clientId: DEFAULT_GOOGLE_CLIENT_ID,
+  account: null as GoogleAccount | null,
 };
 
 export const useCloudConfig = create<CloudConfigState>()(
@@ -51,22 +43,21 @@ export const useCloudConfig = create<CloudConfigState>()(
       update: (patch) => { set(patch); applyCloudConfig(); },
       setProvider: (provider) => { set({ provider }); applyCloudConfig(); },
       setConsent: (consented) => { set({ consented }); applyCloudConfig(); },
-      signedIn: ({ sub, email, idToken }) => { set({ userId: sub, email: email ?? "", idToken }); applyCloudConfig(); },
-      signOut: () => { set({ idToken: "", email: "", userId: "" }); applyCloudConfig(); },
-      disconnect: () => { set({ provider: "local", consented: false, idToken: "" }); applyCloudConfig(); },
+      connected: (account) => { set({ account }); applyCloudConfig(); },
+      disconnect: () => {
+        clearAccessToken();
+        forgetDriveFile();
+        set({ provider: "local", consented: false, account: null });
+        applyCloudConfig();
+      },
     }),
     {
-      name: "chessretabled.cloud.v1",
-      // Persist config but never the short-lived Bearer token.
+      name: "chessretabled.cloud.v2",
       partialize: (s) => ({
         provider: s.provider,
         consented: s.consented,
-        projectId: s.projectId,
-        apiKey: s.apiKey,
-        collection: s.collection,
         clientId: s.clientId,
-        userId: s.userId,
-        email: s.email,
+        account: s.account,
       }),
     }
   )
@@ -74,14 +65,8 @@ export const useCloudConfig = create<CloudConfigState>()(
 
 /** Build the adapter the current config resolves to (through the privacy gate). */
 export function buildAdapterFor(c: CloudConfigState) {
-  if (chooseAdapterKind(c) === "firestore") {
-    return new FirestoreSyncAdapter({
-      projectId: c.projectId.trim(),
-      apiKey: c.apiKey.trim(),
-      collection: c.collection.trim() || "chessretabled",
-      docId: c.userId.trim() || "shared",
-      idToken: c.idToken || undefined,
-    });
+  if (chooseAdapterKind(c) === "drive") {
+    return new GoogleDriveSyncAdapter({ clientId: c.clientId.trim() });
   }
   return new LocalSyncAdapter();
 }

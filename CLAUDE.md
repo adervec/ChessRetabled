@@ -131,18 +131,20 @@ reachable at `/games` (the "Games" nav item → `pages/Arcade.tsx`).
   rate, streak, favourite, per-category, 14-day sparkline, recency/frequency).
   Verified by `scripts/validate-stats.mjs`. Logic-puzzle metadata now lives in the
   shared `logic/registry.ts` (used by both the lobby and the catalog).
-- **Cloud sync (Google Firestore)** (`state/cloud/`): a real `SyncAdapter` over the
-  Firestore REST API (`cloud/firestore.ts`, whole bundle as one JSON doc field) +
-  a Google Identity sign-in seam (`cloud/googleAuth.ts`). **Privacy-gated**:
-  `cloud/policy.ts` (`chooseAdapterKind`) is the single chokepoint — cloud is OFF
-  by default and nothing uploads until the user opts in, **consents**, and supplies
-  a project id + API key; otherwise the local mirror is used. `state/cloudConfig.ts`
-  (persisted; never stores the short-lived Bearer token) builds + registers the
-  adapter via `applyCloudConfig()` (called on app start + on every config change).
-  Bring-your-own Firebase project (web API key is public; lock with Firestore
-  rules). Pure pieces (gate, encode/decode, JWT, LWW) covered by
-  `scripts/validate-sync.mjs`. NB: TS **parameter properties** break Node
-  type-stripping — assign fields explicitly in `.ts` constructors.
+- **Cloud sync (Google Drive)** (`state/cloud/`): a real `SyncAdapter` over the
+  Drive REST API using the **GIS OAuth2 token model** (same approach as the
+  GymTracker app) — `cloud/googleDrive.ts` requests only the `drive.appdata` scope
+  (a private, hidden per-app folder) and keeps the whole `DataBundle` as one JSON
+  file (`chessretabled-state.json`). The access token is **in memory only, never
+  persisted**. **Privacy-gated**: `cloud/policy.ts` (`chooseAdapterKind`) is the
+  single chokepoint — cloud is OFF by default and nothing uploads until the user
+  opts in, **consents**, and supplies an OAuth client id; otherwise the local
+  mirror is used. `state/cloudConfig.ts` (persisted: provider/consent/clientId/
+  account only) registers the adapter via `applyCloudConfig()` (app start + every
+  change). Bring-your-own OAuth client id (an identifier, not a secret); the GIS
+  script loads lazily only on connect. Pure pieces (gate, serialize/parse, LWW)
+  covered by `scripts/validate-sync.mjs`. NB: TS **parameter properties** break
+  Node type-stripping — assign fields explicitly in `.ts` constructors.
 
 ## More modes & content
 
