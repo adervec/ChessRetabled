@@ -117,11 +117,13 @@ kind. It's made for **learning and fun**:
 
 ## Privacy
 
-No accounts, servers, analytics, or cookies. Your progress (level, ratings,
-streak, lesson stars) is stored **only in your browser** via `localStorage` and
-never leaves your device. Note: the host (GitHub Pages) serves the site and may
-log standard web requests per GitHub's privacy policy, and fonts are loaded from
-Google Fonts (which receives your IP) unless self-hosted.
+No accounts, servers, analytics, cookies, or third-party CDNs. Fonts are
+**self-hosted** (bundled with the app), so the page makes no request to Google
+Fonts or any other outside service at runtime. Your progress (level, ratings,
+streak, lesson stars, game history) is stored **only in your browser** via
+`localStorage` and never leaves your device. The only network request is to load
+the app itself; the host (GitHub Pages) serves the site and may log standard web
+requests per GitHub's privacy policy.
 
 ## License
 

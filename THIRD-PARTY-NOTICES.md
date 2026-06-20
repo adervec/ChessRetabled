@@ -44,8 +44,16 @@ Copyright (c) 2019 Paul Henschel. See the MIT text below.
 
 ### Fonts: "Baloo 2" and "Nunito" — SIL Open Font License 1.1
 
-Loaded from Google Fonts. Both families are licensed under the SIL OFL 1.1, which
-permits use, embedding, and web-serving. <https://openfontlicense.org>
+**Self-hosted** (bundled, not loaded from a CDN). The `latin` and `latin-ext`
+subsets are vendored into `src/styles/fonts/` (`.woff2`) and declared in
+`src/styles/fonts.css`; the app makes **no runtime request to Google's Fonts
+CDN**. Both families are licensed under the SIL OFL 1.1, which permits use,
+embedding, and web-serving. The full license text and copyright notices ship at
+`src/styles/fonts/OFL.txt`.
+
+- Baloo 2 — Copyright (c) 2019 Ek Type — <https://github.com/EkType/Baloo2>
+- Nunito — Copyright 2014 The Nunito Project Authors — <https://github.com/googlefonts/nunito>
+- SIL OFL 1.1 — <https://openfontlicense.org>
 
 ---
 

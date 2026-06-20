@@ -3,6 +3,8 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "license": "GPL-3.0-or-later",
+  "author": "Adam Eryavec",
   "description": "A cel-shaded chess game: play vs bots, lessons, puzzles, and practice.",
   "scripts": {
     "setup-engine": "node scripts/setup-engine.mjs",
