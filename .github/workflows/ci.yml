@@ -59,6 +59,10 @@ jobs:
       - name: Validate dashboard stats
         run: node scripts/validate-stats.mjs
 
+      # Cloud sync: privacy gate, Firestore encode/decode, JWT decode, LWW rule.
+      - name: Validate cloud sync
+        run: node scripts/validate-sync.mjs
+
       # Puzzles are derived, not hand-typed: regenerate and fail if the committed
       # JSON drifts from what the generator produces (stale file or a hand-edit).
       - name: Verify generated puzzles are up to date

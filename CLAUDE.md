@@ -121,9 +121,28 @@ reachable at `/games` (the "Games" nav item → `pages/Arcade.tsx`).
   Captures fall into a rendered graveyard. The computer never replies instantly —
   `aiThinkFloorMs(animSpeed)` floors its move to ≥ one animation.
 - **Archive / data** (`state/useArchive.ts`): every finished game (chess + arcade +
-  simul) is logged with its full move list. `state/dataTransfer.ts` does one-bundle
-  JSON export/import; `state/sync.ts` is the cloud-sync seam (a `SyncAdapter` + a
-  local-mirror impl + `syncNow()` last-write-wins) ready for a real backend.
+  simul + cards + logic) is logged with its full move list. `state/dataTransfer.ts`
+  does one-bundle JSON export/import; `state/sync.ts` is the cloud-sync seam (a
+  `SyncAdapter` + a local-mirror impl + `syncNow()` last-write-wins).
+- **Dashboard** (`pages/Dashboard.tsx`, `/dashboard`): a cross-game summary.
+  `catalog.ts` flattens chess + board + cards + logic into one id-keyed list
+  (category + `solo`/`versus` kind, keyed to `GameRecord.gameId`); `state/stats.ts`
+  is a **pure, time-injectable** aggregator over the archive (played/untried, win
+  rate, streak, favourite, per-category, 14-day sparkline, recency/frequency).
+  Verified by `scripts/validate-stats.mjs`. Logic-puzzle metadata now lives in the
+  shared `logic/registry.ts` (used by both the lobby and the catalog).
+- **Cloud sync (Google Firestore)** (`state/cloud/`): a real `SyncAdapter` over the
+  Firestore REST API (`cloud/firestore.ts`, whole bundle as one JSON doc field) +
+  a Google Identity sign-in seam (`cloud/googleAuth.ts`). **Privacy-gated**:
+  `cloud/policy.ts` (`chooseAdapterKind`) is the single chokepoint — cloud is OFF
+  by default and nothing uploads until the user opts in, **consents**, and supplies
+  a project id + API key; otherwise the local mirror is used. `state/cloudConfig.ts`
+  (persisted; never stores the short-lived Bearer token) builds + registers the
+  adapter via `applyCloudConfig()` (called on app start + on every config change).
+  Bring-your-own Firebase project (web API key is public; lock with Firestore
+  rules). Pure pieces (gate, encode/decode, JWT, LWW) covered by
+  `scripts/validate-sync.mjs`. NB: TS **parameter properties** break Node
+  type-stripping — assign fields explicitly in `.ts` constructors.
 
 ## More modes & content
 

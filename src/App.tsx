@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { NavBar } from "./components/ui/NavBar";
 import { useProgress } from "./state/useProgress";
 import { useSettings, ANIM_MS } from "./state/useSettings";
+import { applyCloudConfig } from "./state/cloudConfig";
 import { Home } from "./pages/Home";
 import { Play } from "./pages/Play";
 import { Arcade } from "./pages/Arcade";
@@ -24,6 +25,9 @@ export default function App() {
 
   useEffect(() => {
     touchDay();
+    // Install the cloud SyncAdapter the persisted config resolves to (local
+    // mirror unless the user opted into + consented to a cloud provider).
+    applyCloudConfig();
   }, [touchDay]);
 
   // Reflect presentation settings onto the document so CSS can react globally.

@@ -1,4 +1,5 @@
 import { buildBundle, applyBundle, type DataBundle } from "./dataTransfer";
+import { remoteIsNewer } from "./cloud/policy";
 
 // Cloud-sync groundwork. There is no backend yet — but the seam is real: define
 // a SyncAdapter, ship a LocalSyncAdapter that mirrors to a separate localStorage
@@ -28,7 +29,7 @@ const REMOTE_KEY = "chessretabled.cloudmirror.v1";
 const STATUS_KEY = "chessretabled.syncstatus.v1";
 
 /** Stand-in adapter: persists the "remote" copy in a separate localStorage key. */
-class LocalSyncAdapter implements SyncAdapter {
+export class LocalSyncAdapter implements SyncAdapter {
   readonly id = "local-mirror";
   readonly label = "Local mirror (no cloud yet)";
 
@@ -71,7 +72,7 @@ export async function syncNow(): Promise<SyncStatus> {
   try {
     const local = buildBundle();
     const remote = await getSyncAdapter().pull();
-    if (remote && remote.exportedISO > local.exportedISO) {
+    if (remote && remoteIsNewer(local.exportedISO, remote.exportedISO)) {
       applyBundle(remote);
     } else {
       await getSyncAdapter().push(local);

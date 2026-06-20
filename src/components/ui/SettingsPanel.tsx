@@ -2,13 +2,29 @@ import { useRef, useState } from "react";
 import { useSettings, THEMES, ANIM_SPEEDS } from "../../state/useSettings";
 import { downloadExport, importJson } from "../../state/dataTransfer";
 import { syncNow } from "../../state/sync";
+import { useCloudConfig } from "../../state/cloudConfig";
+import { chooseAdapterKind, CLOUD_CONSENT_TEXT } from "../../state/cloud/policy";
+import { signInWithGoogle } from "../../state/cloud/googleAuth";
 import "./SettingsPanel.css";
 
 export function SettingsPanel() {
   const { theme, animSpeed, boardTilt, setTheme, setAnimSpeed, setBoardTilt } =
     useSettings();
+  const cloud = useCloudConfig();
   const [msg, setMsg] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const cloudActive = chooseAdapterKind(cloud) === "firestore";
+
+  async function onSignIn() {
+    setMsg("Opening Google sign-in…");
+    try {
+      const id = await signInWithGoogle(cloud.clientId);
+      cloud.signedIn(id);
+      setMsg(`Signed in as ${id.email ?? id.sub}`);
+    } catch (e) {
+      setMsg(`Sign-in failed: ${e instanceof Error ? e.message : "unknown error"}`);
+    }
+  }
 
   function onImport(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
@@ -117,10 +133,107 @@ export function SettingsPanel() {
           />
         </div>
         <p className="settings__hint">
-          Export bundles your progress, settings, and full game history. Cloud sync
-          is wired through a local mirror for now — a real backend drops into the
-          same seam.
+          Export bundles your progress, settings, and full game history. “Sync now”
+          uses whichever destination you’ve set below — on-device by default.
         </p>
+
+        <div className="settings__row" style={{ marginTop: 12 }}>
+          <button
+            className={"chip-btn" + (cloud.provider === "local" ? " is-on" : "")}
+            onClick={() => cloud.setProvider("local")}
+          >
+            🔒 On-device only
+          </button>
+          <button
+            className={"chip-btn" + (cloud.provider === "firestore" ? " is-on" : "")}
+            onClick={() => cloud.setProvider("firestore")}
+          >
+            ☁ Google Cloud (Firestore)
+          </button>
+          <span className={"settings__badge settings__badge--" + (cloudActive ? "on" : "off")}>
+            {cloudActive ? "● cloud active" : "○ local mirror"}
+          </span>
+        </div>
+
+        {cloud.provider === "firestore" && (
+          <div className="settings__cloudbox">
+            <label className="settings__consent">
+              <input
+                type="checkbox"
+                checked={cloud.consented}
+                onChange={(e) => cloud.setConsent(e.target.checked)}
+              />
+              <span>{CLOUD_CONSENT_TEXT}</span>
+            </label>
+
+            <div className="settings__fields">
+              <div className="settings__field">
+                <label htmlFor="cfg-project">Firebase project ID</label>
+                <input
+                  id="cfg-project"
+                  className="settings__input"
+                  value={cloud.projectId}
+                  placeholder="my-project-123"
+                  onChange={(e) => cloud.update({ projectId: e.target.value })}
+                />
+              </div>
+              <div className="settings__field">
+                <label htmlFor="cfg-key">Web API key</label>
+                <input
+                  id="cfg-key"
+                  className="settings__input"
+                  value={cloud.apiKey}
+                  placeholder="AIza…"
+                  onChange={(e) => cloud.update({ apiKey: e.target.value })}
+                />
+              </div>
+              <div className="settings__field">
+                <label htmlFor="cfg-collection">Collection</label>
+                <input
+                  id="cfg-collection"
+                  className="settings__input"
+                  value={cloud.collection}
+                  placeholder="chessretabled"
+                  onChange={(e) => cloud.update({ collection: e.target.value })}
+                />
+              </div>
+              <div className="settings__field">
+                <label htmlFor="cfg-client">Google OAuth client ID (optional)</label>
+                <input
+                  id="cfg-client"
+                  className="settings__input"
+                  value={cloud.clientId}
+                  placeholder="….apps.googleusercontent.com"
+                  onChange={(e) => cloud.update({ clientId: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="settings__account">
+              {cloud.userId ? (
+                <>
+                  <span className="settings__badge settings__badge--on">✓ {cloud.email || cloud.userId}</span>
+                  <button className="btn btn--sm btn--ghost" onClick={cloud.signOut}>Sign out</button>
+                </>
+              ) : (
+                <button className="btn btn--sm" onClick={onSignIn} disabled={!cloud.clientId.trim()}>
+                  Sign in with Google
+                </button>
+              )}
+              <button className="btn btn--sm btn--ghost" onClick={cloud.disconnect}>
+                Disconnect cloud
+              </button>
+            </div>
+
+            <p className="settings__hint">
+              Bring your own Firebase/Firestore project (the web API key is public;
+              lock the data down with Firestore security rules). Sign-in is only
+              needed if your rules require auth. Nothing is uploaded until the box
+              above is checked.
+            </p>
+          </div>
+        )}
+
         {msg && <p className="settings__msg">{msg}</p>}
       </div>
     </section>
