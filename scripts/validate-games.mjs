@@ -245,6 +245,11 @@ console.log("\nBreakthrough:");
   b = empty();
   b[idx(0, 7, 8)] = 1;
   check(bt.status({ board: b, turn: 0 }).winner === 1, "Dark on the bottom row wins");
+  // strength: a Light pawn one step from the goal row should march in and win
+  b = empty();
+  b[idx(3, 1, 8)] = 0; b[idx(0, 7, 8)] = 1; b[idx(7, 7, 8)] = 1; // distant Dark pawns
+  const win1 = chooseMove(bt, { board: b, turn: 0 }, STRONG(4));
+  check(win1.move && Math.floor(win1.move.to / 8) === 0, "Breakthrough AI steps onto the goal row to win");
 }
 
 // ---- Hex ----
@@ -323,6 +328,11 @@ console.log("\nSurakarta:");
   // capturing the last enemy stone wins
   b = Array(36).fill(null); b[I(0, 0)] = 0;
   check(sk.status({ board: b, turn: 1, ply: 5 }).winner === 0, "a side with no stones left loses");
+  // strength: with a free loop capture available, the AI takes it (material)
+  b = Array(36).fill(null);
+  b[I(0, 1)] = 0; b[I(1, 1)] = 1; b[I(5, 5)] = 0; b[I(5, 0)] = 1; // a capture + spare stones
+  const cap = chooseMove(sk, { board: b, turn: 0, ply: 4 }, STRONG(3));
+  check(cap.move && (cap.move.affected?.length ?? 0) >= 1, "Surakarta AI prefers an available capture");
 }
 
 // ---- Fanorona ----

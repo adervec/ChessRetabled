@@ -196,7 +196,15 @@ export function aiPlay(s: EuchreState, seat: number): string {
   const trump = s.trump!;
   const led = s.trick.length ? effSuit(s.trick[0].card, trump) : null;
   const legal = legalPlays(s.hands[seat], led, trump);
-  if (s.trick.length === 0) return legal.slice().sort((a, b) => strength(b, trump, b.suit) - strength(a, trump, a.suit))[0].id; // lead high
+  if (s.trick.length === 0) {
+    // lead an off-suit ace if we have one (a likely winner), else a low non-trump
+    // to keep our trump and bowers back for later tricks
+    const offAce = legal.find((c) => effSuit(c, trump) !== trump && c.rank === 1);
+    if (offAce) return offAce.id;
+    const nonTrump = legal.filter((c) => effSuit(c, trump) !== trump);
+    const pool = nonTrump.length ? nonTrump : legal;
+    return pool.slice().sort((a, b) => strength(a, trump, a.suit) - strength(b, trump, b.suit))[0].id; // lowest
+  }
   const curWin = trickWinner(s.trick, trump);
   const winningByPartner = team(curWin) === team(seat);
   const ledSuit = effSuit(s.trick[0].card, trump);

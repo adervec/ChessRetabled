@@ -389,6 +389,20 @@ console.log("\nCribbage:");
   check(cribPeg([C("H", 5), C("S", 3), C("D", 4)], 12) === 3, "cribbage: a run of three pegs 3");
   check(cribPeg([C("H", 10), C("S", 10), C("D", 10), C("C", 1)], 31) === 2, "cribbage: thirty-one pegs 2");
 }
+{
+  // crib awareness: the dealer and the pone discard differently on some deals,
+  // since the crib belongs to the dealer (feed it vs starve it)
+  let differ = 0;
+  for (const seed of [3, 11, 19, 23, 31, 47, 59]) {
+    const g = initCribbage(seed);
+    const asDealer = aiDiscardChoice({ ...g, dealer: 0 }, 0).slice().sort().join();
+    const asPone = aiDiscardChoice({ ...g, dealer: 1 }, 0).slice().sort().join();
+    const ids = new Set(g.hands[0].map((c) => c.id));
+    check(aiDiscardChoice({ ...g, dealer: 0 }, 0).every((id) => ids.has(id)), `cribbage seed ${seed}: discard is two cards from hand`);
+    if (asDealer !== asPone) differ++;
+  }
+  check(differ > 0, "cribbage: crib ownership changes the discard on some deals");
+}
 for (const seed of [1, 7, 42, 100]) {
   let s = initCribbage(seed);
   let guard = 0;

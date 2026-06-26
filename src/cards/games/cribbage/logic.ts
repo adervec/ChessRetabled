@@ -63,12 +63,23 @@ function score4(cards: Card[]): number {
   return s;
 }
 
+/** Rough crib value of the two thrown cards — high when they combine well. */
+function cribSynergy(a: Card, b: Card): number {
+  let v = 0;
+  if (a.rank === b.rank) v += 2; // a pair
+  if (pipValue(a.rank) + pipValue(b.rank) === 15) v += 2;
+  if (a.rank === 5 || b.rank === 5) v += 1; // fives love the ten-cards
+  if (Math.abs(a.rank - b.rank) <= 2) v += 1; // run potential
+  return v;
+}
+
 export function aiDiscardChoice(s: CribbageState, seat: number): string[] {
   const hand = s.hands[seat];
+  const ownCrib = seat === s.dealer; // feed your own crib, starve the opponent's
   let best: { ids: string[]; val: number } | null = null;
   for (let a = 0; a < hand.length; a++) for (let b = a + 1; b < hand.length; b++) {
     const keep = hand.filter((_, i) => i !== a && i !== b);
-    const val = score4(keep);
+    const val = score4(keep) + (ownCrib ? 0.5 : -0.5) * cribSynergy(hand[a], hand[b]);
     if (!best || val > best.val) best = { ids: [hand[a].id, hand[b].id], val };
   }
   return best!.ids;
