@@ -15,6 +15,7 @@ import { initBriscola, applyMove as briscApply, aiMove as briscAi, legalPlays as
 import { initScopa, applyMove as scopaApply, aiMove as scopaAi, captureOptions as scopaOpts } from "../src/cards/games/scopa/logic.ts";
 import { countHand as cribCount, pegPoints as cribPeg } from "../src/cards/games/cribbage/scoring.ts";
 import { initCribbage, discard as cribDiscard, aiDiscardChoice, playablePeg as cribPlayable, playPeg as cribPlay, aiPegChoice, cribStep, nextDeal as cribNext } from "../src/cards/games/cribbage/logic.ts";
+import { initDurak, beats as durakBeats, aiAct as durakAi, applyAct as durakApply } from "../src/cards/games/durak/logic.ts";
 import { makeDeck40 } from "../src/cards/core/italian.ts";
 
 function parseCards(codes) {
@@ -403,6 +404,27 @@ for (const seed of [1, 7, 42, 100]) {
   check(s.phase === "done", `cribbage seed ${seed}: a full game terminates`);
   check(s.winner === 0 || s.winner === 1, `cribbage seed ${seed}: there is a winner`);
   check(s.scores[s.winner] >= 121, `cribbage seed ${seed}: the winner reaches 121 (${s.scores[0]}-${s.scores[1]})`);
+}
+
+console.log("\nDurak:");
+{
+  const C = (s, r) => ({ id: `${s}${r}`, suit: s, rank: r });
+  check(durakBeats(C("H", 10), C("H", 8), "S"), "durak: a higher card of the same suit beats");
+  check(durakBeats(C("S", 6), C("H", 13), "S"), "durak: a trump beats a non-trump");
+  check(!durakBeats(C("H", 6), C("S", 6), "S"), "durak: a non-trump cannot beat a trump");
+  check(durakBeats(C("S", 1), C("S", 13), "S"), "durak: the Ace is high (trump A beats trump K)");
+}
+for (const seed of [1, 7, 42, 100]) {
+  let s = initDurak(seed);
+  let guard = 0;
+  while (s.phase !== "done" && guard++ < 4000) {
+    const seat = s.phase === "defend" ? (s.attacker === 0 ? 1 : 0) : s.attacker;
+    s = durakApply(s, durakAi(s, seat));
+  }
+  check(s.phase === "done", `durak seed ${seed}: a full game terminates`);
+  const onTable = s.table.reduce((n, p) => n + 1 + (p.defense ? 1 : 0), 0);
+  const total = s.hands[0].length + s.hands[1].length + s.stock.length + s.discard + onTable;
+  check(total === 36, `durak seed ${seed}: 36 cards conserved (got ${total})`);
 }
 
 console.log(`\n[validate-cards] checks=${checks} problems=${problems}`);

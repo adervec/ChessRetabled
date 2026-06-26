@@ -213,3 +213,16 @@
   border-radius: var(--radius-s);
   background: color-mix(in srgb, var(--gold) 10%, var(--surface));
 }
+
+/* ---- Durak ---- */
+.durak-table {
+  display: flex; flex-wrap: wrap; gap: 16px;
+  justify-content: center; align-items: flex-start;
+  min-height: calc(var(--card-w) * 1.7);
+  padding: 12px; margin: 10px auto; max-width: 540px;
+  border: var(--outline); border-radius: var(--radius-s);
+  background: color-mix(in srgb, var(--coral) 8%, var(--surface));
+}
+.durak-pair { position: relative; width: var(--card-w); height: calc(var(--card-w) * 1.62); }
+.durak-pair > .pcard { position: absolute; top: 0; left: 0; }
+.durak-def { position: absolute; top: 16px; left: 14px; }

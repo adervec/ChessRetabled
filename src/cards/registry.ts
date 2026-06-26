@@ -128,4 +128,11 @@ export const CARD_GAMES: CardGameMeta[] = [
     blurb: "Peg to 121 — fifteens, runs, and the crib. Count your hand with the cut.",
     players: "vs AI",
   },
+  {
+    id: "durak",
+    name: "Durak",
+    icon: "🐻",
+    blurb: "Russian attack-and-defend — beat off every card or don't be the fool.",
+    players: "vs AI",
+  },
 ];
