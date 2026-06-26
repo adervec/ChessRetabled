@@ -22,6 +22,7 @@ import { generate as aqGen, countSolutions as aqCount, isSolved as aqSolved } fr
 import { generate as slGen, countSolutions as slCount, solutionEdges as slEdges, isSolved as slSolved } from "../src/logic/slitherlink.ts";
 import { generate as msGen, countSolutions as msCount, solutionEdges as msEdges, isSolved as msSolved, WHITE as MS_W, BLACK as MS_B } from "../src/logic/masyu.ts";
 import { generate as nkGen, countSolutions as nkCount, isSolved as nkSolved } from "../src/logic/nurikabe.ts";
+import { generate as brGen, countSolutions as brCount, isSolved as brSolved } from "../src/logic/bridges.ts";
 
 let problems = 0;
 let checks = 0;
@@ -327,6 +328,17 @@ for (const seed of SEEDS) {
   check(p.clues.length >= 2, `nurikabe ${seed}: at least two islands`);
   check(p.clues.reduce((a, c) => a + c.size, 0) === p.solution.filter((s) => !s).length, `nurikabe ${seed}: island sizes equal the land count`);
   check(!nkSolved(new Array(36).fill(true), p.clues, 6, 6), `nurikabe ${seed}: an all-sea board is rejected`);
+}
+
+console.log("\nBridges:");
+for (const seed of SEEDS) {
+  const p = brGen(seed, 7, 7);
+  check(brCount(p.islands, p.edges, p.cross, 2) === 1, `bridges ${seed}: unique solution`);
+  check(brSolved(p.solution, p), `bridges ${seed}: the generated bridges are a valid solution`);
+  check(p.islands.length >= 4 && p.islands.every((is) => is.count >= 1 && is.count <= 8), `bridges ${seed}: sensible island counts`);
+  check(!brSolved(p.edges.map(() => 0), p), `bridges ${seed}: an empty board is not solved`);
+  // the solution never crosses two bridges
+  check(p.cross.every(([i, j]) => p.solution[i] === 0 || p.solution[j] === 0), `bridges ${seed}: the solution has no crossing bridges`);
 }
 
 console.log(`\n[validate-logic] checks=${checks} problems=${problems}`);

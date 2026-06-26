@@ -686,3 +686,38 @@
 }
 .nk-cell.sea { background: var(--ink); cursor: pointer; }
 .nk-clue { background: var(--surface-2); cursor: default; color: var(--text); }
+
+/* ---- Bridges ---- */
+.bridges {
+  display: grid;
+  aspect-ratio: 1;
+  max-width: 460px;
+  margin: 0 auto;
+  padding: 6px;
+  border: var(--outline);
+  border-radius: var(--radius-s);
+  background: var(--surface);
+  box-shadow: var(--shadow-sticker);
+}
+.br-isle {
+  margin: auto;
+  width: 86%; aspect-ratio: 1;
+  border-radius: 50%;
+  border: 2px solid var(--ink);
+  background: var(--surface-2);
+  color: var(--text);
+  font-family: var(--font-display); font-weight: 800;
+  font-size: clamp(0.9rem, 3.4vw, 1.25rem);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.br-isle.done { background: color-mix(in srgb, var(--mint, #67d6a6) 45%, var(--surface)); }
+.br-isle.over { background: color-mix(in srgb, var(--coral) 40%, var(--surface)); }
+.br-isle.sel { outline: 3px solid var(--gold); }
+.br-gap {
+  display: flex; align-items: center; justify-content: center;
+  color: var(--violet);
+  font-weight: 900;
+  font-size: 1.4rem;
+  line-height: 1;
+}
