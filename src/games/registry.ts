@@ -13,6 +13,7 @@ import { breakthrough } from "./defs/breakthrough.ts";
 import { hex } from "./defs/hex.ts";
 import { loa } from "./defs/loa.ts";
 import { surakarta } from "./defs/surakarta.ts";
+import { fanorona } from "./defs/fanorona.ts";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const GAMES: GameDefinition<any>[] = [
@@ -24,6 +25,7 @@ export const GAMES: GameDefinition<any>[] = [
   konane,
   breakthrough,
   surakarta,
+  fanorona,
   loa,
   hex,
   ticTacToe,

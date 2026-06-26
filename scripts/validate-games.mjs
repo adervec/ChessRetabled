@@ -319,5 +319,35 @@ console.log("\nSurakarta:");
   check(sk.status({ board: b, turn: 1, ply: 5 }).winner === 0, "a side with no stones left loses");
 }
 
+// ---- Fanorona ----
+console.log("\nFanorona:");
+{
+  const fn = getGame("fanorona");
+  const I = (c, r) => r * 9 + c;
+  const init = fn.initial();
+  check(init.board.filter((x) => x === 0).length === 22 && init.board.filter((x) => x === 1).length === 22, "22 stones each side");
+  check(init.board[I(4, 2)] === null, "the centre point starts empty");
+  // approach capture takes the whole enemy line
+  let b = Array(45).fill(null);
+  b[I(2, 2)] = 0; b[I(4, 2)] = 1; b[I(5, 2)] = 1;
+  let mv = fn.legalMoves({ board: b, turn: 0, ply: 0 });
+  check(mv.every((m) => (m.affected?.length ?? 0) > 0), "captures are compulsory (no paika offered)");
+  const ap = mv.find((m) => m.from === I(2, 2) && m.to === I(3, 2));
+  check(ap && ap.affected.length === 2, "approach captures the whole line");
+  // withdrawal capture takes the line behind
+  b = Array(45).fill(null); b[I(3, 2)] = 0; b[I(2, 2)] = 1; b[I(1, 2)] = 1;
+  const wd = fn.legalMoves({ board: b, turn: 0, ply: 0 }).find((m) => m.from === I(3, 2) && m.to === I(4, 2));
+  check(wd && wd.affected.length === 2, "withdrawal captures the line behind");
+  // weak points cannot move diagonally
+  b = Array(45).fill(null); b[I(1, 0)] = 0;
+  check(fn.legalMoves({ board: b, turn: 0, ply: 0 }).every((m) => m.from % 9 === m.to % 9 || Math.floor(m.from / 9) === Math.floor(m.to / 9)),
+    "a weak intersection only moves orthogonally");
+  // a chain in two different directions exists and may also stop early
+  b = Array(45).fill(null); b[I(0, 0)] = 0; b[I(2, 0)] = 1; b[I(3, 0)] = 1; b[I(1, 2)] = 1; b[I(1, 3)] = 1;
+  mv = fn.legalMoves({ board: b, turn: 0, ply: 0 });
+  check(mv.some((m) => m.to === I(1, 1) && m.affected.length === 4), "a two-step capture chain is enumerated");
+  check(mv.some((m) => m.to === I(1, 0) && m.affected.length === 2), "stopping after one capture is also legal");
+}
+
 console.log(`\n[validate-games] games=${GAMES.length} checks=${checks} problems=${problems}`);
 process.exit(problems ? 1 : 0);
