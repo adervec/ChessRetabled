@@ -13,6 +13,8 @@ import { initGin, aiTurn as ginTurn } from "../src/cards/games/gin/logic.ts";
 import { bestMeld, bestDiscard } from "../src/cards/games/gin/melds.ts";
 import { initBriscola, applyMove as briscApply, aiMove as briscAi, legalPlays as briscLegal } from "../src/cards/games/briscola/logic.ts";
 import { initScopa, applyMove as scopaApply, aiMove as scopaAi, captureOptions as scopaOpts } from "../src/cards/games/scopa/logic.ts";
+import { countHand as cribCount, pegPoints as cribPeg } from "../src/cards/games/cribbage/scoring.ts";
+import { initCribbage, discard as cribDiscard, aiDiscardChoice, playablePeg as cribPlayable, playPeg as cribPlay, aiPegChoice, cribStep, nextDeal as cribNext } from "../src/cards/games/cribbage/logic.ts";
 import { makeDeck40 } from "../src/cards/core/italian.ts";
 
 function parseCards(codes) {
@@ -374,6 +376,33 @@ for (const seed of [1, 7, 42, 100]) {
   check(total === 40, `scopa seed ${seed}: 40 cards conserved (got ${total})`);
   check(s.table.length === 0, `scopa seed ${seed}: the last capturer sweeps the table`);
   check(s.scores[0] + s.scores[1] >= 4, `scopa seed ${seed}: the four base points are awarded`);
+}
+
+console.log("\nCribbage:");
+{
+  const C = (s, r) => ({ id: `${s}${r}`, suit: s, rank: r });
+  check(cribCount([C("H", 11), C("S", 5), C("D", 5), C("C", 5)], C("H", 5)) === 29, "cribbage: the perfect 29 hand scores 29");
+  check(cribPeg([C("H", 7), C("S", 8)], 15) === 2, "cribbage: reaching fifteen pegs 2");
+  check(cribPeg([C("H", 8), C("S", 8)], 16) === 2, "cribbage: a pair pegs 2");
+  check(cribPeg([C("H", 5), C("S", 3), C("D", 4)], 12) === 3, "cribbage: a run of three pegs 3");
+  check(cribPeg([C("H", 10), C("S", 10), C("D", 10), C("C", 1)], 31) === 2, "cribbage: thirty-one pegs 2");
+}
+for (const seed of [1, 7, 42, 100]) {
+  let s = initCribbage(seed);
+  let guard = 0;
+  while (s.phase !== "done" && guard++ < 6000) {
+    if (s.phase === "discard") {
+      if (!s.discarded[1]) s = cribStep(s);
+      else if (!s.discarded[0]) s = cribDiscard(s, 0, aiDiscardChoice(s, 0));
+      else s = cribStep(s);
+    } else if (s.phase === "play") {
+      if (cribPlayable(s, s.turn).length > 0) s = cribPlay(s, aiPegChoice(s, s.turn));
+      else s = cribStep(s);
+    } else if (s.phase === "show") s = cribNext(s);
+  }
+  check(s.phase === "done", `cribbage seed ${seed}: a full game terminates`);
+  check(s.winner === 0 || s.winner === 1, `cribbage seed ${seed}: there is a winner`);
+  check(s.scores[s.winner] >= 121, `cribbage seed ${seed}: the winner reaches 121 (${s.scores[0]}-${s.scores[1]})`);
 }
 
 console.log(`\n[validate-cards] checks=${checks} problems=${problems}`);

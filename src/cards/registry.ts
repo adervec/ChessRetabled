@@ -121,4 +121,11 @@ export const CARD_GAMES: CardGameMeta[] = [
     blurb: "Italian capturing game — match or sum table cards, sweep for scope.",
     players: "vs AI",
   },
+  {
+    id: "cribbage",
+    name: "Cribbage",
+    icon: "🪵",
+    blurb: "Peg to 121 — fifteens, runs, and the crib. Count your hand with the cut.",
+    players: "vs AI",
+  },
 ];

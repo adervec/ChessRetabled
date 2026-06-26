@@ -15,6 +15,7 @@ import { Gin } from "../cards/games/gin/Gin";
 import { OldMaid } from "../cards/games/oldmaid/OldMaid";
 import { Briscola } from "../cards/games/briscola/Briscola";
 import { Scopa } from "../cards/games/scopa/Scopa";
+import { Cribbage } from "../cards/games/cribbage/Cribbage";
 import "./Cards.css";
 
 export function Cards() {
@@ -39,6 +40,7 @@ export function Cards() {
         {gameId === "oldmaid" && <OldMaid onExit={exit} />}
         {gameId === "briscola" && <Briscola onExit={exit} />}
         {gameId === "scopa" && <Scopa onExit={exit} />}
+        {gameId === "cribbage" && <Cribbage onExit={exit} />}
       </div>
     );
   }
