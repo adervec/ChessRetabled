@@ -23,6 +23,7 @@ import { generate as slGen, countSolutions as slCount, solutionEdges as slEdges,
 import { generate as msGen, countSolutions as msCount, solutionEdges as msEdges, isSolved as msSolved, WHITE as MS_W, BLACK as MS_B } from "../src/logic/masyu.ts";
 import { generate as nkGen, countSolutions as nkCount, isSolved as nkSolved } from "../src/logic/nurikabe.ts";
 import { generate as brGen, countSolutions as brCount, isSolved as brSolved } from "../src/logic/bridges.ts";
+import { generate as teGen, countSolutions as teCount, isSolved as teSolved } from "../src/logic/tents.ts";
 
 let problems = 0;
 let checks = 0;
@@ -339,6 +340,17 @@ for (const seed of SEEDS) {
   check(!brSolved(p.edges.map(() => 0), p), `bridges ${seed}: an empty board is not solved`);
   // the solution never crosses two bridges
   check(p.cross.every(([i, j]) => p.solution[i] === 0 || p.solution[j] === 0), `bridges ${seed}: the solution has no crossing bridges`);
+}
+
+console.log("\nTents:");
+for (const seed of SEEDS) {
+  const p = teGen(seed, 7);
+  check(teCount(p.tree, 7, p.rowClue, p.colClue, 2) === 1, `tents ${seed}: unique solution`);
+  check(teSolved(p.solution, p.tree, 7, p.rowClue, p.colClue), `tents ${seed}: the generated camp is a valid solution`);
+  const tents = p.solution.filter(Boolean).length, trees = p.tree.filter(Boolean).length;
+  check(tents === trees, `tents ${seed}: tents equal trees`);
+  check(p.rowClue.reduce((a, b) => a + b, 0) === tents, `tents ${seed}: row clues total the tents`);
+  check(!teSolved(new Array(49).fill(false), p.tree, 7, p.rowClue, p.colClue), `tents ${seed}: an empty board is not solved`);
 }
 
 console.log(`\n[validate-logic] checks=${checks} problems=${problems}`);

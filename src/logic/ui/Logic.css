@@ -721,3 +721,31 @@
   font-size: 1.4rem;
   line-height: 1;
 }
+
+/* ---- Tents ---- */
+.tents {
+  display: grid;
+  max-width: 440px;
+  margin: 0 auto;
+  gap: 2px;
+}
+.te-cell {
+  border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
+  border-radius: 5px;
+  background: var(--surface);
+  aspect-ratio: 1;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: clamp(0.9rem, 4vw, 1.4rem);
+  line-height: 1;
+}
+.te-cell.tent { background: color-mix(in srgb, var(--gold) 26%, var(--surface)); }
+.te-cell.grass { color: color-mix(in srgb, var(--ink) 40%, transparent); cursor: pointer; }
+.te-tree { background: color-mix(in srgb, var(--mint, #67d6a6) 22%, var(--surface)); cursor: default; }
+.te-clue {
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-weight: 800;
+  color: var(--text-dim);
+}
+.te-clue.ok { color: var(--mint, #2f9e6e); }
+.te-clue.over { color: var(--coral); }

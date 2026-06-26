@@ -22,6 +22,7 @@ import { Slitherlink } from "../logic/ui/Slitherlink";
 import { Masyu } from "../logic/ui/Masyu";
 import { Nurikabe } from "../logic/ui/Nurikabe";
 import { Bridges } from "../logic/ui/Bridges";
+import { Tents } from "../logic/ui/Tents";
 import { LOGIC_PUZZLES as PUZZLES } from "../logic/registry";
 import "../logic/ui/Logic.css";
 
@@ -55,6 +56,7 @@ export function Logic() {
         {id === "masyu" && <Masyu onExit={exit} />}
         {id === "nurikabe" && <Nurikabe onExit={exit} />}
         {id === "bridges" && <Bridges onExit={exit} />}
+        {id === "tents" && <Tents onExit={exit} />}
       </div>
     );
   }
