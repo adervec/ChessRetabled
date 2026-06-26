@@ -661,3 +661,28 @@
   background: linear-gradient(to right, transparent calc(50% - 2px), var(--violet) calc(50% - 2px),
     var(--violet) calc(50% + 2px), transparent calc(50% + 2px));
 }
+
+/* ---- Nurikabe ---- */
+.nurikabe {
+  display: grid;
+  aspect-ratio: 1;
+  max-width: 420px;
+  margin: 0 auto;
+  border: var(--outline);
+  border-radius: var(--radius-s);
+  overflow: hidden;
+  background: var(--surface);
+  box-shadow: var(--shadow-sticker);
+}
+.nk-cell {
+  border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
+  background: var(--surface);
+  aspect-ratio: 1;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-weight: 700;
+  font-size: clamp(1rem, 4.6vw, 1.5rem);
+  color: var(--text);
+}
+.nk-cell.sea { background: var(--ink); cursor: pointer; }
+.nk-clue { background: var(--surface-2); cursor: default; color: var(--text); }

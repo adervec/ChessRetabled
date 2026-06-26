@@ -21,6 +21,7 @@ import { generate as mosGen, countSolutions as mosCount, cluesOf, isSolved as mo
 import { generate as aqGen, countSolutions as aqCount, isSolved as aqSolved } from "../src/logic/aquarium.ts";
 import { generate as slGen, countSolutions as slCount, solutionEdges as slEdges, isSolved as slSolved } from "../src/logic/slitherlink.ts";
 import { generate as msGen, countSolutions as msCount, solutionEdges as msEdges, isSolved as msSolved, WHITE as MS_W, BLACK as MS_B } from "../src/logic/masyu.ts";
+import { generate as nkGen, countSolutions as nkCount, isSolved as nkSolved } from "../src/logic/nurikabe.ts";
 
 let problems = 0;
 let checks = 0;
@@ -316,6 +317,16 @@ for (const seed of SEEDS) {
   check(p.pearl.every((x) => x === 0 || x === MS_W || x === MS_B), `masyu ${seed}: pearls are white/black only`);
   // an empty board is not a finished loop
   check(!msSolved(h.map(() => false), v.map(() => false), p.pearl, 6, 6), `masyu ${seed}: a blank grid is not solved`);
+}
+
+console.log("\nNurikabe:");
+for (const seed of SEEDS) {
+  const p = nkGen(seed, 6, 6);
+  check(nkCount(p.clues, 6, 6, 2) === 1, `nurikabe ${seed}: unique solution`);
+  check(nkSolved(p.solution, p.clues, 6, 6), `nurikabe ${seed}: the generated sea is a valid solution`);
+  check(p.clues.length >= 2, `nurikabe ${seed}: at least two islands`);
+  check(p.clues.reduce((a, c) => a + c.size, 0) === p.solution.filter((s) => !s).length, `nurikabe ${seed}: island sizes equal the land count`);
+  check(!nkSolved(new Array(36).fill(true), p.clues, 6, 6), `nurikabe ${seed}: an all-sea board is rejected`);
 }
 
 console.log(`\n[validate-logic] checks=${checks} problems=${problems}`);

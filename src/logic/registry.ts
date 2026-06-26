@@ -30,4 +30,5 @@ export const LOGIC_PUZZLES: LogicPuzzleMeta[] = [
   { id: "mastermind", name: "Mastermind", icon: "🎯", blurb: "Crack the hidden 4-colour code from the black/white peg clues." },
   { id: "slitherlink", name: "Slitherlink", icon: "➰", blurb: "Draw one closed loop so every number has that many lines on its sides." },
   { id: "masyu", name: "Masyu", icon: "⚪", blurb: "One loop through every pearl — white runs straight, black turns." },
+  { id: "nurikabe", name: "Nurikabe", icon: "🌊", blurb: "Shade a connected sea so each number is its own island of that size." },
 ];
