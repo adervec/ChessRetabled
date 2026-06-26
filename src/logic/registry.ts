@@ -33,4 +33,5 @@ export const LOGIC_PUZZLES: LogicPuzzleMeta[] = [
   { id: "nurikabe", name: "Nurikabe", icon: "🌊", blurb: "Shade a connected sea so each number is its own island of that size." },
   { id: "bridges", name: "Bridges", icon: "🌉", blurb: "Link the islands with bridges — match each number, no crossings, all connected." },
   { id: "tents", name: "Tents", icon: "⛺", blurb: "Pitch one tent beside each tree, none touching, to match the row/column counts." },
+  { id: "numberlink", name: "Numberlink", icon: "🔗", blurb: "Join each pair of numbers with a path and fill every cell, no overlaps." },
 ];

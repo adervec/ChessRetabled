@@ -24,6 +24,7 @@ import { generate as msGen, countSolutions as msCount, solutionEdges as msEdges,
 import { generate as nkGen, countSolutions as nkCount, isSolved as nkSolved } from "../src/logic/nurikabe.ts";
 import { generate as brGen, countSolutions as brCount, isSolved as brSolved } from "../src/logic/bridges.ts";
 import { generate as teGen, countSolutions as teCount, isSolved as teSolved } from "../src/logic/tents.ts";
+import { generate as nlGen, countSolutions as nlCount, isSolved as nlSolved } from "../src/logic/numberlink.ts";
 
 let problems = 0;
 let checks = 0;
@@ -351,6 +352,16 @@ for (const seed of SEEDS) {
   check(tents === trees, `tents ${seed}: tents equal trees`);
   check(p.rowClue.reduce((a, b) => a + b, 0) === tents, `tents ${seed}: row clues total the tents`);
   check(!teSolved(new Array(49).fill(false), p.tree, 7, p.rowClue, p.colClue), `tents ${seed}: an empty board is not solved`);
+}
+
+console.log("\nNumberlink:");
+for (const seed of SEEDS) {
+  const p = nlGen(seed, 5);
+  check(nlCount(p.endpoint, 5, 2) === 1, `numberlink ${seed}: unique solution`);
+  check(nlSolved(p.solutionPaths, p.endpoint, 5), `numberlink ${seed}: the solution paths fill and connect`);
+  check(p.colors >= 2, `numberlink ${seed}: at least two pairs`);
+  for (let c = 1; c <= p.colors; c++) check(p.endpoint.filter((e) => e === c).length === 2, `numberlink ${seed}: colour ${c} appears twice`);
+  check(!nlSolved([], p.endpoint, 5), `numberlink ${seed}: an empty board is not solved`);
 }
 
 console.log(`\n[validate-logic] checks=${checks} problems=${problems}`);
