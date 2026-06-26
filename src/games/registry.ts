@@ -8,6 +8,10 @@ import { reversi } from "./defs/reversi.ts";
 import { gomoku } from "./defs/gomoku.ts";
 import { checkers } from "./defs/checkers.ts";
 import { nineMensMorris } from "./defs/morris.ts";
+import { konane } from "./defs/konane.ts";
+import { breakthrough } from "./defs/breakthrough.ts";
+import { hex } from "./defs/hex.ts";
+import { loa } from "./defs/loa.ts";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const GAMES: GameDefinition<any>[] = [
@@ -16,6 +20,10 @@ export const GAMES: GameDefinition<any>[] = [
   connectFour,
   gomoku,
   nineMensMorris,
+  konane,
+  breakthrough,
+  loa,
+  hex,
   ticTacToe,
 ];
 

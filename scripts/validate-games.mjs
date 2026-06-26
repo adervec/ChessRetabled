@@ -197,5 +197,103 @@ console.log("\nNine Men's Morris:");
   check(st.over && st.winner === 1, "a player with two men after placement loses");
 }
 
+// ---- Kōnane ----
+console.log("\nKōnane:");
+{
+  const ko = getGame("konane");
+  const init = ko.initial();
+  check(init.board.every((x) => x !== null), "board starts completely full");
+  const lifts = ko.legalMoves(init);
+  check(lifts.length === 4 && lifts.every((m) => m.affected?.[0] === m.to), "Black opens with 4 corner/centre lifts");
+  // after both opening lifts it is Black to jump, and a jump exists
+  const s1 = ko.applyMove(init, lifts.find((m) => m.to === 0)); // lift corner (0,0)
+  check(s1.turn === 1 && s1.opened === 1, "White lifts next");
+  const wl = ko.legalMoves(s1);
+  check(wl.length > 0 && wl.every((m) => s1.board[m.to] === 1), "White's lift is a stone beside the gap");
+  const s2 = ko.applyMove(s1, wl[0]);
+  check(s2.opened === 2 && s2.turn === 0, "play begins with Black after two lifts");
+  const jumps = ko.legalMoves(s2);
+  check(jumps.length > 0 && jumps.every((m) => (m.affected?.length ?? 0) >= 1), "every play move is a capture");
+  // a piece with no enemy to hop over has no move => that side loses
+  const empty = Array(64).fill(null);
+  empty[idx(0, 0, 8)] = 0; // lone Black stone, nothing to jump
+  check(ko.status({ board: empty, turn: 0, opened: 2 }).winner === 1, "a player who cannot jump loses");
+}
+
+// ---- Breakthrough ----
+console.log("\nBreakthrough:");
+{
+  const bt = getGame("breakthrough");
+  const empty = () => Array(64).fill(null);
+  // straight ahead into an empty square is legal; straight capture is not
+  let b = empty();
+  b[idx(3, 4, 8)] = 0; // Light pawn marching up
+  b[idx(3, 3, 8)] = 1; // Dark pawn directly ahead — blocks, cannot be captured
+  let mv = bt.legalMoves({ board: b, turn: 0 });
+  check(!mv.some((m) => m.to === idx(3, 3, 8)), "no straight capture");
+  // diagonal capture is legal
+  b = empty();
+  b[idx(3, 4, 8)] = 0;
+  b[idx(2, 3, 8)] = 1; // Dark pawn diagonally ahead
+  mv = bt.legalMoves({ board: b, turn: 0 });
+  const cap = mv.find((m) => m.to === idx(2, 3, 8));
+  check(cap && cap.affected?.length === 1, "diagonal capture removes the enemy");
+  // reaching the far edge wins
+  b = empty();
+  b[idx(0, 0, 8)] = 0;
+  check(bt.status({ board: b, turn: 1 }).winner === 0, "Light on the top row wins");
+  b = empty();
+  b[idx(0, 7, 8)] = 1;
+  check(bt.status({ board: b, turn: 0 }).winner === 1, "Dark on the bottom row wins");
+}
+
+// ---- Hex ----
+console.log("\nHex:");
+{
+  const hx = getGame("hex");
+  const N = 11;
+  const empty = () => Array(N * N).fill(null);
+  // a full top-to-bottom column of Blue (player 0) connects the edges
+  let b = empty();
+  for (let r = 0; r < N; r++) b[r * N + 5] = 0;
+  check(hx.status({ board: b, turn: 1 }).winner === 0, "Blue's full column connects top to bottom");
+  // a full left-to-right row of Red (player 1) connects the edges
+  b = empty();
+  for (let c = 0; c < N; c++) b[5 * N + c] = 1;
+  check(hx.status({ board: b, turn: 0 }).winner === 1, "Red's full row connects left to right");
+  // a near-complete Blue column (one gap) is not yet a win but is one stone away
+  b = empty();
+  for (let r = 0; r < N; r++) if (r !== 6) b[r * N + 5] = 0;
+  check(!hx.status({ board: b, turn: 0 }).over, "an unconnected position is not terminal");
+  check(hx.legalMoves({ board: b, turn: 0 }).length === N * N - (N - 1), "legal moves = every empty cell");
+}
+
+// ---- Lines of Action ----
+console.log("\nLines of Action:");
+{
+  const lo = getGame("loa");
+  const init = lo.initial();
+  check(init.board.filter((x) => x === 0).length === 12 && init.board.filter((x) => x === 1).length === 12,
+    "each side starts with 12 pieces");
+  check(!lo.status(init).over, "the split opening setup is not connected");
+  // move distance equals the piece count on the line: an opening edge piece on
+  // row 0 has 6 pieces on that row, so a horizontal move travels 6 squares — off
+  // the board, hence illegal; a vertical move travels 2 (two pieces in that file).
+  const v = lo.legalMoves(init).filter((m) => m.from === idx(1, 0, 8));
+  check(v.length > 0, "a corner-adjacent edge piece has at least one legal move");
+  // a single connected blob is an immediate win
+  const blob = Array(64).fill(null);
+  blob[idx(3, 3, 8)] = 0; blob[idx(4, 3, 8)] = 0; blob[idx(3, 4, 8)] = 0;
+  // give White some scattered pieces so it is White-to-move and not yet connected
+  blob[idx(0, 0, 8)] = 1; blob[idx(7, 7, 8)] = 1;
+  check(lo.status({ board: blob, turn: 1, ply: 10 }).winner === 0, "a single connected group wins");
+  // enemy pieces block a slide (cannot leap the opponent)
+  const path = Array(64).fill(null);
+  path[idx(0, 3, 8)] = 0; // mover
+  path[idx(1, 3, 8)] = 1; path[idx(2, 3, 8)] = 1; // two enemies on the row → distance 3, blocked at step 1
+  const horiz = lo.legalMoves({ board: path, turn: 0, ply: 0 }).filter((m) => m.from === idx(0, 3, 8) && Math.floor(m.to / 8) === 3);
+  check(horiz.length === 0, "a slide cannot leap over enemy pieces");
+}
+
 console.log(`\n[validate-games] games=${GAMES.length} checks=${checks} problems=${problems}`);
 process.exit(problems ? 1 : 0);
