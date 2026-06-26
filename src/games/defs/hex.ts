@@ -51,29 +51,46 @@ function connected(board: (Player | null)[], player: Player): boolean {
   return false;
 }
 
-/** Min empty cells the player must still fill to connect (0 = already connected). 0–1 BFS. */
-function completionDistance(board: (Player | null)[], player: Player): number {
-  const [start, goal] = edges(player);
-  const goalSet = new Set(goal);
+/** 0–1 BFS distances from one home edge: cost 0 to pass own stones, 1 per empty, enemy blocks. */
+function bfsFrom(board: (Player | null)[], player: Player, startEdge: number[]): number[] {
   const dist = new Array<number>(N * N).fill(Infinity);
   const deque: number[] = [];
   const enter = (i: number) => (board[i] === player ? 0 : 1);
-  for (const i of start) {
+  for (const i of startEdge) {
     if (board[i] !== null && board[i] !== player) continue;
     const d = enter(i);
     if (d < dist[i]) { dist[i] = d; if (d === 0) deque.unshift(i); else deque.push(i); }
   }
-  let best = Infinity;
   while (deque.length) {
     const i = deque.shift()!;
-    if (goalSet.has(i)) best = Math.min(best, dist[i]);
     for (const n of neighbours(i)) {
       if (board[n] !== null && board[n] !== player) continue; // enemy stone blocks
       const nd = dist[i] + enter(n);
       if (nd < dist[n]) { dist[n] = nd; if (enter(n) === 0) deque.unshift(n); else deque.push(n); }
     }
   }
-  return best;
+  return dist;
+}
+
+/**
+ * Connection potential: `dist` = empty cells still needed to connect (0 = won),
+ * `width` = how many empty cells lie on *some* shortest connecting path. Wider is
+ * stronger — more independent threats, fewer of which a single block can kill. The
+ * two distinguish the many positions that tie on distance alone.
+ */
+function potential(board: (Player | null)[], player: Player): { dist: number; width: number } {
+  const [e1, e2] = edges(player);
+  const dA = bfsFrom(board, player, e1);
+  const dB = bfsFrom(board, player, e2);
+  let dist = Infinity;
+  for (const i of e2) dist = Math.min(dist, dA[i]);
+  if (dist === Infinity) return { dist: Infinity, width: 0 };
+  let width = 0;
+  for (let i = 0; i < N * N; i++) {
+    if (board[i] !== null) continue; // only empty cells we'd place on count as threats
+    if (dA[i] + dB[i] - 1 === dist) width++; // on a shortest path (−1 corrects the double count)
+  }
+  return { dist, width };
 }
 
 const GEOMETRY: BoardGeometry = (() => {
@@ -136,12 +153,13 @@ export const hex: GameDefinition<HexState> = {
 
   evaluate(s, player) {
     const opp: Player = player === 0 ? 1 : 0;
-    const mine = completionDistance(s.board, player);
-    const theirs = completionDistance(s.board, opp);
-    if (mine === 0) return 100000;
-    if (theirs === 0) return -100000;
-    // Whoever needs fewer stones to finish is ahead; the side to move breaks ties.
-    return (theirs - mine) * 100 + (s.turn === player ? 5 : -5);
+    const me = potential(s.board, player);
+    const them = potential(s.board, opp);
+    if (me.dist === 0) return 100000;
+    if (them.dist === 0) return -100000;
+    // Distance dominates; among equal distances the wider (more-threatening)
+    // connection wins, and the side to move breaks remaining ties.
+    return (them.dist - me.dist) * 100 + (me.width - them.width) * 3 + (s.turn === player ? 5 : -5);
   },
 
   cells(s) {

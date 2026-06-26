@@ -266,6 +266,12 @@ console.log("\nHex:");
   for (let r = 0; r < N; r++) if (r !== 6) b[r * N + 5] = 0;
   check(!hx.status({ board: b, turn: 0 }).over, "an unconnected position is not terminal");
   check(hx.legalMoves({ board: b, turn: 0 }).length === N * N - (N - 1), "legal moves = every empty cell");
+  // strength: Red (player 1) is one cell from joining left↔right along row 5 (gap
+  // at the centre); Blue to move must plug that unique connector to survive.
+  b = empty();
+  for (let c = 0; c < N; c++) if (c !== 5) b[5 * N + c] = 1;
+  const blk = chooseMove(hx, { board: b, turn: 0 }, STRONG(2));
+  check(blk.move?.to === 5 * N + 5, "Hex AI blocks the opponent's one-move win");
 }
 
 // ---- Lines of Action ----
