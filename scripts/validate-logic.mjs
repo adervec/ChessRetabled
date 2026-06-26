@@ -20,6 +20,7 @@ import { generate as shkGen, countSolutions as shkCount, solve as shkSolve, isSo
 import { generate as mosGen, countSolutions as mosCount, cluesOf, isSolved as mosSolved } from "../src/logic/mosaic.ts";
 import { generate as aqGen, countSolutions as aqCount, isSolved as aqSolved } from "../src/logic/aquarium.ts";
 import { generate as slGen, countSolutions as slCount, solutionEdges as slEdges, isSolved as slSolved } from "../src/logic/slitherlink.ts";
+import { generate as msGen, countSolutions as msCount, solutionEdges as msEdges, isSolved as msSolved, WHITE as MS_W, BLACK as MS_B } from "../src/logic/masyu.ts";
 
 let problems = 0;
 let checks = 0;
@@ -303,6 +304,18 @@ for (const seed of SEEDS) {
   // flipping one solution edge off breaks the single loop → no longer solved
   const hi = h.findIndex((x) => x);
   if (hi >= 0) { const broken = h.slice(); broken[hi] = false; check(!slSolved(broken, v, blank, 6, 6), "slitherlink: an open path is not a closed loop"); }
+}
+
+console.log("\nMasyu:");
+for (const seed of SEEDS) {
+  const p = msGen(seed, 6, 6);
+  check(msCount(p.pearl, 6, 6, 2) === 1, `masyu ${seed}: unique solution`);
+  const { h, v } = msEdges(p);
+  check(msSolved(h, v, p.pearl, 6, 6), `masyu ${seed}: the solution loop satisfies every pearl`);
+  check(p.pearl.some((x) => x === MS_W || x === MS_B), `masyu ${seed}: has at least one pearl`);
+  check(p.pearl.every((x) => x === 0 || x === MS_W || x === MS_B), `masyu ${seed}: pearls are white/black only`);
+  // an empty board is not a finished loop
+  check(!msSolved(h.map(() => false), v.map(() => false), p.pearl, 6, 6), `masyu ${seed}: a blank grid is not solved`);
 }
 
 console.log(`\n[validate-logic] checks=${checks} problems=${problems}`);
