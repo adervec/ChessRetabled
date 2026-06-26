@@ -226,3 +226,13 @@
 .durak-pair { position: relative; width: var(--card-w); height: calc(var(--card-w) * 1.62); }
 .durak-pair > .pcard { position: absolute; top: 0; left: 0; }
 .durak-def { position: absolute; top: 16px; left: 14px; }
+
+/* ---- Euchre ---- */
+.euchre-mid {
+  display: flex; align-items: center; justify-content: center;
+  min-height: calc(var(--card-w) * 1.7);
+  margin: 10px auto;
+}
+.euchre-up { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.euchre-trick { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+.euchre-trickcard { display: flex; flex-direction: column; align-items: center; gap: 3px; }

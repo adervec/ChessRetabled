@@ -16,6 +16,7 @@ import { initScopa, applyMove as scopaApply, aiMove as scopaAi, captureOptions a
 import { countHand as cribCount, pegPoints as cribPeg } from "../src/cards/games/cribbage/scoring.ts";
 import { initCribbage, discard as cribDiscard, aiDiscardChoice, playablePeg as cribPlayable, playPeg as cribPlay, aiPegChoice, cribStep, nextDeal as cribNext } from "../src/cards/games/cribbage/logic.ts";
 import { initDurak, beats as durakBeats, aiAct as durakAi, applyAct as durakApply } from "../src/cards/games/durak/logic.ts";
+import { initEuchre, effSuit as euEff, strength as euStr, legalPlays as euLegal, applyBid as euBid, aiBid as euAiBid, playCard as euPlay, aiPlay as euAiPlay, nextHand as euNext } from "../src/cards/games/euchre/logic.ts";
 import { makeDeck40 } from "../src/cards/core/italian.ts";
 
 function parseCards(codes) {
@@ -425,6 +426,29 @@ for (const seed of [1, 7, 42, 100]) {
   const onTable = s.table.reduce((n, p) => n + 1 + (p.defense ? 1 : 0), 0);
   const total = s.hands[0].length + s.hands[1].length + s.stock.length + s.discard + onTable;
   check(total === 36, `durak seed ${seed}: 36 cards conserved (got ${total})`);
+}
+
+console.log("\nEuchre:");
+{
+  const C = (s, r) => ({ id: `${s}${r}`, suit: s, rank: r });
+  check(euEff(C("D", 11), "H") === "H", "euchre: the left bower counts as trump");
+  check(euEff(C("D", 11), "S") === "D", "euchre: that Jack is a plain card off-colour");
+  check(euStr(C("H", 11), "H", "H") === 1000 && euStr(C("D", 11), "H", "H") === 999, "euchre: right bower outranks left bower");
+  check(euStr(C("D", 11), "H", "H") > euStr(C("H", 1), "H", "H"), "euchre: the left bower beats the trump ace");
+  check(euLegal([C("D", 11), C("S", 9)], "H", "H").length === 1, "euchre: the left bower must follow a trump lead");
+}
+for (const seed of [1, 7, 42, 100]) {
+  let s = initEuchre(seed);
+  let guard = 0;
+  while (s.phase !== "done" && guard++ < 9000) {
+    if (s.phase === "handdone") s = euNext(s);
+    else if (s.phase === "bid1" || s.phase === "bid2") s = euBid(s, euAiBid(s, s.bidder));
+    else if (s.phase === "discard") s = euBid(s, euAiBid(s, s.dealer));
+    else if (s.phase === "play") s = euPlay(s, euAiPlay(s, s.turn));
+    else break;
+  }
+  check(s.phase === "done", `euchre seed ${seed}: a full game terminates`);
+  check(s.scores[s.winner] >= 10, `euchre seed ${seed}: the winner reaches 10 (${s.scores[0]}-${s.scores[1]})`);
 }
 
 console.log(`\n[validate-cards] checks=${checks} problems=${problems}`);

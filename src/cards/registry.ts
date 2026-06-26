@@ -135,4 +135,11 @@ export const CARD_GAMES: CardGameMeta[] = [
     blurb: "Russian attack-and-defend — beat off every card or don't be the fool.",
     players: "vs AI",
   },
+  {
+    id: "euchre",
+    name: "Euchre",
+    icon: "🍁",
+    blurb: "Partnership trick-taking with bowers — name trump and take three of five.",
+    players: "vs 3 AI",
+  },
 ];
