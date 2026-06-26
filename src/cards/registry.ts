@@ -114,4 +114,11 @@ export const CARD_GAMES: CardGameMeta[] = [
     blurb: "Italian trick-taking with a trump suit — capture points to 61.",
     players: "vs AI",
   },
+  {
+    id: "scopa",
+    name: "Scopa",
+    icon: "🧹",
+    blurb: "Italian capturing game — match or sum table cards, sweep for scope.",
+    players: "vs AI",
+  },
 ];

@@ -176,3 +176,19 @@
 .brisc-trick__card.mine { transform: translateY(6px); }
 .brisc-trick__card.theirs { transform: translateY(-6px); }
 .brisc-trump { text-align: center; opacity: 0.85; }
+
+/* ---- Scopa ---- */
+.scopa-table {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(var(--card-w) * 1.4);
+  padding: 12px;
+  margin: 10px auto;
+  max-width: 520px;
+  border: var(--outline);
+  border-radius: var(--radius-s);
+  background: color-mix(in srgb, var(--mint, #67d6a6) 10%, var(--surface));
+}

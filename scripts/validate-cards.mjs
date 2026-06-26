@@ -12,6 +12,7 @@ import { initHoldem, deal as heDeal, playerCheck, playerCall, playerFold as heFo
 import { initGin, aiTurn as ginTurn } from "../src/cards/games/gin/logic.ts";
 import { bestMeld, bestDiscard } from "../src/cards/games/gin/melds.ts";
 import { initBriscola, applyMove as briscApply, aiMove as briscAi, legalPlays as briscLegal } from "../src/cards/games/briscola/logic.ts";
+import { initScopa, applyMove as scopaApply, aiMove as scopaAi, captureOptions as scopaOpts } from "../src/cards/games/scopa/logic.ts";
 import { makeDeck40 } from "../src/cards/core/italian.ts";
 
 function parseCards(codes) {
@@ -351,6 +352,28 @@ for (const seed of SEEDS) {
   const cap = s.captured[0].length + s.captured[1].length;
   check(cap === 40, `briscola seed ${seed}: all 40 cards captured`);
   check(s.scores[0] + s.scores[1] === 120, `briscola seed ${seed}: points total 120 (got ${s.scores[0] + s.scores[1]})`);
+}
+
+console.log("\nScopa:");
+{
+  // equal-rank single must be taken in preference to a sum
+  const table = [{ id: "S7", suit: "S", rank: 7 }, { id: "H3", suit: "H", rank: 3 }, { id: "C4", suit: "C", rank: 4 }];
+  const opts = scopaOpts(table, { id: "D7", suit: "D", rank: 7 });
+  check(opts.length === 1 && opts[0].length === 1 && opts[0][0].id === "S7", "scopa: an equal card is taken instead of a sum");
+  // a sum capture is offered when no equal card exists (Queen = 9 takes 4+5)
+  const t2 = [{ id: "H3", suit: "H", rank: 3 }, { id: "C4", suit: "C", rank: 4 }, { id: "S5", suit: "S", rank: 5 }];
+  const o2 = scopaOpts(t2, { id: "D12", suit: "D", rank: 12 });
+  check(o2.some((o) => o.length === 2 && o.map((c) => c.id).sort().join() === "C4,S5"), "scopa: a summing combination is a legal capture");
+}
+for (const seed of [1, 7, 42, 100]) {
+  let s = initScopa(seed);
+  let guard = 0;
+  while (s.phase === "play" && guard++ < 200) s = scopaApply(s, scopaAi(s, s.turn));
+  check(s.phase === "done", `scopa seed ${seed}: terminates`);
+  const total = s.captured[0].length + s.captured[1].length + s.table.length + s.hands[0].length + s.hands[1].length + s.stock.length;
+  check(total === 40, `scopa seed ${seed}: 40 cards conserved (got ${total})`);
+  check(s.table.length === 0, `scopa seed ${seed}: the last capturer sweeps the table`);
+  check(s.scores[0] + s.scores[1] >= 4, `scopa seed ${seed}: the four base points are awarded`);
 }
 
 console.log(`\n[validate-cards] checks=${checks} problems=${problems}`);
