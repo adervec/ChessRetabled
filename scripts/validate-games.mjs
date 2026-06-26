@@ -295,5 +295,29 @@ console.log("\nLines of Action:");
   check(horiz.length === 0, "a slide cannot leap over enemy pieces");
 }
 
+// ---- Surakarta ----
+console.log("\nSurakarta:");
+{
+  const sk = getGame("surakarta");
+  const I = (c, r) => r * 6 + c;
+  const init = sk.initial();
+  check(init.board.filter((x) => x === 0).length === 12 && init.board.filter((x) => x === 1).length === 12, "12 stones each side");
+  // a capture must round a loop: a stone can take an enemy by sliding around the
+  // inner TL loop and down column 1
+  let b = Array(36).fill(null);
+  b[I(0, 1)] = 0; b[I(1, 1)] = 1;
+  let caps = sk.legalMoves({ board: b, turn: 0, ply: 0 }).filter((m) => m.affected?.length);
+  check(caps.some((m) => m.to === I(1, 1)), "loop capture around the inner circuit is found");
+  // the two centre lines carry no loops, so adjacent stones there cannot capture
+  b = Array(36).fill(null); b[I(2, 2)] = 0; b[I(2, 3)] = 1;
+  caps = sk.legalMoves({ board: b, turn: 0, ply: 0 }).filter((m) => m.affected?.length);
+  check(caps.length === 0, "no capture from the loop-less centre cross");
+  // ordinary moves never capture
+  check(sk.legalMoves(init).every((m) => !m.affected?.length), "opening offers only ordinary (non-capturing) moves");
+  // capturing the last enemy stone wins
+  b = Array(36).fill(null); b[I(0, 0)] = 0;
+  check(sk.status({ board: b, turn: 1, ply: 5 }).winner === 0, "a side with no stones left loses");
+}
+
 console.log(`\n[validate-games] games=${GAMES.length} checks=${checks} problems=${problems}`);
 process.exit(problems ? 1 : 0);
