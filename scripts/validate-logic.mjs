@@ -19,6 +19,7 @@ import { generate as sbGen, countSolutions as sbCount, solve as sbSolve, isSolve
 import { generate as shkGen, countSolutions as shkCount, solve as shkSolve, isSolved as shkSolved } from "../src/logic/shikaku.ts";
 import { generate as mosGen, countSolutions as mosCount, cluesOf, isSolved as mosSolved } from "../src/logic/mosaic.ts";
 import { generate as aqGen, countSolutions as aqCount, isSolved as aqSolved } from "../src/logic/aquarium.ts";
+import { generate as slGen, countSolutions as slCount, solutionEdges as slEdges, isSolved as slSolved } from "../src/logic/slitherlink.ts";
 
 let problems = 0;
 let checks = 0;
@@ -283,6 +284,25 @@ for (const seed of SEEDS) {
   check(aqSolved(solution, size, rowClue, colClue), `aquarium ${seed}: solution matches its row/col clues`);
   check(aqCount(regionId, size, rowClue, colClue, 2) === 1, `aquarium ${seed}: unique solution`);
   check(rowClue.reduce((a, b) => a + b, 0) === colClue.reduce((a, b) => a + b, 0), `aquarium ${seed}: row and col totals agree`);
+}
+
+console.log("\nSlitherlink:");
+for (const seed of SEEDS) {
+  const p = slGen(seed, 6, 6);
+  check(slCount(p.clue, 6, 6, 2) === 1, `slitherlink ${seed}: unique solution`);
+  const { h, v } = slEdges(p);
+  check(slSolved(h, v, p.clue, 6, 6), `slitherlink ${seed}: the solution loop satisfies every clue`);
+  check(p.clue.every((k) => k === -1 || (k >= 0 && k <= 3)), `slitherlink ${seed}: clues are blank or 0–3`);
+  // an empty board (no lines drawn) is not a finished loop
+  check(!slSolved(h.map(() => false), v.map(() => false), p.clue, 6, 6), `slitherlink ${seed}: a blank grid is not solved`);
+}
+// two separate small loops must NOT count as solved even with no clues
+{
+  const blank = new Array(36).fill(-1);
+  const { h, v } = slEdges(slGen(99, 6, 6));
+  // flipping one solution edge off breaks the single loop → no longer solved
+  const hi = h.findIndex((x) => x);
+  if (hi >= 0) { const broken = h.slice(); broken[hi] = false; check(!slSolved(broken, v, blank, 6, 6), "slitherlink: an open path is not a closed loop"); }
 }
 
 console.log(`\n[validate-logic] checks=${checks} problems=${problems}`);

@@ -578,3 +578,47 @@
 }
 .aq-clue.ok { color: var(--mint-dark); }
 .aq-clue.over { color: var(--coral); }
+
+/* ---- Slitherlink ---- */
+.slither {
+  display: grid;
+  justify-content: center;
+  width: max-content;
+  margin: 10px auto;
+  padding: 10px;
+  background: var(--surface);
+  border: var(--outline);
+  border-radius: var(--radius-s);
+  box-shadow: var(--shadow-sticker);
+}
+.sl-dot { display: flex; align-items: center; justify-content: center; }
+.sl-dot::after {
+  content: "";
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--ink) 55%, transparent);
+}
+.sl-edge {
+  border: 0; padding: 0; margin: 0;
+  background: transparent;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--coral); font-weight: 800; font-size: 0.8rem; line-height: 1;
+}
+.sl-edge--h { height: 16px; }
+.sl-edge--v { width: 16px; }
+.sl-edge:hover { background: color-mix(in srgb, var(--gold) 18%, transparent); }
+.sl-edge--h.s1 {
+  background: linear-gradient(to bottom, transparent calc(50% - 2px), var(--violet) calc(50% - 2px),
+    var(--violet) calc(50% + 2px), transparent calc(50% + 2px));
+}
+.sl-edge--v.s1 {
+  background: linear-gradient(to right, transparent calc(50% - 2px), var(--violet) calc(50% - 2px),
+    var(--violet) calc(50% + 2px), transparent calc(50% + 2px));
+}
+.sl-cell {
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-weight: 700;
+  font-size: clamp(1rem, 4vw, 1.35rem);
+  color: var(--text);
+}
