@@ -81,8 +81,19 @@ overview; this file captures the non-obvious decisions.
 ## Combinatorial games (`src/games/`)
 
 A self-contained suite of perfect-information games (Checkers, Reversi, Connect
-Four, Gomoku, Nine Men's Morris, Tic-Tac-Toe) living **beside** the chess app,
-reachable at `/games` (the "Games" nav item → `pages/Arcade.tsx`).
+Four, Gomoku, Nine Men's Morris, Kōnane, Breakthrough, Surakarta, Fanorona, Lines
+of Action, Hex, Tic-Tac-Toe) living **beside** the chess app, reachable at
+`/games` (the "Games" nav item → `pages/Arcade.tsx`).
+
+- **Adding a game is one `defs/*.ts` file + a registry line.** `Arcade.tsx`
+  renders any `GameDefinition` generically (board via grid or `points` geometry),
+  so obscure games drop straight in: Hex uses a generated rhombus of `points` with
+  a 0–1 BFS completion heuristic; Surakarta simulates the corner-loop capture
+  circuits with a loop-transition table; Fanorona enumerates approach/withdrawal
+  capture chains as atomic moves (like checkers multi-jumps). When a game can run
+  forever without progress (LOA, Surakarta, Fanorona) it carries a `ply` cap that
+  draws — a `ponytail:` termination backstop, since `validate-games` requires
+  random playouts to terminate.
 
 - **All original code, no new dependencies.** Nothing is pulled in for these
   games, so the GPL-3.0 licensing story is unchanged — `THIRD-PARTY-NOTICES.md`
@@ -182,9 +193,15 @@ item → `pages/Cards.tsx`, a lobby that dispatches to a per-game component).
   watchable delay (`aiThinkFloorMs`); finished games log to the shared `useArchive`.
 - Two reusable cores worth knowing: `poker/eval.ts` (hand ranking) and
   `gin/melds.ts` (`bestMeld`/`bestDiscard`) — both heavily covered by the harness.
-- Briscola (Italian trick-taking) uses the 40-card Italian deck + value tables in
-  `cards/core/italian.ts`; 12 card games total. (Scopa is a natural next add on the
-  same deck.)
+- Briscola **and Scopa** use the 40-card Italian deck + value tables in
+  `cards/core/italian.ts`. 16 card games total, including **Cribbage** (own
+  `scoring.ts` — countHand for the show, pegPoints for the play, verified by the
+  perfect 29 hand; a `cribStep` drives all forced/AI transitions), **Durak**
+  (36-card, trump, attack/defend), and **Euchre** (24-card partnership with
+  bowers — `effSuit`/`strength` model the right/left bower, `euchreStep` drives
+  the three AI seats; bidding incl. order-up/dealer-discard/stick-the-dealer).
+  Multi-seat games with bidding/pegging expose a `*Step(state)` reducer that
+  advances one AI/forced action so the UI only prompts on the human's decisions.
 
 ## Logic Lab (`src/logic/`)
 
@@ -196,6 +213,16 @@ opponent-based games. Same discipline — pure logic in `.ts`, verified headless
   `isValidComplete`, and `conflicts` back the UI. Difficulty = clue count.
 - **Mastermind** (`mastermind.ts`): `feedback` (black/white pegs) + a
   consistency-filter solver. The harness proves the solver always cracks ≤10.
+- **Loop/path puzzles** share one trick: a loop on a grid is the boundary of an
+  inside region, so **Slitherlink** and **Masyu** generate by growing a
+  simply-connected region and verify uniqueness with a face-colour backtracker
+  (Masyu adds white=straight / black=turn pearl constraints). **Nurikabe** (island
+  /sea shading, sea-connectivity kept as a generation invariant), **Bridges**
+  (edge-degree island solver), **Tents** (row/col counts + a tent↔tree matching),
+  and **Numberlink** (edge-degree path cover, Hamiltonian-cut generation, lax/flow
+  rules with a path-drawing UI) round out the set. Each puzzle is a `generate`/
+  `countSolutions`/`isSolved` module + a `.tsx`; the loop/path ones use bespoke
+  segment- or path-drawing UIs rather than the shading grid.
 
 ## Gotchas
 
