@@ -254,6 +254,156 @@ const morris: GLearnPath = {
   ],
 };
 
+const konane: GLearnPath = {
+  gameId: "konane",
+  tagline: "Hawaiian capture — hop in straight lines, last to move wins.",
+  lessons: [
+    {
+      id: "ko-basics",
+      title: "How to play",
+      blurb: "Lifting and hopping.",
+      steps: [
+        { kind: "text", title: "The opening", body: "The board starts full of alternating black and white stones. Black lifts one stone from a corner or the centre, then White lifts a stone next to that gap. Now the captures begin." },
+        { kind: "text", title: "Jump to capture", body: "Every move is a jump: hop orthogonally over an adjacent enemy stone into the empty square just beyond, removing it. You may keep hopping with the same stone in the SAME straight line — never diagonally, never around a corner." },
+      ],
+    },
+    {
+      id: "ko-strategy",
+      title: "Win by mobility",
+      blurb: "It's not about material.",
+      steps: [
+        { kind: "text", title: "Last move wins", body: "There are no quiet moves — when you can't jump, you lose. So the goal isn't to capture the most stones, it's to keep a move in hand when your opponent runs out." },
+        { kind: "text", title: "Keep your options", body: "Preserve clusters of your own stones that can still jump, and try to strand the enemy's stones where they have no enemy to hop. Trading down into a position where only you can move is the whole game." },
+      ],
+    },
+  ],
+};
+
+const breakthrough: GLearnPath = {
+  gameId: "breakthrough",
+  tagline: "A pure race — first pawn to the far edge wins.",
+  lessons: [
+    {
+      id: "bt-basics",
+      title: "How to play",
+      blurb: "Moving and capturing.",
+      steps: [
+        { kind: "text", title: "Forward only", body: "Each pawn steps one square forward — straight or diagonal — into an empty square. It can only capture diagonally forward, never straight ahead, so a pawn head-on can be blocked but not taken." },
+        { kind: "text", title: "No draws", body: "There is no draw in Breakthrough. The first player to land a pawn on the opponent's back row wins, and so does anyone who leaves the opponent with no legal move." },
+      ],
+    },
+    {
+      id: "bt-strategy",
+      title: "Phalanx and defence",
+      blurb: "Columns attack, diagonals defend.",
+      steps: [
+        { kind: "text", title: "Defend in twos", body: "A lone pawn is easy to capture; a pawn defended by a friend behind it on the diagonal is not — recapture punishes the attacker. Advance in connected groups, not single runners." },
+        { kind: "text", title: "Count the race", body: "When the lines open, count tempi: if your breakthrough reaches the goal one move before the opponent's, push it. Trading to clear a single file can decide the race." },
+      ],
+    },
+  ],
+};
+
+const surakarta: GLearnPath = {
+  gameId: "surakarta",
+  tagline: "Slide around the loops to capture across the board.",
+  lessons: [
+    {
+      id: "sk-basics",
+      title: "How to play",
+      blurb: "Ordinary moves and loop captures.",
+      steps: [
+        { kind: "text", title: "Two kinds of move", body: "An ordinary move steps one stone to any adjacent empty point, in any of the eight directions. To capture, you slide a stone in a straight line along the grid lines." },
+        { kind: "text", title: "Round a loop", body: "A capture must travel around at least one of the eight corner loops before landing on an enemy stone — you can glide over empty points but never over a stone. The two centre lines on each side carry no loops." },
+      ],
+    },
+    {
+      id: "sk-strategy",
+      title: "Lines of attack",
+      blurb: "Control the circuits.",
+      steps: [
+        { kind: "text", title: "Watch the circuits", body: "A stone is in danger whenever a clear looped line connects an enemy to it. Keep your stones off open circuits the opponent controls, and block lines by parking stones on them." },
+        { kind: "text", title: "Capture all", body: "You win by taking every enemy stone, so trades that leave you ahead are good — but a single stone safe on a dead centre line can be surprisingly hard to remove." },
+      ],
+    },
+  ],
+};
+
+const fanorona: GLearnPath = {
+  gameId: "fanorona",
+  tagline: "Capture by approach or withdrawal — in chains.",
+  lessons: [
+    {
+      id: "fn-basics",
+      title: "How to play",
+      blurb: "Strong points and two captures.",
+      steps: [
+        { kind: "text", title: "Strong and weak points", body: "Stones move one point along a line. Strong intersections (where the diagonals are drawn) let a stone move in eight directions; weak ones only four." },
+        { kind: "text", title: "Approach or withdraw", body: "You capture by stepping TOWARD an enemy line (approach) or AWAY from one (withdrawal) — and you take the whole unbroken run of enemy stones along that line. Capturing is compulsory when you can." },
+      ],
+    },
+    {
+      id: "fn-strategy",
+      title: "Chain captures",
+      blurb: "One move, many stones.",
+      steps: [
+        { kind: "text", title: "Keep going", body: "After a capture the same stone may capture again — but it can't repeat its last direction or revisit a point. Lining up a path that alternates directions can sweep a huge number of stones in one turn." },
+        { kind: "text", title: "Set the angle", body: "Because each step captures one whole line, position your stone so a single move threatens both an approach and a withdrawal. The defender can only stop one." },
+      ],
+    },
+  ],
+};
+
+const loa: GLearnPath = {
+  gameId: "loa",
+  tagline: "Pull your army into one connected group to win.",
+  lessons: [
+    {
+      id: "loa-basics",
+      title: "How to play",
+      blurb: "Move by the count of the line.",
+      steps: [
+        { kind: "text", title: "Line-length moves", body: "A piece slides in a straight line exactly as many squares as there are pieces — yours and the opponent's — on that whole line. You may jump your own pieces but not the enemy's, and you capture by landing on an enemy." },
+        { kind: "text", title: "The goal", body: "You win the instant all of your pieces form a single connected group, counting diagonal touches. If one move connects both armies at once, the player who moved wins." },
+      ],
+    },
+    {
+      id: "loa-strategy",
+      title: "Connect and centralise",
+      blurb: "Fewer groups, tighter shape.",
+      steps: [
+        { kind: "text", title: "Count your groups", body: "Think in terms of how many separate clumps you have; every move should aim to reduce that number. A lone outlying piece is your biggest liability — bring it home." },
+        { kind: "text", title: "Don't over-capture", body: "Captures change line lengths and can scatter you or help the opponent connect. Sometimes the winning move is quiet — closing the last gap rather than grabbing a piece." },
+      ],
+    },
+  ],
+};
+
+const hex: GLearnPath = {
+  gameId: "hex",
+  tagline: "Connect your two edges — and block theirs.",
+  lessons: [
+    {
+      id: "hex-basics",
+      title: "How to play",
+      blurb: "One unbroken chain.",
+      steps: [
+        { kind: "text", title: "Link your edges", body: "Take turns placing one stone on any empty cell. Blue links the top and bottom edges with an unbroken chain; Red links the left and right. Stones never move or get captured." },
+        { kind: "text", title: "Someone always wins", body: "Because of how the hexagons interlock, Hex can never be a draw — when the board fills, exactly one player has connected. Blocking the opponent and building your own chain are the same act." },
+      ],
+    },
+    {
+      id: "hex-strategy",
+      title: "Bridges and the centre",
+      blurb: "Connect without touching.",
+      steps: [
+        { kind: "text", title: "The bridge", body: "Two of your stones placed a knight's-step apart share two empty cells between them. They're effectively connected: if the opponent takes one link, you take the other. Bridges let you advance fast and safely." },
+        { kind: "text", title: "Own the middle", body: "The short diagonal through the centre is the key ground — central stones reach both your edges. Open near the middle, and steer the fight toward the side where your chain is strongest." },
+      ],
+    },
+  ],
+};
+
 export const LEARN_PATHS: GLearnPath[] = [
   ticTacToe,
   connectFour,
@@ -261,6 +411,12 @@ export const LEARN_PATHS: GLearnPath[] = [
   reversi,
   checkers,
   morris,
+  konane,
+  breakthrough,
+  surakarta,
+  fanorona,
+  loa,
+  hex,
 ];
 
 export function getPath(gameId: string): GLearnPath | undefined {
