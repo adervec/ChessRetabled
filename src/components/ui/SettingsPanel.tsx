@@ -181,10 +181,20 @@ export function SettingsPanel() {
             <div className="settings__account">
               {cloud.account ? (
                 <>
-                  <span className="settings__badge settings__badge--on">
-                    ✓ {cloud.account.email || cloud.account.name || "Connected"}
-                  </span>
-                  <button className="btn btn--sm" onClick={onConnect}>Reconnect</button>
+                  <div className="settings__profile">
+                    {cloud.account.picture
+                      ? <img className="settings__pfp" src={cloud.account.picture} alt="" referrerPolicy="no-referrer" loading="lazy" />
+                      : <span className="settings__pfp settings__pfp--ph">👤</span>}
+                    <div className="settings__profiletext">
+                      <span className="settings__profilename">{cloud.account.name || "Google account"}</span>
+                      {cloud.account.email && <span className="settings__profilemail">{cloud.account.email}</span>}
+                    </div>
+                    <span className="settings__badge settings__badge--on">✓ Synced</span>
+                  </div>
+                  <div className="settings__row" style={{ gap: 8 }}>
+                    <button className="btn btn--sm" onClick={onConnect}>Reconnect</button>
+                    <button className="btn btn--sm btn--ghost" onClick={cloud.disconnect}>Disconnect</button>
+                  </div>
                 </>
               ) : (
                 <button
@@ -195,9 +205,6 @@ export function SettingsPanel() {
                   Connect Google Drive
                 </button>
               )}
-              <button className="btn btn--sm btn--ghost" onClick={cloud.disconnect}>
-                Disconnect
-              </button>
             </div>
 
             <p className="settings__hint">
