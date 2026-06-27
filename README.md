@@ -133,6 +133,8 @@ This is the only case where data leaves your device, it only happens after you
 explicitly connect, and you can disconnect at any time. The OAuth access token is
 held in memory only and never persisted.
 
+See [`PRIVACY.md`](./PRIVACY.md) for the full privacy policy.
+
 ## License
 
 ChessRetabled is Copyright © 2026 Adam Eryavec, licensed under the **GNU General
