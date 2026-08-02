@@ -1,0 +1,87 @@
+.coach__intro { max-width: 640px; margin: 4px 0 8px; }
+.coach__section { margin-top: 26px; }
+.coach__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.coach__arch { color: var(--violet); }
+.coach__actions { display: flex; gap: 8px; }
+.coach__brief {
+  max-height: 340px;
+  padding: 16px 18px;
+  border: var(--outline);
+  border-radius: var(--radius-m);
+  background: var(--surface);
+  box-shadow: var(--shadow-sticker-sm);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-y: auto;
+}
+.coach__hintline { font-size: 0.82rem; margin-top: 8px; }
+
+.coach__chat-sub { max-width: 640px; margin: 0 0 12px; font-size: 0.92rem; }
+.coach__keyrow { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+.coach__key {
+  flex: 1;
+  min-width: 260px;
+  padding: 11px 14px;
+  border: var(--outline);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--text);
+}
+.coach__consent {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.86rem;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+.coach__starters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.coach__chat {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border: var(--outline);
+  border-radius: var(--radius-m);
+  background: var(--surface);
+  box-shadow: var(--shadow-sticker-sm);
+  max-height: 420px;
+  overflow-y: auto;
+  margin-bottom: 12px;
+}
+.coach__msg {
+  max-width: 78%;
+  padding: 10px 14px;
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-m);
+  white-space: pre-wrap;
+  line-height: 1.5;
+  font-size: 0.94rem;
+}
+.coach__msg--user { align-self: flex-end; background: var(--violet); color: #fff; }
+.coach__msg--assistant { align-self: flex-start; background: var(--surface-raised); }
+.coach__error {
+  margin: 8px 0;
+  padding: 10px 14px;
+  border: 2px solid var(--coral);
+  border-radius: var(--radius-m);
+  color: var(--coral);
+  font-size: 0.88rem;
+  word-break: break-word;
+}
+.coach__inputrow { display: flex; gap: 10px; }
+.coach__input {
+  flex: 1;
+  padding: 12px 16px;
+  border: var(--outline);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--text);
+}

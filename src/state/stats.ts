@@ -14,6 +14,8 @@ export interface GameStats {
   lost: number;
   drawn: number;
   abandoned: number;
+  /** Games where the player used hint assistance (flagged, still counted). */
+  assisted: number;
   /** Win rate over decisive games (versus only); null when not applicable. */
   winRate: number | null;
   lastPlayedISO: string | null;
@@ -33,6 +35,8 @@ export interface DashboardData {
   totalPlayed: number;
   triedCount: number;
   catalogCount: number;
+  /** Total games flagged as hint-assisted. */
+  assistedCount: number;
   decisive: number;
   totalWins: number;
   overallWinRate: number | null;
@@ -52,7 +56,7 @@ const dayKey = (iso: string) => iso.slice(0, 10);
 
 function emptyStats(entry: CatalogEntry): GameStats {
   return {
-    entry, played: 0, won: 0, lost: 0, drawn: 0, abandoned: 0,
+    entry, played: 0, won: 0, lost: 0, drawn: 0, abandoned: 0, assisted: 0,
     winRate: null, lastPlayedISO: null, last7: 0, last30: 0,
   };
 }
@@ -79,6 +83,7 @@ export function buildDashboard(records: GameRecord[], now: number = Date.now()):
     else if (r.outcome === "loss") g.lost++;
     else if (r.outcome === "draw") g.drawn++;
     else g.abandoned++;
+    if (r.assisted) g.assisted++;
     if (!g.lastPlayedISO || r.endedISO > g.lastPlayedISO) g.lastPlayedISO = r.endedISO;
     const age = now - new Date(r.endedISO).getTime();
     if (age <= 7 * DAY) g.last7++;
@@ -133,6 +138,7 @@ export function buildDashboard(records: GameRecord[], now: number = Date.now()):
     totalPlayed,
     triedCount,
     catalogCount: CATALOG.length,
+    assistedCount: records.filter((r) => r.assisted === true).length,
     decisive,
     totalWins,
     overallWinRate: decisive > 0 ? totalWins / decisive : null,

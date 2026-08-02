@@ -18,6 +18,38 @@
   padding: 1px 9px;
 }
 
+/* ---- player archetype hero ---- */
+.dash__arch {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: 18px;
+  padding: 20px 22px;
+  border: var(--outline);
+  border-radius: var(--radius-l);
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-sticker);
+}
+.dash__arch-ico { font-size: 3.2rem; line-height: 1; }
+.dash__arch-body { flex: 1; min-width: 0; }
+.dash__arch-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+.dash__arch-name { font-family: var(--font-display); margin: 2px 0 4px; }
+.dash__arch-blurb { margin: 0 0 10px; font-size: 0.95rem; }
+.dash__arch-traits { display: flex; flex-wrap: wrap; gap: 6px; }
+.dash__arch-cta { flex-shrink: 0; }
+@media (max-width: 640px) {
+  .dash__arch { flex-direction: column; text-align: center; }
+  .dash__arch-traits { justify-content: center; }
+}
+
+.dash__assist { margin-left: 6px; font-size: 0.85em; }
+
 /* ---- empty state ---- */
 .dash__empty {
   text-align: center;

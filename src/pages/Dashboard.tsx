@@ -3,7 +3,9 @@ import { Link } from "react-router-dom";
 import { useArchive } from "../state/useArchive";
 import { useProgress } from "../state/useProgress";
 import { buildDashboard, pct, relativeTime, type GameStats } from "../state/stats";
+import { deriveArchetype } from "../state/archetype";
 import { CATEGORY_LABEL, type CatalogCategory } from "../catalog";
+import { WhatNow } from "../components/ui/WhatNow";
 import "./Dashboard.css";
 
 const CAT_ICON: Record<CatalogCategory, string> = {
@@ -23,6 +25,7 @@ export function Dashboard() {
 
   const maxDay = Math.max(1, ...d.byDay.map((b) => b.count));
   const played = d.perGame.filter((g) => g.played > 0);
+  const arch = useMemo(() => deriveArchetype(d), [d]);
 
   return (
     <div className="page">
@@ -31,6 +34,8 @@ export function Dashboard() {
         Everything you play, at a glance — what you reach for, what you’re winning,
         and what’s still waiting in the box.
       </p>
+
+      <WhatNow compact />
 
       {d.totalPlayed === 0 ? (
         <div className="dash__empty">
@@ -49,6 +54,23 @@ export function Dashboard() {
         </div>
       ) : (
         <>
+          <section className="dash__arch">
+            <span className="dash__arch-ico" aria-hidden>{arch.icon}</span>
+            <div className="dash__arch-body">
+              <div className="dash__arch-label">Your player archetype</div>
+              <h2 className="dash__arch-name">{arch.name}</h2>
+              <p className="dash__arch-blurb text-dim">{arch.blurb}</p>
+              <div className="dash__arch-traits">
+                {arch.traits.map((t) => (
+                  <span className="tag" key={t}>{t}</span>
+                ))}
+              </div>
+            </div>
+            <Link className="btn btn--sm btn--violet dash__arch-cta" to="/coach">
+              🎓 Get coaching
+            </Link>
+          </section>
+
           <div className="profile__grid" style={{ marginTop: 16 }}>
             <div className="statcard">
               <div className="statcard__label">🎮 Games played</div>
@@ -63,7 +85,10 @@ export function Dashboard() {
             <div className="statcard">
               <div className="statcard__label">🏆 Win rate</div>
               <div className="statcard__value" style={{ color: "var(--mint)" }}>{pct(d.overallWinRate)}</div>
-              <div className="statcard__sub">{d.totalWins} wins · {d.decisive} decisive</div>
+              <div className="statcard__sub">
+                {d.totalWins} wins · {d.decisive} decisive
+                {d.assistedCount > 0 ? ` · ${d.assistedCount} assisted 💡` : ""}
+              </div>
             </div>
             <div className="statcard">
               <div className="statcard__label">🔥 Day streak</div>
@@ -166,7 +191,12 @@ export function Dashboard() {
                 {d.recent.map((r) => (
                   <li key={r.id} className="dash__recent-row">
                     <span className={"dash__pill dash__pill--" + r.outcome}>{r.outcome}</span>
-                    <span className="dash__recent-name">{r.gameName}</span>
+                    <span className="dash__recent-name">
+                      {r.gameName}
+                      {r.assisted && (
+                        <span className="dash__assist" title="Hints were used in this game">💡</span>
+                      )}
+                    </span>
                     <span className="text-dim dash__recent-reason">{r.reason ?? `vs ${r.opponent}`}</span>
                     <span className="text-muted dash__recent-when">{relativeTime(r.endedISO, now)}</span>
                   </li>
