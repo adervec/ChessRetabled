@@ -224,6 +224,80 @@ opponent-based games. Same discipline — pure logic in `.ts`, verified headless
   `countSolutions`/`isSolved` module + a `.tsx`; the loop/path ones use bespoke
   segment- or path-drawing UIs rather than the shading grid.
 
+## PWA, hints, archetype & coach
+
+- **PWA**: `public/manifest.webmanifest` uses **relative URLs** (`./`) so the
+  Pages sub-path needs no build-time templating; `public/sw.js` is network-first
+  for navigations (new deploys win) and cache-first for assets/engine (offline
+  play, the NNUE included). Registered in `main.tsx` **PROD-only**. Bump the
+  `CACHE` name in sw.js when cache semantics change. Icons are SVG-only
+  (`favicon.svg` + `icon-maskable.svg`); no PNG fallback by design.
+- **Progressive hints**: convention is *nudge → reveal*; any press sets a sticky
+  `hintUsed`, and finished games log `assisted: true` on the `GameRecord`
+  (optional field, no storage-key bump). Implementations: `useGenericGame`
+  (`requestHint`/`hintCells`/`hintNote`, search at the game's strongest
+  difficulty with randomness 0 — covers all 12 board games), `useBotGame`
+  (`Hint.stage`, engine bestMove — covers Play + Practice), per-component wiring
+  in cards (shared `cards/ui/useCardHint.ts`; War/Old Maid/Memory skipped — no
+  meaningful decision) and logic (solutions are already stored on each puzzle,
+  so hints never re-solve). Puzzles keep their pre-existing hint → "not clean"
+  rating path. Simul deliberately has no hints.
+- **Archetype** (`state/archetype.ts`): pure, total function DashboardData →
+  archetype (first-match rule chain; `ARCHETYPE_IDS` is the closed id set).
+  **Coach** (`state/coach.ts` + `pages/Coach.tsx`, route `/coach`): builds a
+  markdown coaching brief from stats+archetype+progress; optional live chat
+  POSTs directly to the Anthropic Messages API with a user-supplied key
+  (in-memory only, explicit consent checkbox, CORS via the
+  `anthropic-dangerous-direct-browser-access` header). Both pure modules are
+  covered by `validate-stats.mjs` (archetype totality fuzz + brief
+  no-`undefined` smoke).
+
+## Nav, sound & "What now?"
+
+- **NavBar** keeps only the first four links in the bar; **all twelve live in the
+  ☰ dropdown** (`.nav__menu`, fixed panel under the bar, `hidden` when closed,
+  scrollable, scrim + Escape to close). Twelve labelled pills needed ~1750px of
+  bar and used to shove the menu button off-screen — don't put links back inline.
+- **Sound** (`state/sfx.ts`): oscillator-synthesised cues, **no audio assets** —
+  one lazy `AudioContext`, a `VOICES` table of note/duration/gain, a 40 ms
+  same-cue throttle, and a master trim × the user's volume. Gated on
+  `useSettings.sound` (on by default) + `volume`. Four wire points cover the
+  whole app: `useChessGame.move` (chess everywhere), `useGenericGame.commit` +
+  select/hint (12 board games), `cards/ui/PlayingCard` onClick (all card games),
+  and **`useArchive.add`** (every mode's end-of-game fanfare). `installUiSfx()`
+  in `App.tsx` is one delegated listener giving `.btn/.chip-btn/a[href]` a click
+  cue; game surfaces are excluded on purpose (they have specific sounds).
+- **`state/suggest.ts`** — pure `suggestActivities(DashboardData, {lessons,
+  streak, now, seed})` → 3 `Suggestion`s from a fixed rule set (streak nudge,
+  momentum, needs-work, never-tried, dropped, next lesson, favourite). `seed`
+  **rotates** the list so "🎲 Something else" walks all rules instead of
+  reshuffling. Rendered by `components/ui/WhatNow.tsx` on Home + Dashboard.
+  Covered by `validate-stats.mjs` (shape, rule triggers, 200-archive totality).
+
+## Game guides (`src/content/guides/`)
+
+- **One deep Markdown guide per game**, filename = the catalog/`GameRecord.gameId`
+  (`chess.md`, `nine-mens-morris.md`, `sudoku.md`, …). They are **standalone files**
+  ("separately readable") *and* rendered in-app ("integrated"). Adding a guide is
+  literally dropping a `<id>.md` in this folder.
+- `content/guides.ts` globs them with Vite's `import.meta.glob("./guides/*.md",
+  { query: "?raw", import: "default", eager: true })`, keys by filename→id, and
+  reuses `src/catalog.ts` for grouping/order. The H1 (`# …`) is the title.
+- `components/ui/Markdown.tsx` is a **hand-rolled** md→React renderer (headings,
+  lists, tables, blockquotes, fenced code, inline bold/italic/code/links) — no
+  markdown dependency, no `dangerouslySetInnerHTML`. It covers the guide subset;
+  swap in a lib only if guides need full GFM.
+- `pages/Guide.tsx` renders the library at `/guide` (search + category sections
+  from `guideLibrary()`) and a single deep-linkable guide at `/guide/:id` (prev/
+  next via `GUIDE_ENTRIES`, a "▶ Play" jump to the game's catalog `path`). Entry
+  points: the **Guides** nav item, a header link in each lobby (Play/Cards/
+  Games/Logic), and a per-game "📖 Full guide" link on the board-game setup screen.
+- Guides follow one skeleton (What it is / Goal / setup / Rules / **How it works
+  in ChessRetabled** / Strategy Beginner→Advanced / Traps / worked example /
+  Glossary / Where to go next). Keep the "How it works" section accurate to the
+  app (difficulty tiers, the 💡 nudge→reveal hint + assisted flag, seeded decks,
+  unique-solution generators, archive logging).
+
 ## Gotchas
 
 - The dev **preview/screenshot tooling was flaky** in this environment

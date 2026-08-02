@@ -25,6 +25,32 @@ the table.
   pawn, back-rank) played against the engine, with success/stalemate detection.
 - **📈 Progress** — a localStorage-backed profile: level/XP, puzzle rating, day
   streak, win/loss record, lesson stars, and drills mastered.
+- **📱 Installable (PWA)** — install it from the browser as a real app with a
+  launch shortcut, app-menu shortcuts straight into Play/Puzzles/Games/Cards,
+  and **full offline play** (the engine is cached on your device).
+- **🎭 Player archetype** — the dashboard reads your archive and names your play
+  style (The Explorer, The Specialist, The Card Sharp, …) with the evidence.
+- **🧑‍🏫 AI Coach** — one click builds a *coaching brief* from your local stats
+  to paste into Claude/Cowork/any assistant, or chat with a live AI coach right
+  in the app using your own Anthropic API key (in-memory only, opt-in).
+- **💡 Progressive hints everywhere** — chess, drills, all board games, most
+  card games, and every logic puzzle can nudge you first and only then reveal
+  the answer. Using a hint even once flags that game as **assisted 💡** in your
+  history, so your clean results stay honest.
+- **📖 Game Guides** — a deep, standalone strategy guide for **every game in the
+  app** (chess, all board games, the card room, and the Logic Lab): rules, how
+  it works here, and strategy from opening to endgame. Browse the library at
+  `/guide`, deep-link any single guide at `/guide/<id>`, or open one straight
+  from a game's lobby. Each guide is also a plain Markdown file under
+  `src/content/guides/`, readable on its own.
+- **🎲 "What now?"** — 56 games is a lot of choice, so the home page and the
+  dashboard open with three concrete suggestions: keep the streak alive, carry
+  on something you're mid-run in, take a rematch at a game you're losing, try
+  something never played, or pick up the next lesson. "Something else" cycles
+  through the rest.
+- **🔊 Sound** — short synthesised cues for moves, captures, dealt cards, hints
+  and results. Nothing is downloaded; it's generated in the browser, and it's a
+  single on/off switch plus a volume slider in Settings.
 
 ## Tech stack
 
@@ -43,6 +69,11 @@ npm run dev          # start the dev server (http://localhost:5173)
 npm run build        # type-check + production build
 npm run preview      # preview the production build
 ```
+
+> **Install as an app:** the deployed site is a PWA — use your browser's
+> "Install app" action to get a desktop/home-screen shortcut, jump-list
+> shortcuts into each mode, and offline play (a service worker caches the app
+> and engine after the first visit).
 
 > **Note on the engine:** the Stockfish artifacts (including a ~39 MB NNUE
 > evaluation net) are large, so they are **not** committed to git. They are
@@ -124,6 +155,11 @@ ratings, streak, lesson stars, game history) is stored **only in your browser**
 via `localStorage` and never leaves your device. Out of the box, the only network
 request is to load the app itself; the host (GitHub Pages) serves the site and
 may log standard web requests per GitHub's privacy policy.
+
+**Optional AI Coach** (off by default): the coaching brief is built entirely on
+your device. Only if you paste your own Anthropic API key, tick consent, and
+send a message does the brief go to Anthropic's API — under your account, held
+in memory only.
 
 **Optional Google Drive sync** (off by default): if you turn it on in Settings,
 tick consent, and connect a Google account, your data bundle is uploaded to a

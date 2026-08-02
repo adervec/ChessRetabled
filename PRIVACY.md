@@ -1,6 +1,6 @@
 # Privacy Policy
 
-_Last updated: 2026-06-27_
+_Last updated: 2026-07-12_
 
 ChessRetabled is a hobby project that runs entirely in your web browser. It is
 designed to collect nothing about you.
@@ -45,6 +45,32 @@ account. Only then does anything leave your device. Specifically:
 
 Google's handling of your account and Drive data is governed by
 [Google's Privacy Policy](https://policies.google.com/privacy).
+
+## Optional AI Coach
+
+The **Coach** page builds a "coaching brief" — a plain-text summary of your
+locally-stored stats (games played, win rates, archetype, recent results). This
+is generated **entirely on your device**. Nothing is sent anywhere when you
+view, copy, or download it.
+
+The page also offers optional **live coaching** using your own Anthropic API
+key. This is off unless you use it, and:
+
+- Your API key is **held in memory only**, never saved, and sent only to
+  Anthropic's API (`api.anthropic.com`) to authenticate your own requests.
+- When — and only when — you tick the consent box and send a chat message, your
+  coaching brief and your messages are sent to **Anthropic's API under your own
+  account**. The author is not involved and cannot see any of it. Anthropic's
+  handling of API data is governed by
+  [Anthropic's Privacy Policy](https://www.anthropic.com/legal/privacy).
+- Closing the page forgets the key and the conversation.
+
+## Installing as an app (PWA)
+
+If you install ChessRetabled from your browser, a copy of the app's files
+(including the chess engine) is cached **on your device** by a service worker so
+it can run offline. This cache stays local and can be removed by uninstalling
+the app or clearing site data.
 
 ## Children
 
