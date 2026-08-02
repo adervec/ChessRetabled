@@ -3,6 +3,9 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import "./styles/global.css";
+// Last import wins ties in the bundled CSS, and the mobile sheet has to override
+// the per-page ones. Keep it below App and global.css.
+import "./styles/responsive.css";
 
 // PWA: offline cache + installability (public/sw.js). Production only, so dev
 // never serves stale modules; the URL is base-relative for the Pages sub-path.

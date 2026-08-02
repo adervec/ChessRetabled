@@ -28,6 +28,11 @@ the table.
 - **📱 Installable (PWA)** — install it from the browser as a real app with a
   launch shortcut, app-menu shortcuts straight into Play/Puzzles/Games/Cards,
   and **full offline play** (the engine is cached on your device).
+- **📐 Phone and desktop** — the layout follows the screen and the controls
+  follow the pointer: bigger tap targets and no stuck hover states on a
+  touchscreen, card tables that shrink to fit, safe-area padding around notches,
+  and a landscape mode that keeps the board beside its panel instead of below
+  it. Pinch-zoom stays enabled.
 - **🎭 Player archetype** — the dashboard reads your archive and names your play
   style (The Explorer, The Specialist, The Card Sharp, …) with the evidence.
 - **🧑‍🏫 AI Coach** — one click builds a *coaching brief* from your local stats

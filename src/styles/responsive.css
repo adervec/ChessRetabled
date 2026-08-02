@@ -1,0 +1,151 @@
+/* Mobile mode. There is no toggle — the device is the mode: viewport width picks
+   the layout, pointer type picks the interaction. Imported last in main.tsx so
+   it wins ties against the per-page sheets; keep it there.
+   ponytail: one sheet instead of breakpoints sprinkled through 31 files. Split a
+   page out only if its mobile layout grows past a handful of rules. */
+
+/* ---------- touch interaction ---------- */
+
+/* Kills the 300 ms double-tap-to-zoom delay on things you tap, without taking
+   pinch-zoom away — the viewport meta deliberately still allows it. */
+button,
+a,
+.pcard,
+.sq,
+.gcell,
+.target,
+.gtarget {
+  touch-action: manipulation;
+}
+
+/* A hover lift is a cursor affordance. On a touchscreen :hover latches onto the
+   last thing tapped, so the card or tile stays raised until you tap elsewhere. */
+@media (hover: none) {
+  .pcard.is-clickable:hover:not(.is-selected),
+  .promo__choice:hover,
+  .botcard:hover,
+  .nav__menuitem:hover,
+  .theme-chip:hover,
+  .whatnow__card:hover,
+  .mm-swatch:hover,
+  .academy-card:hover,
+  .academy-lesson:hover,
+  .guide-card:hover,
+  .mode-card:hover,
+  .drillcard:hover,
+  .themecard:hover,
+  .btn:hover,
+  .chip-btn:hover,
+  .target:hover .target__dot,
+  .gtarget:hover .gtarget__dot {
+    transform: none;
+  }
+}
+
+/* Fingers are blunter than a cursor: 44px minimum on anything you press. */
+@media (pointer: coarse) {
+  .btn,
+  .chip-btn,
+  .nav__link,
+  .nav__menuitem,
+  .theme-chip {
+    min-height: 44px;
+  }
+  .btn--sm {
+    min-height: 38px;
+  }
+  input[type="range"] {
+    height: 34px;
+  }
+}
+
+/* ---------- notch, home indicator, mobile browser chrome ---------- */
+
+.nav {
+  padding-left: max(clamp(14px, 4vw, 34px), env(safe-area-inset-left));
+  padding-right: max(clamp(14px, 4vw, 34px), env(safe-area-inset-right));
+}
+.page {
+  padding-bottom: calc(96px + env(safe-area-inset-bottom));
+}
+/* vh counts the collapsible toolbars, so the menu can run off the bottom. */
+.nav__menu {
+  max-height: calc(100dvh - var(--nav-h) - 16px);
+}
+
+/* ---------- phone ---------- */
+
+@media (max-width: 760px) {
+  .page {
+    padding-top: 18px;
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+  }
+
+  /* Card tables are laid out for a desk — Klondike alone wants seven 64px
+     columns. Each game sets --card-w inline in px, so scale it here instead of
+     rewriting eighteen components. */
+  .cardtable {
+    --card-scale: 0.76;
+    padding: 10px;
+  }
+  .hand-row {
+    min-height: calc(var(--card-w, 80px) * 1.4 * var(--card-scale, 1));
+  }
+  .k-tableau,
+  .golf-cols {
+    gap: 5px;
+  }
+  .c8-center,
+  .gin-piles,
+  .war-row {
+    gap: 14px;
+  }
+
+  /* Long control rows wrap instead of pushing the page sideways. */
+  .cardtable__bar,
+  .game__topbar {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 460px) {
+  .cardtable {
+    --card-scale: 0.58;
+    padding: 8px;
+  }
+  .k-tableau,
+  .golf-cols {
+    gap: 3px;
+  }
+  .game__controls {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ---------- landscape phone: wide, but barely any height ---------- */
+
+@media (orientation: landscape) and (max-height: 560px) {
+  /* The width breakpoints stack these, which here pushes the board off-screen.
+     Keep the panel beside the board and size the board by height instead. */
+  .game,
+  .drill,
+  .puz,
+  .lesson {
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 300px);
+  }
+  .game__side,
+  .drill__side,
+  .puz__side,
+  .lesson__panel {
+    position: static;
+  }
+  .board3d-scene,
+  .gboard-scene,
+  .gpoints {
+    --board-max: 62vh;
+  }
+  .cardtable {
+    --card-scale: 0.62;
+  }
+}
