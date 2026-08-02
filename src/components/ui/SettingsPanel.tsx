@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { useSettings, THEMES, ANIM_SPEEDS } from "../../state/useSettings";
+import { useSettings, THEMES, ANIM_SPEEDS, ORIENTATIONS } from "../../state/useSettings";
 import { playSfx } from "../../state/sfx";
 import { downloadExport, importJson } from "../../state/dataTransfer";
 import { syncNow } from "../../state/sync";
@@ -10,8 +10,8 @@ import "./SettingsPanel.css";
 
 export function SettingsPanel() {
   const {
-    theme, animSpeed, boardTilt, sound, volume,
-    setTheme, setAnimSpeed, setBoardTilt, setSound, setVolume,
+    theme, animSpeed, boardTilt, orientation, sound, volume,
+    setTheme, setAnimSpeed, setBoardTilt, setOrientation, setSound, setVolume,
   } = useSettings();
   const cloud = useCloudConfig();
   const [msg, setMsg] = useState<string | null>(null);
@@ -114,6 +114,26 @@ export function SettingsPanel() {
             Flat
           </button>
         </div>
+      </div>
+
+      <div className="settings__group">
+        <h3>Layout</h3>
+        <div className="settings__row">
+          {ORIENTATIONS.map((o) => (
+            <button
+              key={o.id}
+              className={"chip-btn" + (orientation === o.id ? " is-on" : "")}
+              onClick={() => setOrientation(o.id)}
+            >
+              {o.icon} {o.name}
+            </button>
+          ))}
+        </div>
+        <p className="settings__hint">
+          On a small screen, portrait stacks the board above its panel and
+          landscape puts them side by side. Pick one to stop the layout changing
+          when you turn the device; <strong>Auto</strong> follows it.
+        </p>
       </div>
 
       <div className="settings__group">
