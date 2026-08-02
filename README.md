@@ -31,8 +31,9 @@ the table.
 - **📐 Phone and desktop** — the layout follows the screen and the controls
   follow the pointer: bigger tap targets and no stuck hover states on a
   touchscreen, card tables that shrink to fit, safe-area padding around notches,
-  and a landscape mode that keeps the board beside its panel instead of below
-  it. Pinch-zoom stays enabled.
+  and pinch-zoom left enabled. **Portrait or landscape is a setting, not the
+  accelerometer** — pick one in Settings → Layout and turning the phone won't
+  rearrange the board mid-game (Auto still follows the device if you want it to).
 - **🎭 Player archetype** — the dashboard reads your archive and names your play
   style (The Explorer, The Specialist, The Card Sharp, …) with the evidence.
 - **🧑‍🏫 AI Coach** — one click builds a *coaching brief* from your local stats

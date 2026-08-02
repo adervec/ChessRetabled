@@ -26,7 +26,12 @@ const RULES = [
   ["hover:none lift reset", /@media\s*\(hover:\s*none\)/, true],
   ["coarse-pointer tap targets", /@media\s*\(pointer:\s*coarse\)/, true],
   ["phone card scale", /--card-scale:\s*0?\.76/, true],
-  ["landscape-phone override", /@media\s*\(orientation:\s*landscape\)\s*and\s*\(max-height:\s*560px\)/, true],
+  ["landscape layout (setting-driven)", /\[data-orient=["']?landscape["']?\]\s*\.game/, true],
+  ["portrait board cap (setting-driven)", /\[data-orient=["']?portrait["']?\]\s*\.board3d-scene/, true],
+  // The accelerometer must not reach the layout: only App.tsx may read device
+  // orientation, and it writes data-orient. A bare orientation media query here
+  // would flip the layout behind the user's setting.
+  ["no orientation media query", /@media[^{]*orientation:\s*(landscape|portrait)/, "absent"],
   ["safe-area insets", /env\(safe-area-inset-bottom\)/, true],
   ["cards honour --card-scale", /width:\s*calc\(var\(--card-w,\s*76px\)\s*\*\s*var\(--card-scale,\s*1\)\)/, false],
 ];
@@ -35,6 +40,13 @@ let problems = 0;
 const found = new Map();
 for (const [label, re, mobile] of RULES) {
   const at = css.match(re)?.index ?? -1;
+  if (mobile === "absent") {
+    if (at >= 0) {
+      console.error(`  PRESENT  ${label} — found at ${at}, but it must not exist`);
+      problems++;
+    }
+    continue;
+  }
   if (at < 0) {
     console.error(`  MISSING  ${label}`);
     problems++;

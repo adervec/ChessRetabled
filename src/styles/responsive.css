@@ -123,29 +123,46 @@ a,
   }
 }
 
-/* ---------- landscape phone: wide, but barely any height ---------- */
+/* ---------- portrait vs landscape ---------- */
 
-@media (orientation: landscape) and (max-height: 560px) {
-  /* The width breakpoints stack these, which here pushes the board off-screen.
-     Keep the panel beside the board and size the board by height instead. */
-  .game,
-  .drill,
-  .puz,
-  .lesson {
-    grid-template-columns: minmax(0, 1fr) minmax(220px, 300px);
+/* Which one you get is the `orientation` setting, NOT the accelerometer: App.tsx
+   resolves auto|portrait|landscape onto <html data-orient>, and only "auto"
+   subscribes to the device. Pin it and turning the phone changes nothing.
+   Portrait needs no layout rules — it is what the width breakpoints in the page
+   sheets already do. */
+
+@media (max-width: 900px) {
+  /* Landscape: the width breakpoints stack board-above-panel, which pushes the
+     board off a short screen. Put the panel back beside it. */
+  :root[data-orient="landscape"] .game,
+  :root[data-orient="landscape"] .drill,
+  :root[data-orient="landscape"] .puz,
+  :root[data-orient="landscape"] .lesson {
+    grid-template-columns: minmax(0, 1fr) minmax(180px, 300px);
   }
-  .game__side,
-  .drill__side,
-  .puz__side,
-  .lesson__panel {
+  :root[data-orient="landscape"] .game__side,
+  :root[data-orient="landscape"] .drill__side,
+  :root[data-orient="landscape"] .puz__side,
+  :root[data-orient="landscape"] .lesson__panel {
     position: static;
   }
-  .board3d-scene,
-  .gboard-scene,
-  .gpoints {
-    --board-max: 62vh;
-  }
-  .cardtable {
+  :root[data-orient="landscape"] .cardtable {
     --card-scale: 0.62;
+  }
+}
+
+/* The one rule about the window rather than the setting: on a short viewport the
+   board has to be sized by height or you scroll to see your own back rank. Both
+   layouts need it, because portrait can be pinned on a phone lying sideways. */
+@media (max-height: 620px) {
+  :root[data-orient="landscape"] .board3d-scene,
+  :root[data-orient="landscape"] .gboard-scene,
+  :root[data-orient="landscape"] .gpoints {
+    --board-max: min(62vh, 58vw);
+  }
+  :root[data-orient="portrait"] .board3d-scene,
+  :root[data-orient="portrait"] .gboard-scene,
+  :root[data-orient="portrait"] .gpoints {
+    --board-max: min(560px, 78vh);
   }
 }

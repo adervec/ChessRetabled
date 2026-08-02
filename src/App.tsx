@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { NavBar } from "./components/ui/NavBar";
 import { useProgress } from "./state/useProgress";
-import { useSettings, ANIM_MS } from "./state/useSettings";
+import { useSettings, ANIM_MS, effectiveOrientation } from "./state/useSettings";
 import { applyCloudConfig } from "./state/cloudConfig";
 import { installUiSfx } from "./state/sfx";
 import { Home } from "./pages/Home";
@@ -25,6 +25,7 @@ export default function App() {
   const touchDay = useProgress((s) => s.touchDay);
   const theme = useSettings((s) => s.theme);
   const animSpeed = useSettings((s) => s.animSpeed);
+  const orientation = useSettings((s) => s.orientation);
 
   useEffect(() => {
     touchDay();
@@ -41,6 +42,23 @@ export default function App() {
     root.dataset.theme = theme;
     root.style.setProperty("--anim-dur", `${ANIM_MS[animSpeed]}ms`);
   }, [theme, animSpeed]);
+
+  // Layout orientation is a setting, not the accelerometer. Pin it and turning
+  // the phone changes nothing; only "auto" subscribes to the device.
+  useEffect(() => {
+    const root = document.documentElement;
+    if (orientation !== "auto") {
+      root.dataset.orient = orientation;
+      return;
+    }
+    const mq = window.matchMedia("(orientation: landscape)");
+    const apply = () => {
+      root.dataset.orient = effectiveOrientation("auto", mq.matches);
+    };
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, [orientation]);
 
   return (
     <div className="app-shell">

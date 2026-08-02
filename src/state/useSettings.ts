@@ -6,6 +6,23 @@ import { persist } from "zustand/middleware";
 
 export type ThemeId = "dusk" | "pastel" | "croanada" | "penguin" | "volcano" | "vegas";
 export type AnimSpeedId = "off" | "fast" | "normal" | "slow";
+/** Which small-screen layout to use. "auto" is the only one that watches the device. */
+export type OrientationId = "auto" | "portrait" | "landscape";
+
+export const ORIENTATIONS: { id: OrientationId; name: string; icon: string }[] = [
+  { id: "auto", name: "Auto", icon: "🔄" },
+  { id: "portrait", name: "Portrait", icon: "📱" },
+  { id: "landscape", name: "Landscape", icon: "🖥" },
+];
+
+/** What <html data-orient> should be. Only "auto" defers to the device. */
+export function effectiveOrientation(
+  setting: OrientationId,
+  deviceIsLandscape: boolean
+): "portrait" | "landscape" {
+  if (setting !== "auto") return setting;
+  return deviceIsLandscape ? "landscape" : "portrait";
+}
 
 export const THEMES: { id: ThemeId; name: string; swatch: string[] }[] = [
   { id: "dusk", name: "Dusk", swatch: ["#1e1640", "#9b6bff", "#44e0a4", "#ffce4f"] },
@@ -44,6 +61,8 @@ export type SettingsState = {
   animSpeed: AnimSpeedId;
   /** Tilt the 2.5D boards, or render them flat. */
   boardTilt: boolean;
+  /** Small-screen layout. Pin it to stop the layout flipping when the phone turns. */
+  orientation: OrientationId;
   /** Synthesised move/win/UI cues (state/sfx.ts). */
   sound: boolean;
   /** 0–1, applied on top of the pack's own master trim. */
@@ -51,6 +70,7 @@ export type SettingsState = {
   setTheme: (t: ThemeId) => void;
   setAnimSpeed: (s: AnimSpeedId) => void;
   setBoardTilt: (v: boolean) => void;
+  setOrientation: (o: OrientationId) => void;
   setSound: (v: boolean) => void;
   setVolume: (v: number) => void;
 };
@@ -61,11 +81,13 @@ export const useSettings = create<SettingsState>()(
       theme: "dusk",
       animSpeed: "normal",
       boardTilt: true,
+      orientation: "auto",
       sound: true,
       volume: 0.6,
       setTheme: (theme) => set({ theme }),
       setAnimSpeed: (animSpeed) => set({ animSpeed }),
       setBoardTilt: (boardTilt) => set({ boardTilt }),
+      setOrientation: (orientation) => set({ orientation }),
       setSound: (sound) => set({ sound }),
       setVolume: (volume) => set({ volume: Math.min(1, Math.max(0, volume)) }),
     }),
