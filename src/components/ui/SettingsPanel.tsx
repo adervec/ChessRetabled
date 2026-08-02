@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { useSettings, THEMES, ANIM_SPEEDS } from "../../state/useSettings";
+import { playSfx } from "../../state/sfx";
 import { downloadExport, importJson } from "../../state/dataTransfer";
 import { syncNow } from "../../state/sync";
 import { useCloudConfig } from "../../state/cloudConfig";
@@ -8,8 +9,10 @@ import { ensureAccessToken, fetchGoogleAccount } from "../../state/cloud/googleD
 import "./SettingsPanel.css";
 
 export function SettingsPanel() {
-  const { theme, animSpeed, boardTilt, setTheme, setAnimSpeed, setBoardTilt } =
-    useSettings();
+  const {
+    theme, animSpeed, boardTilt, sound, volume,
+    setTheme, setAnimSpeed, setBoardTilt, setSound, setVolume,
+  } = useSettings();
   const cloud = useCloudConfig();
   const [msg, setMsg] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -111,6 +114,39 @@ export function SettingsPanel() {
             Flat
           </button>
         </div>
+      </div>
+
+      <div className="settings__group">
+        <h3>Sound</h3>
+        <div className="settings__row">
+          <button
+            className={"chip-btn" + (sound ? " is-on" : "")}
+            onClick={() => setSound(true)}
+          >
+            🔊 On
+          </button>
+          <button
+            className={"chip-btn" + (!sound ? " is-on" : "")}
+            onClick={() => setSound(false)}
+          >
+            🔇 Off
+          </button>
+          <input
+            type="range"
+            min={0}
+            max={100}
+            value={Math.round(volume * 100)}
+            disabled={!sound}
+            aria-label="Sound volume"
+            onChange={(e) => setVolume(Number(e.target.value) / 100)}
+            onMouseUp={() => playSfx("move")}
+          />
+        </div>
+        <p className="settings__hint">
+          Short synthesised cues — a knock when a piece lands, a thud on captures,
+          a little fanfare at the end. Nothing is downloaded; it's all generated
+          in the browser.
+        </p>
       </div>
 
       <div className="settings__group">

@@ -1,5 +1,6 @@
 import type { Card } from "../core/cards";
 import { SUIT_SYMBOL, isRed, rankLabel } from "../core/cards";
+import { playSfx } from "../../state/sfx";
 import "./PlayingCard.css";
 
 // A cel-shaded playing card: thick ink outline, flat fills, hard corner indices,
@@ -35,7 +36,14 @@ export function PlayingCard({
     .join(" ");
 
   return (
-    <div className={cls} style={style} onClick={onClick} role={onClick ? "button" : undefined}>
+    <div
+      className={cls}
+      style={style}
+      // Every card game routes its taps through this component, so one line
+      // here is the whole card room's "card flicked" cue.
+      onClick={onClick && (() => { playSfx("deal"); onClick(); })}
+      role={onClick ? "button" : undefined}
+    >
       {faceUp && card ? <CardFace card={card} /> : <CardBack />}
     </div>
   );

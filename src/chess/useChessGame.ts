@@ -6,6 +6,7 @@ import {
   type Square,
   START_FEN,
 } from "./types";
+import { playSfx } from "../state/sfx";
 
 export type PlacedPiece = {
   id: string;
@@ -157,6 +158,7 @@ export function useChessGame(initialFen: string = START_FEN) {
       return null;
     }
     if (!result) return null;
+    playSfx(result.captured ? "capture" : "move");
     setState((prev) => ({
       fen: chess.fen(),
       ids: advanceIds(prev.ids, result as ChessMove),

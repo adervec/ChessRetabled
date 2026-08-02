@@ -44,9 +44,15 @@ export type SettingsState = {
   animSpeed: AnimSpeedId;
   /** Tilt the 2.5D boards, or render them flat. */
   boardTilt: boolean;
+  /** Synthesised move/win/UI cues (state/sfx.ts). */
+  sound: boolean;
+  /** 0–1, applied on top of the pack's own master trim. */
+  volume: number;
   setTheme: (t: ThemeId) => void;
   setAnimSpeed: (s: AnimSpeedId) => void;
   setBoardTilt: (v: boolean) => void;
+  setSound: (v: boolean) => void;
+  setVolume: (v: number) => void;
 };
 
 export const useSettings = create<SettingsState>()(
@@ -55,9 +61,13 @@ export const useSettings = create<SettingsState>()(
       theme: "dusk",
       animSpeed: "normal",
       boardTilt: true,
+      sound: true,
+      volume: 0.6,
       setTheme: (theme) => set({ theme }),
       setAnimSpeed: (animSpeed) => set({ animSpeed }),
       setBoardTilt: (boardTilt) => set({ boardTilt }),
+      setSound: (sound) => set({ sound }),
+      setVolume: (volume) => set({ volume: Math.min(1, Math.max(0, volume)) }),
     }),
     { name: "chessretabled.settings.v1" }
   )

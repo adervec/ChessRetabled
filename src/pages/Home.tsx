@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useProgress, useLevel } from "../state/useProgress";
+import { WhatNow } from "../components/ui/WhatNow";
 import "./Home.css";
 
 type Mode = {
@@ -95,6 +96,8 @@ export function Home() {
           </span>
         </div>
       </section>
+
+      <WhatNow />
 
       <section className="home__progress">
         <div className="home__stat">

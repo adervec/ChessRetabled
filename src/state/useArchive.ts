@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { playSfx } from "./sfx";
 
 // Rich history of every finished game — chess and the arcade games alike.
 // Records are fully serialisable so the whole archive round-trips through the
@@ -26,6 +27,12 @@ export interface GameRecord {
   reason?: string;
   /** Optional starting position (FEN for chess) for full replay. */
   startFen?: string;
+  /**
+   * True when the player used any "show hint" assistance during the game.
+   * Using a hint even once flags the whole game — the result still counts,
+   * it's just labelled as done with help.
+   */
+  assisted?: boolean;
 }
 
 const MAX_RECORDS = 1000;
@@ -47,7 +54,14 @@ export const useArchive = create<ArchiveState>()(
   persist(
     (set) => ({
       records: [],
-      add: (r) => set((s) => ({ records: [r, ...s.records].slice(0, MAX_RECORDS) })),
+      add: (r) => {
+        // Every mode logs here when a game finishes, so this is the one place
+        // that needs the end-of-game cue. Abandoned games get none.
+        if (r.outcome === "win" || r.outcome === "loss" || r.outcome === "draw") {
+          playSfx(r.outcome === "win" ? "win" : r.outcome === "loss" ? "lose" : "draw");
+        }
+        set((s) => ({ records: [r, ...s.records].slice(0, MAX_RECORDS) }));
+      },
       remove: (id) => set((s) => ({ records: s.records.filter((x) => x.id !== id) })),
       clear: () => set({ records: [] }),
     }),

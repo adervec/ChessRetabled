@@ -1,0 +1,85 @@
+.whatnow {
+  margin: 26px 0;
+}
+
+.whatnow__head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.whatnow__title {
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.whatnow__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+.whatnow__card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas:
+    "ico name"
+    "why why"
+    "cta cta";
+  align-items: center;
+  gap: 6px 12px;
+  padding: 16px;
+  background: var(--surface);
+  border: var(--outline);
+  border-radius: var(--radius-l);
+  box-shadow: var(--shadow-sticker-sm);
+  border-left: 6px solid var(--accent, var(--violet));
+  color: var(--text);
+  transition: transform 0.14s var(--ease-pop), box-shadow 0.14s ease;
+}
+.whatnow__card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-sticker);
+}
+
+.whatnow__card--streak { --accent: var(--coral); }
+.whatnow__card--momentum { --accent: var(--mint); }
+.whatnow__card--improve { --accent: var(--gold); }
+.whatnow__card--fresh { --accent: var(--sky); }
+.whatnow__card--revisit { --accent: var(--violet); }
+.whatnow__card--lesson { --accent: var(--sky); }
+.whatnow__card--favourite { --accent: var(--gold); }
+
+.whatnow__ico {
+  grid-area: ico;
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.whatnow__name {
+  grid-area: name;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.05rem;
+}
+
+.whatnow__reason {
+  grid-area: why;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.whatnow__cta {
+  grid-area: cta;
+  margin-top: 4px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--accent, var(--violet));
+}
+
+.whatnow--compact .whatnow__card {
+  padding: 12px 14px;
+}

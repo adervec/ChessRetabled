@@ -4,6 +4,7 @@ import { NavBar } from "./components/ui/NavBar";
 import { useProgress } from "./state/useProgress";
 import { useSettings, ANIM_MS } from "./state/useSettings";
 import { applyCloudConfig } from "./state/cloudConfig";
+import { installUiSfx } from "./state/sfx";
 import { Home } from "./pages/Home";
 import { Play } from "./pages/Play";
 import { Arcade } from "./pages/Arcade";
@@ -16,6 +17,8 @@ import { LessonPlayer } from "./pages/LessonPlayer";
 import { Academy } from "./pages/Academy";
 import { Practice } from "./pages/Practice";
 import { Dashboard } from "./pages/Dashboard";
+import { Coach } from "./pages/Coach";
+import { Guide, GuideEntry } from "./pages/Guide";
 import { Profile } from "./pages/Profile";
 
 export default function App() {
@@ -28,6 +31,8 @@ export default function App() {
     // Install the cloud SyncAdapter the persisted config resolves to (local
     // mirror unless the user opted into + consented to a cloud provider).
     applyCloudConfig();
+    // One delegated listener gives every button/chip/link its click cue.
+    return installUiSfx();
   }, [touchDay]);
 
   // Reflect presentation settings onto the document so CSS can react globally.
@@ -54,6 +59,9 @@ export default function App() {
           <Route path="/academy" element={<Academy />} />
           <Route path="/practice" element={<Practice />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/coach" element={<Coach />} />
+          <Route path="/guide" element={<Guide />} />
+          <Route path="/guide/:id" element={<GuideEntry />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
