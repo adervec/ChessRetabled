@@ -1,0 +1,100 @@
+/* Cel-shaded playing card. Width is driven by --card-w on an ancestor (default
+   below); height follows the 5:7 aspect ratio. */
+
+.pcard {
+  width: var(--card-w, 76px);
+  aspect-ratio: 5 / 7;
+  border-radius: 11px;
+  filter: drop-shadow(0 3px 0 rgba(0, 0, 0, 0.35));
+  transition: transform var(--anim-dur, 280ms) var(--ease-out), filter 0.15s;
+  animation: pcard-deal var(--anim-dur, 280ms) var(--ease-pop);
+  user-select: none;
+}
+.pcard.is-clickable {
+  cursor: pointer;
+}
+.pcard.is-clickable:hover {
+  transform: translateY(-8px);
+  filter: drop-shadow(0 8px 0 rgba(0, 0, 0, 0.3));
+}
+.pcard.is-selected {
+  transform: translateY(-14px);
+  filter: drop-shadow(0 10px 0 var(--gold-dark));
+}
+.pcard.is-dimmed {
+  opacity: 0.5;
+}
+
+.pcard__svg {
+  display: block;
+  overflow: visible;
+}
+.pcard__bg {
+  fill: var(--paper);
+  stroke: var(--ink);
+  stroke-width: 3;
+}
+.pcard__svg.red .pcard__rank,
+.pcard__svg.red .pcard__suit-sm,
+.pcard__svg.red .pcard__center {
+  fill: var(--coral-dark);
+}
+.pcard__svg.black .pcard__rank,
+.pcard__svg.black .pcard__suit-sm,
+.pcard__svg.black .pcard__center {
+  fill: var(--ink);
+}
+.pcard__rank {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 17px;
+  text-anchor: middle;
+}
+.pcard__suit-sm {
+  font-size: 14px;
+  text-anchor: middle;
+}
+.pcard__center {
+  font-size: 58px;
+  text-anchor: middle;
+}
+
+/* back */
+.pcard__back-bg {
+  fill: var(--violet-dark);
+  stroke: var(--ink);
+  stroke-width: 3;
+}
+.pcard__back-panel {
+  fill: var(--violet);
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+.pcard__back-emblem {
+  fill: var(--gold);
+  stroke: var(--ink);
+  stroke-width: 2.5;
+}
+.pcard__back-mark {
+  font-size: 24px;
+  text-anchor: middle;
+  fill: var(--ink);
+}
+
+@keyframes pcard-deal {
+  from { transform: translateY(-12px) scale(0.85); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* a slot / empty pile outline */
+.pcard-slot {
+  width: var(--card-w, 76px);
+  aspect-ratio: 5 / 7;
+  border-radius: 11px;
+  border: 2px dashed var(--text-muted);
+  background: rgba(255, 255, 255, 0.04);
+}
+.pcard-slot.is-target {
+  border-color: var(--mint);
+  box-shadow: inset 0 0 0 2px var(--mint);
+}

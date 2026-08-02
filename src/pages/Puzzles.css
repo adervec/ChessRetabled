@@ -1,0 +1,136 @@
+.puz-hub__rating {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  padding: 20px 24px;
+  margin: 18px 0 24px;
+  border: var(--outline);
+  border-radius: var(--radius-l);
+  background: linear-gradient(135deg, var(--mint-dark), var(--surface) 65%);
+  box-shadow: var(--shadow-sticker), var(--shadow-drop);
+}
+.puz-hub__bignum {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 3rem;
+  line-height: 1;
+}
+.puz-hub__themes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 14px;
+}
+.themecard {
+  text-align: left;
+  padding: 16px;
+  border: var(--outline);
+  border-radius: var(--radius-m);
+  background: var(--surface);
+  box-shadow: var(--shadow-sticker-sm);
+  cursor: pointer;
+  color: var(--text);
+  transition: transform 0.13s var(--ease-pop), box-shadow 0.13s var(--ease-pop);
+}
+.themecard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 7px 0 0 var(--ink);
+}
+.themecard__name {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+.themecard__count {
+  color: var(--text-muted);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+/* session */
+.puz {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 24px;
+  align-items: start;
+}
+.puz__board {
+  min-width: 0;
+}
+.puz__side {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: sticky;
+  top: calc(var(--nav-h) + 16px);
+}
+.puz__banner {
+  padding: 16px 18px;
+  border: var(--outline);
+  border-radius: var(--radius-m);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.15rem;
+  text-align: center;
+  background: var(--surface);
+  transition: background 0.2s ease;
+}
+.puz__banner.solving {
+  background: var(--surface);
+}
+.puz__banner.wrong {
+  background: var(--coral);
+  color: #fff;
+  animation: shake 0.4s;
+}
+.puz__banner.solved {
+  background: var(--mint);
+  color: var(--text-on-light);
+}
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-7px);
+  }
+  75% {
+    transform: translateX(7px);
+  }
+}
+.puz__instruction {
+  text-align: center;
+  color: var(--text-dim);
+  font-weight: 700;
+}
+.puz__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+.puz__delta {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.3rem;
+}
+.puz__delta.up {
+  color: var(--mint);
+}
+.puz__delta.down {
+  color: var(--coral);
+}
+.puz__controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+@media (max-width: 900px) {
+  .puz {
+    grid-template-columns: 1fr;
+  }
+  .puz__side {
+    position: static;
+  }
+}

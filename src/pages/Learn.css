@@ -1,0 +1,99 @@
+.course {
+  margin-bottom: 22px;
+  border: var(--outline);
+  border-radius: var(--radius-l);
+  background: var(--surface);
+  box-shadow: var(--shadow-sticker), var(--shadow-drop);
+  overflow: hidden;
+}
+.course__head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  background: linear-gradient(135deg, var(--course-accent), transparent 70%);
+}
+.course__icon {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  font-size: 2rem;
+  border-radius: var(--radius-m);
+  border: var(--outline);
+  background: var(--course-accent);
+  box-shadow: var(--shadow-sticker-sm);
+  flex-shrink: 0;
+}
+.course__title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.5rem;
+}
+.course__desc {
+  color: var(--text-dim);
+  font-size: 0.95rem;
+}
+.course__progress {
+  margin-left: auto;
+  text-align: right;
+  min-width: 90px;
+}
+.course__lessons {
+  display: flex;
+  flex-direction: column;
+}
+.lessonrow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 20px;
+  border-top: 2px solid var(--ink);
+  cursor: pointer;
+  background: transparent;
+  text-align: left;
+  color: var(--text);
+  transition: background 0.15s ease;
+}
+.lessonrow:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+.lessonrow__badge {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--ink);
+  background: var(--bg-0);
+  font-family: var(--font-display);
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.lessonrow__badge.done {
+  background: var(--mint);
+  color: var(--text-on-light);
+}
+.lessonrow__main {
+  flex: 1;
+  min-width: 0;
+}
+.lessonrow__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.08rem;
+}
+.lessonrow__summary {
+  color: var(--text-muted);
+  font-size: 0.86rem;
+}
+.lessonrow__stars {
+  letter-spacing: 1px;
+  font-size: 0.95rem;
+}
+.lessonrow__cta {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--gold);
+  flex-shrink: 0;
+}

@@ -1,0 +1,58 @@
+.gameover-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  background: rgba(12, 8, 24, 0.66);
+  backdrop-filter: blur(3px);
+  padding: 20px;
+}
+.gameover {
+  width: min(420px, 100%);
+  text-align: center;
+  padding: 30px 26px 22px;
+  background: var(--surface);
+  border: var(--outline);
+  border-radius: var(--radius-l);
+  box-shadow: var(--shadow-sticker), var(--shadow-pop);
+}
+.gameover--win {
+  background: linear-gradient(180deg, rgba(68, 224, 164, 0.18), var(--surface));
+}
+.gameover--loss {
+  background: linear-gradient(180deg, rgba(255, 107, 74, 0.16), var(--surface));
+}
+.gameover__emoji {
+  font-size: 4rem;
+  line-height: 1;
+  filter: drop-shadow(0 6px 0 var(--ink));
+  animation: pop-in 0.4s var(--ease-pop) both;
+}
+.gameover__title {
+  font-size: 2.6rem;
+  margin: 6px 0 4px;
+}
+.gameover__sub {
+  color: var(--text-dim);
+  margin-bottom: 20px;
+}
+.gameover__actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.gameover__close {
+  margin-top: 14px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-family: var(--font-display);
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.gameover__close:hover {
+  color: var(--text);
+}

@@ -1,0 +1,74 @@
+name: CI
+
+# Quality gate for changes that aren't yet on main: type-check, content
+# validation, and a production build. Pushes to main are validated + deployed by
+# deploy.yml instead, so this skips main to avoid a redundant run.
+on:
+  push:
+    branches-ignore: [main]
+  pull_request:
+    branches: [main]
+
+# A newer push to the same branch/PR supersedes an in-flight run.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # Node 24: the content scripts import .ts directly via type-stripping.
+          node-version: 24
+          cache: npm
+
+      # `npm ci` runs the postinstall hook, which vendors the Stockfish engine
+      # (~39 MB NNUE net) out of node_modules into public/engine.
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type-check
+        run: npm run typecheck
+
+      - name: Validate lesson content
+        run: node scripts/validate-lessons.mjs
+
+      # Exercises the combinatorial-games suite (rules, terminal detection, AI)
+      # headlessly via the same .ts type-stripping the content scripts use.
+      - name: Validate games suite
+        run: node scripts/validate-games.mjs
+
+      # Verifies the games-academy learning paths (challenge setups + answers).
+      - name: Validate game lessons
+        run: node scripts/validate-game-lessons.mjs
+
+      # Drives the card games' seeded logic (legality, termination, scoring,
+      # 52-card conservation) via AI-vs-AI / policy simulations.
+      - name: Validate card games
+        run: node scripts/validate-cards.mjs
+
+      # Logic Lab: Sudoku generator/solver/uniqueness + Mastermind feedback/solver.
+      - name: Validate logic puzzles
+        run: node scripts/validate-logic.mjs
+
+      # Dashboard analytics: catalogue integrity + buildDashboard aggregation.
+      - name: Validate dashboard stats
+        run: node scripts/validate-stats.mjs
+
+      # Cloud sync: privacy gate, Firestore encode/decode, JWT decode, LWW rule.
+      - name: Validate cloud sync
+        run: node scripts/validate-sync.mjs
+
+      # Puzzles are derived, not hand-typed: regenerate and fail if the committed
+      # JSON drifts from what the generator produces (stale file or a hand-edit).
+      - name: Verify generated puzzles are up to date
+        run: |
+          node scripts/build-puzzles.mjs
+          git diff --exit-code -- src/content/puzzles.generated.json
+
+      - name: Build
+        run: npm run build

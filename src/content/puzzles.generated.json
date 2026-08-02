@@ -1,0 +1,473 @@
+[
+  {
+    "id": "br1",
+    "theme": "Back-rank Mate",
+    "rating": 600,
+    "fen": "6k1/5ppp/8/8/8/8/8/4R2K w - - 0 1",
+    "solver": "w",
+    "type": "mate",
+    "mateIn": 1,
+    "keys": [
+      "e1e8"
+    ]
+  },
+  {
+    "id": "br2",
+    "theme": "Back-rank Mate",
+    "rating": 650,
+    "fen": "6k1/5ppp/8/8/8/8/8/R6K w - - 0 1",
+    "solver": "w",
+    "type": "mate",
+    "mateIn": 1,
+    "keys": [
+      "a1a8"
+    ]
+  },
+  {
+    "id": "br3",
+    "theme": "Back-rank Mate",
+    "rating": 700,
+    "fen": "6k1/5ppp/8/8/8/8/8/3Q3K w - - 0 1",
+    "solver": "w",
+    "type": "mate",
+    "mateIn": 1,
+    "keys": [
+      "d1d8"
+    ]
+  },
+  {
+    "id": "br4",
+    "theme": "Back-rank Mate",
+    "rating": 700,
+    "fen": "7k/6pp/8/8/8/8/8/R6K w - - 0 1",
+    "solver": "w",
+    "type": "mate",
+    "mateIn": 1,
+    "keys": [
+      "a1a8"
+    ]
+  },
+  {
+    "id": "br5",
+    "theme": "Back-rank Mate",
+    "rating": 720,
+    "fen": "7k/6pp/8/8/8/8/8/Q6K w - - 0 1",
+    "solver": "w",
+    "type": "mate",
+    "mateIn": 1,
+    "keys": [
+      "a1a8"
+    ]
+  },
+  {
+    "id": "tr1",
+    "theme": "Two-Rook Mate",
+    "rating": 720,
+    "fen": "7k/1R6/8/8/8/8/8/R3K3 w - - 0 1",
+    "solver": "w",
+    "type": "mate",
+    "mateIn": 1,
+    "keys": [
+      "a1a8"
+    ]
+  },
+  {
+    "id": "tr2",
+    "theme": "Two-Rook Mate",
+    "rating": 740,
+    "fen": "k7/6R1/8/8/8/8/8/4K2R w - - 0 1",
+    "solver": "w",
+    "type": "mate",
+    "mateIn": 1,
+    "keys": [
+      "h1h8"
+    ]
+  },
+  {
+    "id": "br6",
+    "theme": "Back-rank Mate",
+    "rating": 760,
+    "fen": "r3k3/8/8/8/8/8/5PPP/6K1 b - - 0 1",
+    "solver": "b",
+    "type": "mate",
+    "mateIn": 1,
+    "keys": [
+      "a8a1"
+    ]
+  },
+  {
+    "id": "gen-Q1-0",
+    "theme": "Queen Checkmate",
+    "rating": 760,
+    "fen": "8/8/2K5/k7/8/8/8/1Q6 w - - 0 1",
+    "solver": "w",
+    "type": "mate",
+    "mateIn": 1,
+    "keys": [
+      "b1b5"
+    ]
+  },
+  {
+    "id": "qm1",
+    "theme": "Queen Mate",
+    "rating": 780,
+    "fen": "7k/8/6KQ/8/8/8/8/8 w - - 0 1",
+    "solver": "w",
+    "type": "mate",
+    "mateIn": 1,
+    "keys": [
+      "g6f7",
+      "h6g7",
+      "h6f8",
+      "h6h7"
+    ]
+  },
+  {
+    "id": "gen-Q1-1",
+    "theme": "Queen Checkmate",
+    "rating": 795,
+    "fen": "8/8/k1K5/8/8/8/8/1Q6 w - - 0 1",
+    "solver": "w",
+    "type": "mate",
+    "mateIn": 1,
+    "keys": [
+      "b1a2",
+      "b1b6",
+      "b1a1"
+    ]
+  },
+  {
+    "id": "qm2",
+    "theme": "Queen Mate",
+    "rating": 800,
+    "fen": "7k/Q7/6K1/8/8/8/8/8 w - - 0 1",
+    "solver": "w",
+    "type": "mate",
+    "mateIn": 1,
+    "keys": [
+      "a7a8",
+      "a7b8",
+      "a7g7",
+      "a7h7"
+    ]
+  },
+  {
+    "id": "qm3",
+    "theme": "Queen Mate",
+    "rating": 820,
+    "fen": "5k2/5Q2/5K2/8/8/8/8/8 w - - 0 1",
+    "solver": "w",
+    "type": "mate",
+    "mateIn": 1,
+    "keys": [
+      "f6g6",
+      "f6e6"
+    ]
+  },
+  {
+    "id": "gen-Q1-2",
+    "theme": "Queen Checkmate",
+    "rating": 830,
+    "fen": "8/k7/2K5/8/8/8/8/1Q6 w - - 0 1",
+    "solver": "w",
+    "type": "mate",
+    "mateIn": 1,
+    "keys": [
+      "b1b7"
+    ]
+  },
+  {
+    "id": "qm4",
+    "theme": "Queen Mate",
+    "rating": 840,
+    "fen": "k7/8/1KQ5/8/8/8/8/8 w - - 0 1",
+    "solver": "w",
+    "type": "mate",
+    "mateIn": 1,
+    "keys": [
+      "c6b7",
+      "c6c8",
+      "c6e8"
+    ]
+  },
+  {
+    "id": "gen-Q1-3",
+    "theme": "Queen Checkmate",
+    "rating": 865,
+    "fen": "k7/8/2K5/8/8/8/8/1Q6 w - - 0 1",
+    "solver": "w",
+    "type": "mate",
+    "mateIn": 1,
+    "keys": [
+      "b1b7"
+    ]
+  },
+  {
+    "id": "gen-R1-0",
+    "theme": "Rook Checkmate",
+    "rating": 880,
+    "fen": "8/8/k1K5/8/8/8/8/1R6 w - - 0 1",
+    "solver": "w",
+    "type": "mate",
+    "mateIn": 1,
+    "keys": [
+      "b1a1"
+    ]
+  },
+  {
+    "id": "rm1",
+    "theme": "Rook & King",
+    "rating": 900,
+    "fen": "7k/8/5K1R/8/8/8/8/8 w - - 0 1",
+    "solver": "w",
+    "type": "mate",
+    "mateIn": 1,
+    "keys": [
+      "f6f7"
+    ]
+  },
+  {
+    "id": "gen-R1-1",
+    "theme": "Rook Checkmate",
+    "rating": 915,
+    "fen": "2k5/8/2K5/8/8/8/8/R7 w - - 0 1",
+    "solver": "w",
+    "type": "mate",
+    "mateIn": 1,
+    "keys": [
+      "a1a8"
+    ]
+  },
+  {
+    "id": "gen-R1-2",
+    "theme": "Rook Checkmate",
+    "rating": 950,
+    "fen": "8/8/5K1k/8/8/8/8/R7 w - - 0 1",
+    "solver": "w",
+    "type": "mate",
+    "mateIn": 1,
+    "keys": [
+      "a1h1"
+    ]
+  },
+  {
+    "id": "gen-R1-3",
+    "theme": "Rook Checkmate",
+    "rating": 985,
+    "fen": "5k2/8/5K2/8/8/8/8/R7 w - - 0 1",
+    "solver": "w",
+    "type": "mate",
+    "mateIn": 1,
+    "keys": [
+      "a1a8"
+    ]
+  },
+  {
+    "id": "fk1",
+    "theme": "Knight Fork",
+    "rating": 1000,
+    "fen": "r3k3/8/8/3N4/8/8/8/4K3 w - - 0 1",
+    "solver": "w",
+    "type": "line",
+    "line": [
+      "d5c7"
+    ]
+  },
+  {
+    "id": "gen-R1-4",
+    "theme": "Rook Checkmate",
+    "rating": 1020,
+    "fen": "8/8/8/8/8/2K5/R7/2k5 w - - 0 1",
+    "solver": "w",
+    "type": "mate",
+    "mateIn": 1,
+    "keys": [
+      "a2a1"
+    ]
+  },
+  {
+    "id": "nm1",
+    "theme": "Smothered Mate",
+    "rating": 1100,
+    "fen": "6rk/6pp/8/6N1/8/8/8/6K1 w - - 0 1",
+    "solver": "w",
+    "type": "mate",
+    "mateIn": 1,
+    "keys": [
+      "g5f7"
+    ]
+  },
+  {
+    "id": "gen-Q2-0",
+    "theme": "Mate in 2",
+    "rating": 1180,
+    "fen": "8/8/2K5/8/8/k7/8/1Q6 w - - 0 1",
+    "solver": "w",
+    "type": "mate",
+    "mateIn": 2,
+    "keys": [
+      "c6c5"
+    ]
+  },
+  {
+    "id": "gen-Q2-1",
+    "theme": "Mate in 2",
+    "rating": 1215,
+    "fen": "8/8/2K5/8/k7/8/8/1Q6 w - - 0 1",
+    "solver": "w",
+    "type": "mate",
+    "mateIn": 2,
+    "keys": [
+      "b1b2"
+    ]
+  },
+  {
+    "id": "gen-Q2-2",
+    "theme": "Mate in 2",
+    "rating": 1250,
+    "fen": "8/8/2K5/k7/8/8/8/3Q4 w - - 0 1",
+    "solver": "w",
+    "type": "mate",
+    "mateIn": 2,
+    "keys": [
+      "d1b3",
+      "d1d4",
+      "d1g4"
+    ]
+  },
+  {
+    "id": "gen-Q2-3",
+    "theme": "Mate in 2",
+    "rating": 1285,
+    "fen": "8/8/k1K5/5Q2/8/8/8/8 w - - 0 1",
+    "solver": "w",
+    "type": "mate",
+    "mateIn": 2,
+    "keys": [
+      "c6c7",
+      "f5b1",
+      "f5b5"
+    ]
+  },
+  {
+    "id": "gen-Q2-4",
+    "theme": "Mate in 2",
+    "rating": 1320,
+    "fen": "8/k7/2K5/8/8/8/8/2Q5 w - - 0 1",
+    "solver": "w",
+    "type": "mate",
+    "mateIn": 2,
+    "keys": [
+      "c1b2",
+      "c1b1"
+    ]
+  },
+  {
+    "id": "gen-Q2-5",
+    "theme": "Mate in 2",
+    "rating": 1355,
+    "fen": "k7/8/2K5/8/8/8/8/2Q5 w - - 0 1",
+    "solver": "w",
+    "type": "mate",
+    "mateIn": 2,
+    "keys": [
+      "c6c7",
+      "c1b2",
+      "c1b1"
+    ]
+  },
+  {
+    "id": "gen-Q2-6",
+    "theme": "Mate in 2",
+    "rating": 1390,
+    "fen": "1k6/8/2K5/8/8/8/8/Q7 w - - 0 1",
+    "solver": "w",
+    "type": "mate",
+    "mateIn": 2,
+    "keys": [
+      "a1a2",
+      "a1a3",
+      "a1a4",
+      "a1a5",
+      "a1b2",
+      "a1g7"
+    ]
+  },
+  {
+    "id": "m2c",
+    "theme": "Mate in 2",
+    "rating": 1400,
+    "fen": "2k5/8/2K5/8/8/8/8/3Q4 w - - 0 1",
+    "solver": "w",
+    "type": "mate",
+    "mateIn": 2,
+    "keys": [
+      "c6b6",
+      "d1d7"
+    ]
+  },
+  {
+    "id": "gen-Q2-7",
+    "theme": "Mate in 2",
+    "rating": 1425,
+    "fen": "2k5/8/2K5/8/8/8/8/1Q6 w - - 0 1",
+    "solver": "w",
+    "type": "mate",
+    "mateIn": 2,
+    "keys": [
+      "c6d6",
+      "b1b4",
+      "b1b7",
+      "b1h7"
+    ]
+  },
+  {
+    "id": "gen-Q2-8",
+    "theme": "Mate in 2",
+    "rating": 1460,
+    "fen": "3k4/8/2K5/8/8/8/8/Q7 w - - 0 1",
+    "solver": "w",
+    "type": "mate",
+    "mateIn": 2,
+    "keys": [
+      "a1e5",
+      "a1e1"
+    ]
+  },
+  {
+    "id": "gen-Q2-9",
+    "theme": "Mate in 2",
+    "rating": 1495,
+    "fen": "4k3/8/2K5/8/8/8/8/Q7 w - - 0 1",
+    "solver": "w",
+    "type": "mate",
+    "mateIn": 2,
+    "keys": [
+      "a1g7"
+    ]
+  },
+  {
+    "id": "gen-Q2-10",
+    "theme": "Mate in 2",
+    "rating": 1530,
+    "fen": "5k2/7Q/2K5/8/8/8/8/8 w - - 0 1",
+    "solver": "w",
+    "type": "mate",
+    "mateIn": 2,
+    "keys": [
+      "c6d6"
+    ]
+  },
+  {
+    "id": "gen-Q2-11",
+    "theme": "Mate in 2",
+    "rating": 1565,
+    "fen": "8/8/5K2/8/8/7k/8/6Q1 w - - 0 1",
+    "solver": "w",
+    "type": "mate",
+    "mateIn": 2,
+    "keys": [
+      "f6f5"
+    ]
+  }
+]

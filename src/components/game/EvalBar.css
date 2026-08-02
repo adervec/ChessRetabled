@@ -1,0 +1,50 @@
+.evalbar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+}
+.evalbar__track {
+  position: relative;
+  width: 18px;
+  flex: 1;
+  min-height: 220px;
+  background: var(--ink);
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+.evalbar__fill-white {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, #fff, #e7dcc0);
+  transition: height 0.5s var(--ease-out);
+}
+.evalbar__pulse {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgba(155, 107, 255, 0.5),
+    transparent
+  );
+  animation: eval-scan 1.1s linear infinite;
+}
+@keyframes eval-scan {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+.evalbar__label {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.75rem;
+  color: var(--text);
+}

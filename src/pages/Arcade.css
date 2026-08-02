@@ -1,0 +1,135 @@
+/* ---- Setup ---- */
+.arcade-setup {
+  max-width: 620px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.arcade-setup__head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.arcade-setup__icon {
+  font-size: 3rem;
+}
+.arcade-setup__rules {
+  background: var(--surface);
+  border: var(--outline);
+  border-radius: var(--radius-m);
+  padding: 16px;
+  color: var(--text-dim);
+  line-height: 1.55;
+}
+.arcade-setup__group h3 {
+  margin: 0 0 8px;
+  font-family: var(--font-display);
+  color: var(--text);
+}
+.arcade-setup__opts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* ---- Game screen ---- */
+.arcade-game {
+  max-width: 640px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.arcade-game__topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.arcade-game__legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+.arcade-who {
+  padding: 6px 14px;
+  border: var(--outline);
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+  color: var(--text-dim);
+  font-weight: 700;
+}
+.arcade-who.is-active {
+  background: var(--mint);
+  color: var(--text-on-light);
+}
+.arcade-who__vs {
+  color: var(--text-muted);
+  font-weight: 700;
+}
+.arcade-status {
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  color: var(--text);
+  min-height: 1.4em;
+}
+.arcade-status.is-over {
+  color: var(--gold);
+}
+.arcade-hintnote {
+  text-align: center;
+  font-size: 0.88rem;
+  color: var(--sky);
+  font-weight: 700;
+}
+.arcade-game__board {
+  padding: 4px 0;
+}
+.arcade-game__controls {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ---- Game over ---- */
+.arcade-over {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 10, 30, 0.7);
+  z-index: 50;
+  animation: page-in 0.2s var(--ease-out) both;
+}
+.arcade-over__card {
+  background: var(--surface-raised);
+  border: var(--outline);
+  border-radius: var(--radius-l);
+  box-shadow: var(--shadow-pop);
+  padding: 32px;
+  text-align: center;
+  max-width: 360px;
+}
+.arcade-over__emoji {
+  font-size: 3.4rem;
+}
+.arcade-over__card h2 {
+  font-family: var(--font-display);
+  margin: 8px 0 4px;
+  color: var(--text);
+}
+.arcade-over__reason {
+  color: var(--text-muted);
+  margin: 0 0 18px;
+}
+.arcade-over__btns {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}

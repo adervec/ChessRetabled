@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="ChessRetabled">
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#a07cff"/>
+      <stop offset="1" stop-color="#7a4fe0"/>
+    </linearGradient>
+    <linearGradient id="body" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#f7efda"/>
+      <stop offset="0.54" stop-color="#f7efda"/>
+      <stop offset="0.54" stop-color="#d6c6a0"/>
+      <stop offset="1" stop-color="#d6c6a0"/>
+    </linearGradient>
+    <linearGradient id="base" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#f0b94e"/>
+      <stop offset="0.54" stop-color="#f0b94e"/>
+      <stop offset="0.54" stop-color="#cf9326"/>
+      <stop offset="1" stop-color="#cf9326"/>
+    </linearGradient>
+  </defs>
+  <!-- cel-shaded "sticker" tile -->
+  <rect x="2.5" y="2.5" width="59" height="59" rx="16" fill="url(#tile)" stroke="#1a1330" stroke-width="3.5"/>
+  <!-- knight + base, lifted from the in-app sprite (viewBox 0 0 90 122) and fitted -->
+  <svg x="15.5" y="9" width="33" height="46" viewBox="12 30 66 92" preserveAspectRatio="xMidYMid meet">
+    <g stroke="#1a1330" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M40,106 Q36,92 36,84 Q30,86 27,82 Q24,76 30,72 L40,64 Q41,58 39,53 Q43,50 47,53 L52,44 Q56,34 64,34 Q70,35 71,44 Q72,58 66,72 Q62,82 62,92 L63,106 Z" fill="url(#body)"/>
+      <circle cx="58" cy="48" r="3.2" fill="#1a1330" stroke="none"/>
+      <circle cx="33" cy="74" r="2.2" fill="#1a1330" stroke="none"/>
+      <path d="M20,118 Q16,118 16,113 Q16,107 24,105 L66,105 Q74,107 74,113 Q74,118 70,118 Z" fill="url(#base)"/>
+      <ellipse cx="45" cy="104" rx="24" ry="5.5" fill="url(#base)"/>
+    </g>
+  </svg>
+</svg>

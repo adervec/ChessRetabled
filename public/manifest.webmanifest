@@ -1,0 +1,22 @@
+{
+  "name": "ChessRetabled",
+  "short_name": "ChessRetabled",
+  "description": "A cel-shaded games club: chess vs bots, tactics puzzles, lessons, board games, card games, and logic puzzles — all offline-capable.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#1b1530",
+  "theme_color": "#1b1530",
+  "icons": [
+    { "src": "./favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "./icon-maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Play chess", "url": "./play" },
+    { "name": "Tactics puzzles", "url": "./puzzles" },
+    { "name": "Board games", "url": "./games" },
+    { "name": "Card room", "url": "./cards" },
+    { "name": "Logic Lab", "url": "./logic" }
+  ]
+}
