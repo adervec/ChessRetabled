@@ -76,6 +76,17 @@ a,
 /* ---------- phone ---------- */
 
 @media (max-width: 760px) {
+  /* A phone is held closer than a monitor but read in worse light, and the type
+     scale here bottoms out around 0.78rem. Lift the root so every rem-based size
+     comes up with it. */
+  html {
+    font-size: 17px;
+  }
+  /* --text-muted is a hierarchy cue on a desk and a legibility problem outdoors. */
+  .text-muted {
+    color: var(--text-dim);
+  }
+
   .page {
     padding-top: 18px;
     padding-left: max(12px, env(safe-area-inset-left));
@@ -84,13 +95,12 @@ a,
 
   /* Card tables are laid out for a desk — Klondike alone wants seven 64px
      columns. Each game sets --card-w inline in px, so scale it here instead of
-     rewriting eighteen components. */
+     rewriting eighteen components. The floor is legibility: past roughly 0.7 the
+     corner index stops being readable, so wide layouts fit by giving the card
+     the column width (below) rather than by shrinking further. */
   .cardtable {
-    --card-scale: 0.76;
+    --card-scale: 0.85;
     padding: 10px;
-  }
-  .hand-row {
-    min-height: calc(var(--card-w, 80px) * 1.4 * var(--card-scale, 1));
   }
   .k-tableau,
   .golf-cols {
@@ -111,12 +121,25 @@ a,
 
 @media (max-width: 460px) {
   .cardtable {
-    --card-scale: 0.58;
+    --card-scale: 0.7;
     padding: 8px;
+  }
+  /* Seven columns can never be wider than the screen, so let the tableau size
+     the card instead of the other way round. */
+  .k-tableau .pcard,
+  .k-tableau .pcard-slot,
+  .k-cardslot,
+  .golf-cols .pcard,
+  .golf-cols .pcard-slot,
+  .golf-cardslot {
+    width: 100%;
   }
   .k-tableau,
   .golf-cols {
     gap: 3px;
+  }
+  .py-slot {
+    margin: 0 1px;
   }
   .game__controls {
     grid-template-columns: repeat(2, 1fr);

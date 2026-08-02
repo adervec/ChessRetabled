@@ -189,8 +189,11 @@ export function Klondike({ onExit }: { onExit: () => void }) {
       <div className="k-tableau">
         {s.tableau.map((pile, p) => (
           <div key={p} className="k-col" onClick={() => { if (pile.down.length === 0 && pile.up.length === 0) toPile(p); }}>
+            {/* Overlap is a fraction of the card, not a fixed px: on a phone the
+                cards shrink but a -40px offset would not, burying the corner
+                index (the only part of a covered card you can read). */}
             {pile.down.map((c, i) => (
-              <div key={c.id} className="k-cardslot" style={{ marginTop: i === 0 ? 0 : -52 }}>
+              <div key={c.id} className="k-cardslot" style={{ marginTop: i === 0 ? 0 : "calc(var(--cw) * -0.81)" }}>
                 <PlayingCard faceUp={false} />
               </div>
             ))}
@@ -198,7 +201,7 @@ export function Klondike({ onExit }: { onExit: () => void }) {
               <div
                 key={c.id}
                 className="k-cardslot"
-                style={{ marginTop: pile.down.length === 0 && i === 0 ? 0 : -40 }}
+                style={{ marginTop: pile.down.length === 0 && i === 0 ? 0 : "calc(var(--cw) * -0.62)" }}
               >
                 <PlayingCard card={c} selected={isSelectedCard(p, i)} onClick={() => onTableauCard(p, i)} />
               </div>

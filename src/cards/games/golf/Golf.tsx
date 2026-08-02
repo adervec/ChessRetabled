@@ -102,7 +102,8 @@ export function Golf({ onExit }: { onExit: () => void }) {
               col.map((card, i) => {
                 const top = i === col.length - 1;
                 return (
-                  <div className="golf-cardslot" key={card.id} style={{ marginTop: i === 0 ? 0 : -42 }}>
+                  // Fraction of the card, not fixed px — see Klondike's tableau.
+                  <div className="golf-cardslot" key={card.id} style={{ marginTop: i === 0 ? 0 : "calc(var(--cw) * -0.7)" }}>
                     <PlayingCard
                       card={card}
                       selected={top && playable.has(c)}

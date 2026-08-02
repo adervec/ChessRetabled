@@ -25,7 +25,7 @@ const RULES = [
   ["touch-action: manipulation", /touch-action:\s*manipulation/, true],
   ["hover:none lift reset", /@media\s*\(hover:\s*none\)/, true],
   ["coarse-pointer tap targets", /@media\s*\(pointer:\s*coarse\)/, true],
-  ["phone card scale", /--card-scale:\s*0?\.76/, true],
+  ["phone card scale", /--card-scale:\s*0?\.85/, true],
   ["landscape layout (setting-driven)", /\[data-orient=["']?landscape["']?\]\s*\.game/, true],
   ["portrait board cap (setting-driven)", /\[data-orient=["']?portrait["']?\]\s*\.board3d-scene/, true],
   // The accelerometer must not reach the layout: only App.tsx may read device
@@ -33,7 +33,12 @@ const RULES = [
   // would flip the layout behind the user's setting.
   ["no orientation media query", /@media[^{]*orientation:\s*(landscape|portrait)/, "absent"],
   ["safe-area insets", /env\(safe-area-inset-bottom\)/, true],
-  ["cards honour --card-scale", /width:\s*calc\(var\(--card-w,\s*76px\)\s*\*\s*var\(--card-scale,\s*1\)\)/, false],
+  ["--cw derives from --card-scale", /--cw:\s*calc\(var\(--card-w,\s*76px\)\s*\*\s*var\(--card-scale,\s*1\)\)/, false],
+  ["cards sized by --cw", /\.pcard\s*\{[^}]*width:\s*var\(--cw/, false],
+  // Every rule reserving card-sized space must use --cw. A raw var(--card-w)
+  // outside the --cw definition means that slot keeps its desktop footprint
+  // while the card inside it shrinks — cards float in over-wide columns.
+  ["no unscaled card-width consumers", /(?<!--cw:\s{0,4}calc\()var\(--card-w(?!,\s*76px\)\s*\*)/, "absent"],
 ];
 
 let problems = 0;

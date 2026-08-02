@@ -94,7 +94,8 @@ export function CrazyEights({ onExit }: { onExit: () => void }) {
             <div className="c8-opp__name">{SEAT_NAMES[seat]} · {s.hands[seat].length}</div>
             <div className="c8-opp__cards">
               {s.hands[seat].slice(0, 8).map((c) => (
-                <PlayingCard key={c.id} faceUp={false} style={{ marginLeft: -38 }} />
+                // Fan overlap follows the card width (see Klondike's tableau).
+                <PlayingCard key={c.id} faceUp={false} style={{ marginLeft: "calc(var(--cw) * -0.61)" }} />
               ))}
             </div>
           </div>
