@@ -1,8 +1,9 @@
 /* Cel-shaded playing card. Width is driven by --card-w on an ancestor (default
-   below); height follows the 5:7 aspect ratio. */
+   below); height follows the 5:7 aspect ratio. --card-scale shrinks a whole
+   table at once on small screens (see styles/responsive.css). */
 
 .pcard {
-  width: var(--card-w, 76px);
+  width: calc(var(--card-w, 76px) * var(--card-scale, 1));
   aspect-ratio: 5 / 7;
   border-radius: 11px;
   filter: drop-shadow(0 3px 0 rgba(0, 0, 0, 0.35));
@@ -88,7 +89,7 @@
 
 /* a slot / empty pile outline */
 .pcard-slot {
-  width: var(--card-w, 76px);
+  width: calc(var(--card-w, 76px) * var(--card-scale, 1));
   aspect-ratio: 5 / 7;
   border-radius: 11px;
   border: 2px dashed var(--text-muted);

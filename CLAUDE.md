@@ -274,6 +274,27 @@ opponent-based games. Same discipline — pure logic in `.ts`, verified headless
   reshuffling. Rendered by `components/ui/WhatNow.tsx` on Home + Dashboard.
   Covered by `validate-stats.mjs` (shape, rule triggers, 200-archive totality).
 
+## Mobile vs desktop (`src/styles/responsive.css`)
+
+- **No mode toggle — the device is the mode.** Width picks the layout, `(pointer:
+  coarse)` / `(hover: none)` pick the interaction. Boards were already fluid
+  (`width:100%` + `max-width: var(--board-max)`), so this sheet only fixes what
+  width alone can't.
+- **It is imported LAST in `main.tsx`** (below `App`, below `global.css`) because
+  most of its rules beat the per-page sheets on source order, not specificity.
+  `scripts/validate-responsive.mjs` greps the built CSS and fails if that order
+  breaks or a rule goes missing — run it after `npm run build`.
+- What it covers: hover-lift resets on touch (`:hover` latches to the last tap),
+  44px tap targets, `touch-action: manipulation` (kills the double-tap delay
+  *without* disabling pinch-zoom — the viewport meta allows zoom on purpose),
+  safe-area insets, `100dvh` for the nav menu, and landscape phones (stacking a
+  board + panel there pushes the board off-screen, so it stays side-by-side with
+  `--board-max: 62vh`).
+- **Card tables scale, they don't reflow.** Each card game sets `--card-w` inline
+  in px (52–84px, desk-sized); `PlayingCard.css` multiplies it by `--card-scale`,
+  which this sheet steps down (0.76 → 0.58) so Klondike's seven columns fit a
+  phone without touching eighteen components.
+
 ## Game guides (`src/content/guides/`)
 
 - **One deep Markdown guide per game**, filename = the catalog/`GameRecord.gameId`
