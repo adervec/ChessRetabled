@@ -3,7 +3,7 @@
    table at once on small screens (see styles/responsive.css). */
 
 .pcard {
-  width: calc(var(--card-w, 76px) * var(--card-scale, 1));
+  width: var(--cw, 76px);
   aspect-ratio: 5 / 7;
   border-radius: 11px;
   filter: drop-shadow(0 3px 0 rgba(0, 0, 0, 0.35));
@@ -45,18 +45,23 @@
 .pcard__svg.black .pcard__center {
   fill: var(--ink);
 }
+/* Index sizes are viewBox units, i.e. a percentage of the card's width, so they
+   hold up as --cw shrinks. The corner index is the only part of a card you can
+   see in an overlapped pile or a fanned hand — it is deliberately large, and the
+   centre pip gives up room for it. "10" is the widest label: at 24 units it
+   spans x≈5–31, clear of the face edge at 2.5. */
 .pcard__rank {
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: 17px;
+  font-size: 24px;
   text-anchor: middle;
 }
 .pcard__suit-sm {
-  font-size: 14px;
+  font-size: 21px;
   text-anchor: middle;
 }
 .pcard__center {
-  font-size: 58px;
+  font-size: 46px;
   text-anchor: middle;
 }
 
@@ -89,7 +94,7 @@
 
 /* a slot / empty pile outline */
 .pcard-slot {
-  width: calc(var(--card-w, 76px) * var(--card-scale, 1));
+  width: var(--cw, 76px);
   aspect-ratio: 5 / 7;
   border-radius: 11px;
   border: 2px dashed var(--text-muted);

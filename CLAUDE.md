@@ -298,9 +298,21 @@ opponent-based games. Same discipline — pure logic in `.ts`, verified headless
   (stacking a board + panel on a short screen pushes the board off it, so they
   stay side-by-side with `--board-max: min(62vh, 58vw)`).
 - **Card tables scale, they don't reflow.** Each card game sets `--card-w` inline
-  in px (52–84px, desk-sized); `PlayingCard.css` multiplies it by `--card-scale`,
-  which this sheet steps down (0.76 → 0.58) so Klondike's seven columns fit a
-  phone without touching eighteen components.
+  in px (52–84px, desk-sized); `.cardtable` derives **`--cw: calc(var(--card-w) *
+  var(--card-scale))`** and *everything that reserves card-sized space must use
+  `--cw`* — slots, min-heights, pile overlaps, fan offsets. A raw `var(--card-w)`
+  leaves that slot at its desktop footprint while the card inside shrinks;
+  `validate-responsive.mjs` fails on one. `responsive.css` steps `--card-scale`
+  down (0.85 → 0.7); the floor is legibility, so the 7-column tableaux fit by
+  taking the grid column's width instead of shrinking further.
+- **Overlaps are fractions, never px.** Klondike (`-0.81` / `-0.62` × `--cw`),
+  Golf (`-0.7`), Pyramid (`-0.54`) and the Crazy Eights fan (`-0.61`) used fixed
+  px, which at phone sizes covered the whole card — a pile of unidentifiable
+  slivers. The visible strip must stay above the index baseline (`y=53` of the
+  140-unit viewBox, i.e. `0.53 × --cw`).
+- **The corner index is the card.** In an overlapped pile or a fan it's all you
+  can see, so `PlayingCard`'s index is sized in viewBox units (24/100 of the card
+  width, up from 17) and the centre pip gave up room for it.
 
 ## Game guides (`src/content/guides/`)
 

@@ -56,18 +56,18 @@ function CardFace({ card }: { card: Card }) {
   return (
     <svg viewBox="0 0 100 140" className={"pcard__svg" + (red ? " red" : " black")} width="100%" height="100%">
       <rect x="2.5" y="2.5" width="95" height="135" rx="10" className="pcard__bg" />
-      {/* top-left index */}
+      {/* top-left index — sized in PlayingCard.css; x is the glyph centre */}
       <g className="pcard__index">
-        <text x="11" y="24" className="pcard__rank">{label}</text>
-        <text x="11" y="38" className="pcard__suit-sm">{sym}</text>
+        <text x="18" y="31" className="pcard__rank">{label}</text>
+        <text x="18" y="53" className="pcard__suit-sm">{sym}</text>
       </g>
       {/* bottom-right index (rotated) */}
       <g className="pcard__index" transform="rotate(180 50 70)">
-        <text x="11" y="24" className="pcard__rank">{label}</text>
-        <text x="11" y="38" className="pcard__suit-sm">{sym}</text>
+        <text x="18" y="31" className="pcard__rank">{label}</text>
+        <text x="18" y="53" className="pcard__suit-sm">{sym}</text>
       </g>
-      {/* centre pip */}
-      <text x="50" y="86" className="pcard__center">{sym}</text>
+      {/* centre pip — kept clear of both indices */}
+      <text x="50" y="91" className="pcard__center">{sym}</text>
     </svg>
   );
 }
