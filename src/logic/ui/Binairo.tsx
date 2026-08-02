@@ -12,6 +12,8 @@ export function Binairo({ onExit }: { onExit: () => void }) {
   const [diff, setDiff] = useState<Diff>("medium");
   const [puzzle, setPuzzle] = useState<Puzzle>(() => generate(randomSeed(), SIZE, "medium"));
   const [cells, setCells] = useState<Grid>(() => puzzle.puzzle.slice());
+  const [hintCell, setHintCell] = useState<number | null>(null);
+  const [hintUsed, setHintUsed] = useState(false);
   const addRecord = useArchive((a) => a.add);
   const recordedRef = useRef(false);
   const startedRef = useRef(new Date().toISOString());
@@ -25,6 +27,8 @@ export function Binairo({ onExit }: { onExit: () => void }) {
     startedRef.current = new Date().toISOString();
     setPuzzle(p);
     setCells(p.puzzle.slice());
+    setHintCell(null);
+    setHintUsed(false);
   };
 
   useEffect(() => {
@@ -35,8 +39,29 @@ export function Binairo({ onExit }: { onExit: () => void }) {
       startedISO: startedRef.current, endedISO: new Date().toISOString(),
       outcome: "win", humanSide: "solo", opponent: `Binairo · ${diff}`,
       moveCount: cells.length, moves: [], reason: `Solved (${diff})`,
+      assisted: hintUsed || undefined,
     });
-  }, [won, diff, cells, addRecord]);
+  }, [won, diff, cells, hintUsed, addRecord]);
+
+  // Stage 1 highlights a wrong/missing cell; stage 2 reveals its solution value.
+  const hint = () => {
+    if (won) return;
+    if (hintCell !== null) {
+      const t = hintCell;
+      setCells((c) => c.map((v, k) => (k === t ? puzzle.solution[t] : v)));
+      setHintCell(null);
+      return;
+    }
+    let target = -1;
+    for (let i = 0; i < cells.length; i++) {
+      if (puzzle.givens[i] || cells[i] === puzzle.solution[i]) continue;
+      if (cells[i] === -1) { target = i; break; }
+      if (target < 0) target = i;
+    }
+    if (target < 0) return;
+    setHintUsed(true);
+    setHintCell(target);
+  };
 
   const click = (i: number) => {
     if (puzzle.givens[i]) return;
@@ -52,6 +77,7 @@ export function Binairo({ onExit }: { onExit: () => void }) {
       <div className="logic-bar">
         <button className="btn btn--sm btn--ghost" onClick={onExit}>← Logic Lab</button>
         <span className="tag tag--gold">⚫ Binairo</span>
+        {hintUsed && <span className="tag" title="A hint was used — this puzzle counts as assisted">💡 assisted</span>}
         <div className="settings__row">
           {DIFFS.map((d) => (
             <button key={d} className={"chip-btn" + (d === diff ? " is-on" : "")} onClick={() => { setDiff(d); newGame(d); }}>{d}</button>
@@ -64,6 +90,7 @@ export function Binairo({ onExit }: { onExit: () => void }) {
           const cls = ["binairo-cell"];
           if (puzzle.givens[i]) cls.push("given");
           if (bad[i]) cls.push("bad");
+          if (i === hintCell) cls.push("lhint");
           if (v === 0) cls.push("zero");
           if (v === 1) cls.push("one");
           return (
@@ -80,6 +107,7 @@ export function Binairo({ onExit }: { onExit: () => void }) {
         ) : (
           <span className="text-muted">No 3 in a row · equal 0s and 1s · unique lines</span>
         )}
+        <button className="btn btn--sm btn--gold" title="Progressive hint — using it marks this puzzle as assisted" onClick={hint} disabled={won}>{hintCell !== null ? "💡 Reveal" : "💡 Hint"}</button>
         <button className="btn btn--sm btn--sky" onClick={() => newGame(diff)}>↻ New puzzle</button>
       </div>
     </div>

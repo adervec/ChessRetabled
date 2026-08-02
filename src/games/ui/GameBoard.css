@@ -78,6 +78,21 @@
 .gcell.removal .gcell__hl {
   box-shadow: inset 0 0 0 4px var(--coral);
 }
+.gcell.hintcell .gcell__hl {
+  box-shadow: inset 0 0 0 4px var(--sky);
+  background: rgba(122, 205, 255, 0.28);
+  animation: ghint-pulse 1.1s infinite;
+}
+@keyframes ghint-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+.gpoints__hintring {
+  fill: none;
+  stroke: var(--sky);
+  stroke-width: 6;
+  animation: ghint-pulse 1.1s infinite;
+}
 
 /* checkered (checkers) */
 .gcell.light { background: var(--sq-light); }

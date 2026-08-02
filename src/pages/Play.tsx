@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { Board } from "../components/board/Board";
 import { PromotionDialog } from "../components/board/PromotionDialog";
 import { BotPicker } from "../components/play/BotPicker";
@@ -30,6 +31,11 @@ export function Play() {
         <BotPicker
           onStart={(bot, color) => setSetup({ bot, color, key: 0 })}
         />
+        <div style={{ textAlign: "center", marginTop: "1rem" }}>
+          <Link to="/guide/chess" className="btn btn--sm btn--ghost">
+            📖 Chess strategy guide
+          </Link>
+        </div>
       </div>
     );
   }
@@ -95,10 +101,11 @@ function BotGame({
         moves: g.history,
         reason: g.result.reason ?? undefined,
         startFen: START_FEN,
+        assisted: g.hintUsed || undefined,
       });
       setShowModal(true);
     }
-  }, [g.gameOver, g.result, g.history, humanColor, bot, recordGame, addRecord]);
+  }, [g.gameOver, g.result, g.history, g.hintUsed, humanColor, bot, recordGame, addRecord]);
 
   const botColor: Color = humanColor === "w" ? "b" : "w";
   const { byWhite, byBlack } = capturedFromHistory(g.history);
@@ -165,7 +172,13 @@ function BotGame({
               targets={g.controller.targets}
               lastMove={g.game.lastMove}
               checkSquare={g.game.checkSquare}
-              hintSquares={g.hint ? [g.hint.from, g.hint.to] : []}
+              hintSquares={
+                g.hint
+                  ? g.hint.stage === 1
+                    ? [g.hint.from]
+                    : [g.hint.from, g.hint.to]
+                  : []
+              }
               onSquareClick={g.controller.onSquareClick}
             />
           </div>
@@ -204,9 +217,10 @@ function BotGame({
           <button
             className="btn btn--sm btn--sky"
             onClick={g.requestHint}
-            disabled={!myTurn || g.hintBusy}
+            disabled={!myTurn || g.hintBusy || g.hint?.stage === 2}
+            title="Progressive hint — using it marks this game as assisted"
           >
-            {g.hintBusy ? "…" : "💡 Hint"}
+            {g.hintBusy ? "…" : g.hint?.stage === 1 ? "💡 Reveal move" : "💡 Hint"}
           </button>
           <button
             className="btn btn--sm"

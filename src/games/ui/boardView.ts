@@ -22,6 +22,8 @@ export interface BoardView {
   selected: number | null;
   removalTargets: number[];
   lastMoveCells: number[];
+  /** Cells highlighted by the progressive hint (optional — lessons omit it). */
+  hintCells?: number[];
   isHumanTurn: boolean;
   onCellClick: (index: number) => void;
 }

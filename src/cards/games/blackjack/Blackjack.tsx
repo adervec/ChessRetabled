@@ -11,9 +11,11 @@ import {
   double,
   nextRound,
   canDouble,
+  basicStrategy,
   type BJState,
 } from "./logic";
 import { useArchive, newId } from "../../../state/useArchive";
+import { useCardHint } from "../../ui/useCardHint";
 
 const CHIP_OPTIONS = [10, 25, 50];
 
@@ -22,6 +24,10 @@ export function Blackjack({ onExit }: { onExit: () => void }) {
   const addRecord = useArchive((a) => a.add);
   const recordedRound = useRef(-1);
   const startedRef = useRef(new Date().toISOString());
+  const { hint, used, request, clear, resetUsed } = useCardHint<"hit" | "stand" | "double">();
+  // record() runs synchronously inside act(), so mirror `used` in a ref to stay accurate.
+  const usedRef = useRef(false);
+  const newHand = () => { usedRef.current = false; resetUsed(); };
 
   function record(state: BJState) {
     if (state.phase !== "done" || recordedRound.current === state.rounds) return;
@@ -44,6 +50,7 @@ export function Blackjack({ onExit }: { onExit: () => void }) {
       moveCount: state.player.length,
       moves: [...state.player, ...state.dealer].map(cardCode),
       reason: state.message,
+      assisted: usedRef.current || undefined,
     });
   }
 
@@ -58,12 +65,20 @@ export function Blackjack({ onExit }: { onExit: () => void }) {
   const dealerShown = dealerHidden ? s.dealer.slice(0, 1) : s.dealer;
   const pv = blackjackValue(s.player).total;
   const dv = blackjackValue(dealerShown).total;
+  const hintText = !hint
+    ? null
+    : hint.stage === 1
+      ? "Strategy has a clear answer here"
+      : hint.value === "hit" ? "Hit" : hint.value === "stand" ? "Stand" : "Double";
+  const glow = (a: "hit" | "stand" | "double") =>
+    hint?.stage === 2 && hint.value === a ? { outline: "4px solid var(--sky)" } : undefined;
 
   return (
     <div className="cardtable" style={{ ["--card-w" as string]: "84px" } as React.CSSProperties}>
       <div className="cardtable__bar">
         <button className="btn btn--sm btn--ghost" onClick={onExit}>← Card room</button>
         <span className="tag tag--gold">🂡 Blackjack</span>
+        {used && <span className="tag" title="A hint was used — this game counts as assisted">💡 assisted</span>}
         <span className="chips">💰 {s.chips}</span>
       </div>
 
@@ -96,20 +111,28 @@ export function Blackjack({ onExit }: { onExit: () => void }) {
           <>
             <span className="bj-betlabel">Bet:</span>
             {CHIP_OPTIONS.map((c) => (
-              <button key={c} className="btn btn--sm btn--gold" disabled={s.chips < c} onClick={() => act((st) => placeBet(st, c))}>
+              <button key={c} className="btn btn--sm btn--gold" disabled={s.chips < c} onClick={() => { newHand(); act((st) => placeBet(st, c)); }}>
                 {c}
               </button>
             ))}
-            <button className="btn btn--sm" onClick={() => act((st) => placeBet(st, st.chips))}>
+            <button className="btn btn--sm" onClick={() => { newHand(); act((st) => placeBet(st, st.chips)); }}>
               All in
             </button>
           </>
         )}
         {s.phase === "player" && (
           <>
-            <button className="btn btn--sm btn--mint" onClick={() => act(hit)}>Hit</button>
-            <button className="btn btn--sm btn--sky" onClick={() => act(stand)}>Stand</button>
-            <button className="btn btn--sm" disabled={!canDouble(s)} onClick={() => act(double)}>Double</button>
+            <button className="btn btn--sm btn--mint" style={glow("hit")} onClick={() => { clear(); act(hit); }}>Hit</button>
+            <button className="btn btn--sm btn--sky" style={glow("stand")} onClick={() => { clear(); act(stand); }}>Stand</button>
+            <button className="btn btn--sm" style={glow("double")} disabled={!canDouble(s)} onClick={() => { clear(); act(double); }}>Double</button>
+            <button
+              className="btn btn--sm btn--gold"
+              onClick={() => { usedRef.current = true; request(() => basicStrategy(s.player, s.dealer[0], canDouble(s))); }}
+              title="Progressive hint — using it marks this game as assisted"
+            >
+              💡 {hint?.stage === 1 ? "Reveal" : "Hint"}
+            </button>
+            {hintText && <span className="tag">{hintText}</span>}
           </>
         )}
         {s.phase === "done" && (
@@ -120,14 +143,14 @@ export function Blackjack({ onExit }: { onExit: () => void }) {
             {s.chips > 0 ? (
               <button className="btn btn--sm btn--mint" onClick={() => act(nextRound)}>Next hand</button>
             ) : (
-              <button className="btn btn--sm btn--coral" onClick={() => setS(initBlackjack(randomSeed()))}>
+              <button className="btn btn--sm btn--coral" onClick={() => { newHand(); setS(initBlackjack(randomSeed())); }}>
                 New stack (100)
               </button>
             )}
           </>
         )}
         {s.phase === "bet" && s.chips <= 0 && (
-          <button className="btn btn--sm btn--coral" onClick={() => setS(initBlackjack(randomSeed()))}>
+          <button className="btn btn--sm btn--coral" onClick={() => { newHand(); setS(initBlackjack(randomSeed())); }}>
             New stack (100 chips)
           </button>
         )}

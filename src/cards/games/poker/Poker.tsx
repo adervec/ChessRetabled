@@ -2,13 +2,15 @@ import { useEffect, useRef, useState } from "react";
 import { PlayingCard } from "../../ui/PlayingCard";
 import { randomSeed } from "../../core/rng";
 import { useArchive, newId } from "../../../state/useArchive";
-import { initPoker, deal, draw, nextRound, type PokerState } from "./logic";
+import { initPoker, deal, draw, nextRound, aiDiscards, type PokerState } from "./logic";
+import { useCardHint } from "../../ui/useCardHint";
 
 export function Poker({ onExit }: { onExit: () => void }) {
   const [s, setS] = useState<PokerState>(() => initPoker(randomSeed()));
   const [sel, setSel] = useState<number[]>([]);
   const addRecord = useArchive((a) => a.add);
   const startedRef = useRef(new Date().toISOString());
+  const { hint, used, request, clear, resetUsed } = useCardHint<number[]>();
 
   useEffect(() => {
     if (s.phase !== "showdown" || s.result === null) return;
@@ -18,11 +20,19 @@ export function Poker({ onExit }: { onExit: () => void }) {
       outcome: s.result === "win" ? "win" : s.result === "push" ? "draw" : "loss",
       humanSide: "player", opponent: "Dealer", moveCount: s.round + 1,
       moves: [], reason: s.message,
+      assisted: used || undefined,
     });
-  }, [s.phase, s.result, s.round, s.message, addRecord]);
+  }, [s.phase, s.result, s.round, s.message, addRecord, used]);
 
-  const onDeal = () => { setSel([]); setS(deal); };
-  const onDraw = () => { setS((cur) => draw(cur, sel)); setSel([]); };
+  const onDeal = () => { setSel([]); resetUsed(); setS(deal); };
+  const onDraw = () => { clear(); setS((cur) => draw(cur, sel)); setSel([]); };
+  const hintText = !hint
+    ? null
+    : hint.value.length === 0
+      ? "Stand pat"
+      : hint.stage === 2
+        ? "Discard the highlighted cards"
+        : `Discard ${hint.value.length} card${hint.value.length > 1 ? "s" : ""}`;
   const toggle = (i: number) =>
     setSel((cur) => (cur.includes(i) ? cur.filter((x) => x !== i) : cur.length < 3 ? [...cur, i] : cur));
 
@@ -31,6 +41,7 @@ export function Poker({ onExit }: { onExit: () => void }) {
       <div className="cardtable__bar">
         <button className="btn btn--sm btn--ghost" onClick={onExit}>← Card room</button>
         <span className="tag tag--gold">🂫 Five-Card Draw</span>
+        {used && <span className="tag" title="A hint was used — this game counts as assisted">💡 assisted</span>}
         <span className="chips">💰 {s.chips}{s.pot ? ` · pot ${s.pot}` : ""}</span>
       </div>
 
@@ -52,7 +63,7 @@ export function Poker({ onExit }: { onExit: () => void }) {
             <PlayingCard
               key={c.id}
               card={c}
-              selected={sel.includes(i)}
+              selected={sel.includes(i) || (hint?.stage === 2 && hint.value.includes(i))}
               onClick={s.phase === "draw" ? () => toggle(i) : undefined}
             />
           ))}
@@ -61,9 +72,19 @@ export function Poker({ onExit }: { onExit: () => void }) {
 
       <div className="cardtable__controls">
         {s.phase === "draw" && (
-          <button className="btn btn--sm btn--mint" onClick={onDraw}>
-            {sel.length ? `Discard ${sel.length} & draw` : "Stand pat"}
-          </button>
+          <>
+            <button className="btn btn--sm btn--mint" onClick={onDraw}>
+              {sel.length ? `Discard ${sel.length} & draw` : "Stand pat"}
+            </button>
+            <button
+              className="btn btn--sm btn--gold"
+              onClick={() => request(() => aiDiscards(s.player))}
+              title="Progressive hint — using it marks this game as assisted"
+            >
+              💡 {hint?.stage === 1 ? "Reveal" : "Hint"}
+            </button>
+            {hintText && <span className="tag">{hintText}</span>}
+          </>
         )}
         {(s.phase === "done") && s.chips >= s.ante && (
           <button className="btn btn--sm btn--gold" onClick={onDeal}>Ante {s.ante} & deal</button>
@@ -75,7 +96,7 @@ export function Poker({ onExit }: { onExit: () => void }) {
           </>
         )}
         {s.phase === "done" && s.chips < s.ante && (
-          <button className="btn btn--sm btn--coral" onClick={() => setS(initPoker(randomSeed()))}>New stack (100)</button>
+          <button className="btn btn--sm btn--coral" onClick={() => { resetUsed(); setS(initPoker(randomSeed())); }}>New stack (100)</button>
         )}
       </div>
     </div>

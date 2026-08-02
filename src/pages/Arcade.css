@@ -79,6 +79,12 @@
 .arcade-status.is-over {
   color: var(--gold);
 }
+.arcade-hintnote {
+  text-align: center;
+  font-size: 0.88rem;
+  color: var(--sky);
+  font-weight: 700;
+}
 .arcade-game__board {
   padding: 4px 0;
 }

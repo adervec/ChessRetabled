@@ -5,7 +5,8 @@ import { rankLabel, type Rank } from "../../core/cards";
 import { randomSeed } from "../../core/rng";
 import { useSettings, aiThinkFloorMs } from "../../../state/useSettings";
 import { useArchive, newId } from "../../../state/useArchive";
-import { initGoFish, applyMove, aiMove, legalRanks, type GFState } from "./logic";
+import { initGoFish, applyMove, aiMove, legalRanks, type GFState, type GFMove } from "./logic";
+import { useCardHint } from "../../ui/useCardHint";
 
 export function GoFish({ onExit }: { onExit: () => void }) {
   const [s, setS] = useState<GFState>(() => initGoFish(randomSeed()));
@@ -14,6 +15,7 @@ export function GoFish({ onExit }: { onExit: () => void }) {
   const recordedRef = useRef(false);
   const startedRef = useRef(new Date().toISOString());
   const aiToken = useRef(0);
+  const { hint, used, request, clear, resetUsed } = useCardHint<GFMove>();
 
   useEffect(() => {
     if (s.phase !== "done" || recordedRef.current) return;
@@ -24,8 +26,9 @@ export function GoFish({ onExit }: { onExit: () => void }) {
       outcome: s.winner === 0 ? "win" : s.winner === 1 ? "loss" : "draw",
       humanSide: "0", opponent: "AI", moveCount: s.books[0].length + s.books[1].length,
       moves: [], reason: s.message,
+      assisted: used || undefined,
     });
-  }, [s, addRecord]);
+  }, [s, addRecord, used]);
 
   useEffect(() => {
     if (s.phase !== "ask" || s.turn !== 1) return;
@@ -39,13 +42,19 @@ export function GoFish({ onExit }: { onExit: () => void }) {
 
   const yourTurn = s.phase === "ask" && s.turn === 0;
   const ranks = yourTurn ? legalRanks(s, 0) : [];
-  const newGame = () => { recordedRef.current = false; setS(initGoFish(randomSeed())); };
+  const newGame = () => { recordedRef.current = false; resetUsed(); setS(initGoFish(randomSeed())); };
+  const hintText = !hint
+    ? null
+    : hint.stage === 1
+      ? "Ask for a rank you hold several of"
+      : `Ask for ${rankLabel(hint.value.rank)}`;
 
   return (
     <div className="cardtable" style={{ ["--card-w" as string]: "58px" } as React.CSSProperties}>
       <div className="cardtable__bar">
         <button className="btn btn--sm btn--ghost" onClick={onExit}>← Card room</button>
         <span className="tag tag--gold">🐟 Go Fish</span>
+        {used && <span className="tag" title="A hint was used — this game counts as assisted">💡 assisted</span>}
         <button className="btn btn--sm" onClick={newGame}>↻ New</button>
       </div>
 
@@ -68,10 +77,26 @@ export function GoFish({ onExit }: { onExit: () => void }) {
       <div className="cardtable__controls">
         {yourTurn && <span className="bj-betlabel">Ask for:</span>}
         {yourTurn && ranks.map((r) => (
-          <button key={r} className="btn btn--sm btn--gold" onClick={() => setS((cur) => applyMove(cur, { rank: r as Rank }))}>
+          <button
+            key={r}
+            className="btn btn--sm btn--gold"
+            style={hint?.stage === 2 && hint.value.rank === r ? { outline: "4px solid var(--sky)" } : undefined}
+            onClick={() => { clear(); setS((cur) => applyMove(cur, { rank: r as Rank })); }}
+          >
             {rankLabel(r)}
           </button>
         ))}
+        {s.phase !== "done" && (
+          <button
+            className="btn btn--sm btn--gold"
+            onClick={() => request(() => aiMove(s, 0))}
+            disabled={!yourTurn}
+            title="Progressive hint — using it marks this game as assisted"
+          >
+            💡 {hint?.stage === 1 ? "Reveal" : "Hint"}
+          </button>
+        )}
+        {hintText && <span className="tag">{hintText}</span>}
         {s.phase === "done" && (
           <>
             <span className={"bj-result bj-result--" + (s.winner === 0 ? "win" : s.winner === 1 ? "loss" : "push")}>{s.message}</span>

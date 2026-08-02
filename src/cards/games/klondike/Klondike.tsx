@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { PlayingCard } from "../../ui/PlayingCard";
-import { SUITS, SUIT_SYMBOL } from "../../core/cards";
+import { SUITS, SUIT_SYMBOL, rankLabel, type Card } from "../../core/cards";
 import { randomSeed } from "../../core/rng";
 import { useArchive, newId } from "../../../state/useArchive";
 import { initKlondike, legalMoves, applyMove, isWon, type KMove, type KState } from "./logic";
+import { useCardHint } from "../../ui/useCardHint";
 
 type Sel = { kind: "waste" } | { kind: "tableau"; pile: number; index: number } | null;
 
@@ -14,6 +15,7 @@ export function Klondike({ onExit }: { onExit: () => void }) {
   const recordedRef = useRef(false);
   const startedRef = useRef(new Date().toISOString());
   const won = isWon(s);
+  const { hint, used, request, clear, resetUsed } = useCardHint<KMove>();
 
   useEffect(() => {
     if (!won || recordedRef.current) return;
@@ -30,19 +32,68 @@ export function Klondike({ onExit }: { onExit: () => void }) {
       moveCount: s.moves,
       moves: [],
       reason: `Solved in ${s.moves} moves`,
+      assisted: used || undefined,
     });
-  }, [won, s.moves, addRecord]);
+  }, [won, s.moves, addRecord, used]);
 
   const newGame = () => {
     recordedRef.current = false;
     setSel(null);
+    resetUsed();
     setS(initKlondike(randomSeed()));
   };
 
   const apply = (m: KMove) => {
+    clear();
     setS((cur) => applyMove(cur, m));
     setSel(null);
   };
+
+  // First "useful" legal move: foundation first, then a run move that frees a
+  // face-down card, then any tableau/waste move, then the stock.
+  const pickHint = (): KMove | null => {
+    if (won) return null;
+    const ms = legalMoves(s);
+    return (
+      ms.find((m) => m.type === "wf" || m.type === "tf") ??
+      ms.find((m) => m.type === "tt" && m.index === 0 && s.tableau[m.from].down.length > 0) ??
+      ms.find((m) => m.type === "wt") ??
+      ms.find((m) => m.type === "tt") ??
+      ms[0] ??
+      null
+    );
+  };
+  const cardName = (c: Card) => rankLabel(c.rank) + SUIT_SYMBOL[c.suit];
+  const describe = (m: KMove): string => {
+    const wasteTop = s.waste[s.waste.length - 1];
+    switch (m.type) {
+      case "draw": return "Draw from the stock";
+      case "recycle": return "Recycle the waste";
+      case "wf": return wasteTop ? `Move ${cardName(wasteTop)} to the foundation` : "Play the waste card up";
+      case "tf": {
+        const t = s.tableau[m.from].up[s.tableau[m.from].up.length - 1];
+        return t ? `Move ${cardName(t)} to the foundation` : "Play a tableau card up";
+      }
+      case "wt": {
+        const onto = s.tableau[m.to].up[s.tableau[m.to].up.length - 1];
+        return wasteTop ? `Move ${cardName(wasteTop)} onto ${onto ? cardName(onto) : "the empty column"}` : "Play the waste card down";
+      }
+      case "tt": {
+        const head = s.tableau[m.from].up[m.index];
+        const onto = s.tableau[m.to].up[s.tableau[m.to].up.length - 1];
+        return `Move ${head ? cardName(head) : "a run"} onto ${onto ? cardName(onto) : "the empty column"}`;
+      }
+    }
+  };
+  const hintText = !hint
+    ? null
+    : hint.stage === 2
+      ? describe(hint.value)
+      : hint.value.type === "wf" || hint.value.type === "tf"
+        ? "A foundation move is available"
+        : hint.value.type === "wt" || hint.value.type === "tt"
+          ? "Try a tableau move"
+          : "Dig through the stock";
 
   const tryFind = (pred: (m: KMove) => boolean) => legalMoves(s).find(pred);
 
@@ -96,6 +147,16 @@ export function Klondike({ onExit }: { onExit: () => void }) {
       <div className="cardtable__bar">
         <button className="btn btn--sm btn--ghost" onClick={onExit}>← Card room</button>
         <span className="tag tag--gold">🃏 Solitaire · {s.moves} moves</span>
+        {used && <span className="tag" title="A hint was used — this game counts as assisted">💡 assisted</span>}
+        <button
+          className="btn btn--sm btn--gold"
+          onClick={() => request(pickHint)}
+          disabled={won}
+          title="Progressive hint — using it marks this game as assisted"
+        >
+          💡 {hint?.stage === 1 ? "Reveal" : "Hint"}
+        </button>
+        {hintText && <span className="tag">{hintText}</span>}
         <button className="btn btn--sm" onClick={newGame}>↻ New deal</button>
       </div>
 

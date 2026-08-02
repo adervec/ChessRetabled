@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { GAMES } from "../games/registry";
 import { GameBoard } from "../games/ui/GameBoard";
 import { useGenericGame } from "../games/ui/useGenericGame";
@@ -53,6 +54,9 @@ export function Arcade() {
           A growing set of perfect-information strategy games — every one playable
           against a built-in AI, all offline.
         </p>
+        <Link to="/guide" className="btn btn--sm btn--ghost" style={{ marginTop: "0.5rem", display: "inline-block" }}>
+          📖 Read the game guides
+        </Link>
       </header>
       <div className="arcade__grid">
         {GAMES.map((g) => (
@@ -94,6 +98,10 @@ function GameSetup({
       </div>
 
       <p className="arcade-setup__rules">{def.rules}</p>
+
+      <Link to={`/guide/${def.id}`} className="btn btn--sm btn--ghost" style={{ display: "inline-block", marginBottom: "0.5rem" }}>
+        📖 Full strategy guide
+      </Link>
 
       <div className="arcade-setup__group">
         <h3>Difficulty</h3>
@@ -178,9 +186,10 @@ function GameScreen({
       moveCount: game.moveLog.length,
       moves: game.moveLog,
       reason: status.reason,
+      assisted: game.hintUsed || undefined,
     });
     addXp(outcome === "win" ? 20 : outcome === "draw" ? 8 : 4);
-  }, [status, humanPlayer, def, difficulty, game.moveLog, addRecord, addXp]);
+  }, [status, humanPlayer, def, difficulty, game.moveLog, game.hintUsed, addRecord, addXp]);
 
   const turnNote = status.over
     ? resultText(def, status, humanPlayer)
@@ -204,6 +213,11 @@ function GameScreen({
           {def.icon} {def.name}
         </span>
         <span className="tag tag--violet">{difficulty.name}</span>
+        {game.hintUsed && (
+          <span className="tag" title="A hint was used — this game counts as assisted">
+            💡 assisted
+          </span>
+        )}
       </div>
 
       <div className="arcade-game__legend">
@@ -217,6 +231,9 @@ function GameScreen({
       </div>
 
       <div className={"arcade-status" + (status.over ? " is-over" : "")}>{turnNote}</div>
+      {game.hintNote && !status.over && (
+        <div className="arcade-hintnote">💡 {game.hintNote}</div>
+      )}
 
       <div className="arcade-game__board">
         <GameBoard game={game} />
@@ -225,6 +242,14 @@ function GameScreen({
       <div className="arcade-game__controls">
         <button className="btn btn--sm" onClick={game.undo} disabled={!game.canUndo}>
           ↩ Undo
+        </button>
+        <button
+          className="btn btn--sm btn--gold"
+          onClick={game.requestHint}
+          disabled={!game.canHint || status.over}
+          title="Progressive hint — using it marks this game as assisted"
+        >
+          💡 {game.hintStage === 1 ? "Reveal move" : "Hint"}
         </button>
         <button className="btn btn--sm btn--sky" onClick={onRematch}>
           ↻ New game

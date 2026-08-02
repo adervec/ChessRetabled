@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { CARD_GAMES } from "../cards/registry";
 import { Blackjack } from "../cards/games/blackjack/Blackjack";
 import { CrazyEights } from "../cards/games/crazy-eights/CrazyEights";
@@ -57,6 +58,9 @@ export function Cards() {
           A deck of classics — solitaire, blackjack, and card games against the AI.
           Shuffles are seeded, so every hand is recorded and replayable.
         </p>
+        <Link to="/guide" className="btn btn--sm btn--ghost" style={{ marginTop: "0.5rem", display: "inline-block" }}>
+          📖 Read the game guides
+        </Link>
       </header>
       <div className="arcade__grid">
         {CARD_GAMES.map((g) => (

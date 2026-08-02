@@ -9,6 +9,8 @@ const PEG = ["#e23b3b", "#ff9e2e", "#ffe14a", "#3ccf5a", "#3c9bff", "#b15aff"];
 export function Mastermind({ onExit }: { onExit: () => void }) {
   const [mm, setMm] = useState<MMState>(() => initMastermind(randomSeed()));
   const [guess, setGuess] = useState<number[]>([]);
+  const [hintSlot, setHintSlot] = useState<number | null>(null);
+  const [hintUsed, setHintUsed] = useState(false);
   const addRecord = useArchive((a) => a.add);
   const recordedRef = useRef(false);
   const startedRef = useRef(new Date().toISOString());
@@ -22,14 +24,17 @@ export function Mastermind({ onExit }: { onExit: () => void }) {
       outcome: mm.phase === "won" ? "win" : "loss",
       humanSide: "solo", opponent: "Codemaker", moveCount: mm.guesses.length, moves: [],
       reason: mm.phase === "won" ? `Cracked in ${mm.guesses.length}` : "Out of guesses",
+      assisted: hintUsed || undefined,
     });
-  }, [mm, addRecord]);
+  }, [mm, hintUsed, addRecord]);
 
   const newGame = () => {
     recordedRef.current = false;
     startedRef.current = new Date().toISOString();
     setMm(initMastermind(randomSeed()));
     setGuess([]);
+    setHintSlot(null);
+    setHintUsed(false);
   };
 
   const addPeg = (c: number) => {
@@ -40,6 +45,25 @@ export function Mastermind({ onExit }: { onExit: () => void }) {
     if (guess.length !== CODE_LENGTH) return;
     setMm((s) => submitGuess(s, guess));
     setGuess([]);
+    setHintSlot(null);
+  };
+
+  // Stage 1 highlights the first wrong/missing slot of the working guess; stage 2 reveals it.
+  const hint = () => {
+    if (mm.phase !== "play") return;
+    if (hintSlot !== null) {
+      const t = Math.min(hintSlot, guess.length); // guess may have shrunk since stage 1
+      const next = guess.slice();
+      next[t] = mm.secret[t];
+      setGuess(next);
+      setHintSlot(null);
+      return;
+    }
+    let t = 0;
+    while (t < CODE_LENGTH && guess[t] === mm.secret[t]) t++;
+    if (t >= CODE_LENGTH) return; // the working guess already is the code
+    setHintUsed(true);
+    setHintSlot(t);
   };
 
   const rows = MAX_GUESSES;
@@ -49,6 +73,7 @@ export function Mastermind({ onExit }: { onExit: () => void }) {
       <div className="logic-bar">
         <button className="btn btn--sm btn--ghost" onClick={onExit}>← Logic Lab</button>
         <span className="tag tag--gold">🎯 Mastermind</span>
+        {hintUsed && <span className="tag" title="A hint was used — this puzzle counts as assisted">💡 assisted</span>}
         <span className="text-muted">{mm.guesses.length}/{rows}</span>
       </div>
 
@@ -61,7 +86,7 @@ export function Mastermind({ onExit }: { onExit: () => void }) {
             <div key={r} className={"mm-row" + (isCurrent ? " is-current" : "")}>
               <div className="mm-pegs">
                 {Array.from({ length: CODE_LENGTH }).map((_, i) => (
-                  <span key={i} className="mm-peg" style={{ background: pegs[i] ? PEG[pegs[i] - 1] : "transparent" }} />
+                  <span key={i} className={"mm-peg" + (isCurrent && i === hintSlot ? " lhint" : "")} style={{ background: pegs[i] ? PEG[pegs[i] - 1] : "transparent" }} />
                 ))}
               </div>
               {past && (
@@ -96,6 +121,7 @@ export function Mastermind({ onExit }: { onExit: () => void }) {
             <button className="btn btn--sm btn--mint" onClick={submit} disabled={guess.length !== CODE_LENGTH}>Guess</button>
           </>
         )}
+        <button className="btn btn--sm btn--gold" title="Progressive hint — using it marks this puzzle as assisted" onClick={hint} disabled={mm.phase !== "play"}>{hintSlot !== null ? "💡 Reveal" : "💡 Hint"}</button>
         <button className="btn btn--sm btn--sky" onClick={newGame}>↻ New code</button>
       </div>
     </div>

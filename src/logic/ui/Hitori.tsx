@@ -9,6 +9,8 @@ const SIZE = 6;
 export function Hitori({ onExit }: { onExit: () => void }) {
   const [puzzle, setPuzzle] = useState<Puzzle>(() => generate(randomSeed(), SIZE));
   const [mask, setMask] = useState<boolean[]>(() => new Array(SIZE * SIZE).fill(false));
+  const [hintCell, setHintCell] = useState<number | null>(null);
+  const [hintUsed, setHintUsed] = useState(false);
   const addRecord = useArchive((a) => a.add);
   const recordedRef = useRef(false);
   const startedRef = useRef(new Date().toISOString());
@@ -21,6 +23,8 @@ export function Hitori({ onExit }: { onExit: () => void }) {
     startedRef.current = new Date().toISOString();
     setPuzzle(generate(randomSeed(), SIZE));
     setMask(new Array(SIZE * SIZE).fill(false));
+    setHintCell(null);
+    setHintUsed(false);
   };
 
   useEffect(() => {
@@ -31,16 +35,33 @@ export function Hitori({ onExit }: { onExit: () => void }) {
       startedISO: startedRef.current, endedISO: new Date().toISOString(),
       outcome: "win", humanSide: "solo", opponent: "Hitori",
       moveCount: mask.filter(Boolean).length, moves: [], reason: "Solved",
+      assisted: hintUsed || undefined,
     });
-  }, [won, mask, addRecord]);
+  }, [won, mask, hintUsed, addRecord]);
 
   const toggle = (i: number) => setMask((m) => { const next = m.slice(); next[i] = !next[i]; return next; });
+
+  // Stage 1 highlights a mis-shaded cell; stage 2 sets it to match the solution.
+  const hint = () => {
+    if (won) return;
+    if (hintCell !== null) {
+      const t = hintCell;
+      setMask((m) => m.map((v, k) => (k === t ? puzzle.solution[t] : v)));
+      setHintCell(null);
+      return;
+    }
+    const target = mask.findIndex((v, i) => v !== puzzle.solution[i]);
+    if (target < 0) return;
+    setHintUsed(true);
+    setHintCell(target);
+  };
 
   return (
     <div className="logic-screen">
       <div className="logic-bar">
         <button className="btn btn--sm btn--ghost" onClick={onExit}>← Logic Lab</button>
         <span className="tag tag--gold">▦ Hitori</span>
+        {hintUsed && <span className="tag" title="A hint was used — this puzzle counts as assisted">💡 assisted</span>}
         <span className="text-muted">shade out the duplicates</span>
       </div>
 
@@ -49,6 +70,7 @@ export function Hitori({ onExit }: { onExit: () => void }) {
           const cls = ["hit-cell"];
           if (mask[i]) cls.push("shaded");
           else if (bad[i]) cls.push("bad");
+          if (i === hintCell) cls.push("lhint");
           return (
             <button key={i} className={cls.join(" ")} onClick={() => toggle(i)}>
               {mask[i] ? "" : v}
@@ -63,6 +85,7 @@ export function Hitori({ onExit }: { onExit: () => void }) {
         ) : (
           <span className="text-muted">No repeats left unshaded · no two shaded touch · keep the rest connected.</span>
         )}
+        <button className="btn btn--sm btn--gold" title="Progressive hint — using it marks this puzzle as assisted" onClick={hint} disabled={won}>{hintCell !== null ? "💡 Reveal" : "💡 Hint"}</button>
         <button className="btn btn--sm btn--sky" onClick={newGame}>↻ New puzzle</button>
       </div>
     </div>

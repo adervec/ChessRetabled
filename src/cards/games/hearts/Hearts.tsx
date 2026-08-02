@@ -4,7 +4,8 @@ import { cardCode } from "../../core/cards";
 import { randomSeed } from "../../core/rng";
 import { useSettings, aiThinkFloorMs } from "../../../state/useSettings";
 import { useArchive, newId } from "../../../state/useArchive";
-import { initHearts, applyMove, aiMove, legalMoves, pointsOf, type HeartsState } from "./logic";
+import { initHearts, applyMove, aiMove, legalMoves, pointsOf, type HeartsState, type HeartsMove } from "./logic";
+import { useCardHint } from "../../ui/useCardHint";
 
 const SEAT_NAMES = ["You", "West", "North", "East"];
 const POS = ["pos-bottom", "pos-left", "pos-top", "pos-right"];
@@ -16,6 +17,7 @@ export function Hearts({ onExit }: { onExit: () => void }) {
   const recordedRef = useRef(false);
   const startedRef = useRef(new Date().toISOString());
   const aiToken = useRef(0);
+  const { hint, used, request, clear, resetUsed } = useCardHint<HeartsMove>();
 
   useEffect(() => {
     if (s.phase !== "done" || recordedRef.current) return;
@@ -33,8 +35,9 @@ export function Hearts({ onExit }: { onExit: () => void }) {
       moveCount: 52,
       moves: s.taken.flat().map(cardCode),
       reason: `Scores ${s.scores.join("–")}`,
+      assisted: used || undefined,
     });
-  }, [s, addRecord]);
+  }, [s, addRecord, used]);
 
   useEffect(() => {
     if (s.phase !== "play" || s.turn === 0) return;
@@ -50,13 +53,22 @@ export function Hearts({ onExit }: { onExit: () => void }) {
   const legal = new Set(yourTurn ? legalMoves(s, 0).map((c) => c.id) : []);
   const display = s.trick.length > 0 ? s.trick : s.lastTrick ?? [];
   const livePoints = s.taken.map((cards) => cards.reduce((n, c) => n + pointsOf(c), 0));
+  const hintCard = hint ? s.hands[0].find((c) => c.id === hint.value.cardId) : undefined;
+  const hintText = !hint || !hintCard
+    ? null
+    : hint.stage === 2
+      ? "Play the highlighted card"
+      : pointsOf(hintCard) > 0
+        ? "Time to dump a dangerous card"
+        : "You can safely follow suit";
 
   return (
     <div className="cardtable" style={{ ["--card-w" as string]: "58px" } as React.CSSProperties}>
       <div className="cardtable__bar">
         <button className="btn btn--sm btn--ghost" onClick={onExit}>← Card room</button>
         <span className="tag tag--gold">♥️ Hearts</span>
-        <button className="btn btn--sm" onClick={() => { recordedRef.current = false; setS(initHearts(randomSeed())); }}>↻ New</button>
+        {used && <span className="tag" title="A hint was used — this game counts as assisted">💡 assisted</span>}
+        <button className="btn btn--sm" onClick={() => { recordedRef.current = false; resetUsed(); setS(initHearts(randomSeed())); }}>↻ New</button>
       </div>
 
       <div className="hearts-scores">
@@ -93,8 +105,9 @@ export function Hearts({ onExit }: { onExit: () => void }) {
             <PlayingCard
               key={c.id}
               card={c}
+              selected={hint?.stage === 2 && hint.value.cardId === c.id}
               dimmed={yourTurn && !legal.has(c.id)}
-              onClick={yourTurn && legal.has(c.id) ? () => setS((cur) => applyMove(cur, { cardId: c.id })) : undefined}
+              onClick={yourTurn && legal.has(c.id) ? () => { clear(); setS((cur) => applyMove(cur, { cardId: c.id })); } : undefined}
             />
           ))}
         </div>
@@ -103,6 +116,19 @@ export function Hearts({ onExit }: { onExit: () => void }) {
             <span className={"bj-result bj-result--" + (s.scores[0] === Math.min(...s.scores) ? "win" : "loss")}>
               Final: {SEAT_NAMES.map((n, i) => `${n} ${s.scores[i]}`).join(" · ")}
             </span>
+          </div>
+        )}
+        {s.phase !== "done" && (
+          <div className="cardtable__controls">
+            <button
+              className="btn btn--sm btn--gold"
+              onClick={() => request(() => aiMove(s, 0))}
+              disabled={!yourTurn}
+              title="Progressive hint — using it marks this game as assisted"
+            >
+              💡 {hint?.stage === 1 ? "Reveal" : "Hint"}
+            </button>
+            {hintText && <span className="tag">{hintText}</span>}
           </div>
         )}
       </div>

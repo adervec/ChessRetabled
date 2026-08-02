@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { chooseMove } from "../core/ai";
 import type {
+  BoardGeometry,
   CellView,
   Difficulty,
   GameDefinition,
@@ -9,6 +10,7 @@ import type {
   Player,
 } from "../core/types";
 import { useSettings, aiThinkFloorMs } from "../../state/useSettings";
+import { playSfx } from "../../state/sfx";
 import type { Token } from "./boardView";
 
 export type { Token } from "./boardView";
@@ -35,6 +37,17 @@ export interface GenericGame<S> {
   onCellClick: (index: number) => void;
   undo: () => void;
   canUndo: boolean;
+  /**
+   * Progressive hint. Stage 0 = none; stage 1 = a nudge (piece/area);
+   * stage 2 = the full move revealed. Requesting a hint at all makes the
+   * game count as assisted (`hintUsed` stays true for the whole game).
+   */
+  hintStage: 0 | 1 | 2;
+  hintCells: number[];
+  hintNote: string | null;
+  hintUsed: boolean;
+  canHint: boolean;
+  requestHint: () => void;
 }
 
 interface Snapshot<S> {
@@ -143,6 +156,8 @@ export function useGenericGame<S>(
   const [pending, setPending] = useState<GameMove[] | null>(null);
   const [lastMove, setLastMove] = useState<GameMove | null>(null);
   const [thinking, setThinking] = useState(false);
+  const [hint, setHint] = useState<{ move: GameMove; stage: 1 | 2 } | null>(null);
+  const [hintUsed, setHintUsed] = useState(false);
   const aiToken = useRef(0);
 
   const animSpeed = useSettings((s) => s.animSpeed);
@@ -161,6 +176,7 @@ export function useGenericGame<S>(
     (m: GameMove, fromState: S, fromTokens: Token[], fromGrave: Token[]) => {
       const newState = def.applyMove(fromState, m);
       const rec = reconcile(fromTokens, m, def.cells(newState), nextId);
+      playSfx(rec.captured.length > 0 ? "capture" : "move");
       setHistory((h) => [...h, { state: fromState, tokens: fromTokens, graveyard: fromGrave, lastMove }]);
       setMoveLog((l) => [...l, m]);
       setState(newState);
@@ -169,6 +185,7 @@ export function useGenericGame<S>(
       setLastMove(m);
       setSelected(null);
       setPending(null);
+      setHint(null);
     },
     [def, nextId, lastMove]
   );
@@ -244,7 +261,10 @@ export function useGenericGame<S>(
 
       const ownMove = legal.find((m) => m.from === index);
       if (selected === null) {
-        if (ownMove) setSelected(index);
+        if (ownMove) {
+          playSfx("select");
+          setSelected(index);
+        }
         return;
       }
       const matches = legal.filter((m) => m.from === selected && m.to === index);
@@ -264,6 +284,7 @@ export function useGenericGame<S>(
     setThinking(false);
     setSelected(null);
     setPending(null);
+    setHint(null);
     setHistory((h) => {
       if (h.length === 0) return h;
       const copy = h.slice();
@@ -281,6 +302,37 @@ export function useGenericGame<S>(
   }, [thinking, def, humanPlayer]);
 
   const lastMoveCells = useMemo(() => (lastMove ? moveCells(lastMove) : []), [lastMove]);
+
+  // Progressive hint: press once for a nudge, again for the exact move. The
+  // search runs synchronously at the game's strongest setting (blunder-free);
+  // per-move time budgets are capped, so the brief main-thread stall is fine.
+  const requestHint = useCallback(() => {
+    if (!isHumanTurn) return;
+    setHintUsed(true);
+    playSfx("hint");
+    if (hint) {
+      setHint({ ...hint, stage: 2 });
+      return;
+    }
+    const strongest = def.difficulties[def.difficulties.length - 1];
+    const choice = chooseMove(def, state, { ...strongest, randomness: 0 });
+    if (choice.move) setHint({ move: choice.move, stage: 1 });
+  }, [isHumanTurn, hint, def, state]);
+
+  const hintCells = useMemo(() => {
+    if (!hint) return [];
+    const m = hint.move;
+    if (hint.stage === 2) return m.from !== undefined ? [m.from, m.to] : [m.to];
+    return m.from !== undefined ? [m.from] : [];
+  }, [hint]);
+
+  const hintNote = useMemo(() => {
+    if (!hint) return null;
+    if (hint.stage === 2) return "The highlighted move is the strongest.";
+    if (hint.move.from !== undefined)
+      return "The highlighted piece has the strongest move — hint again to reveal it.";
+    return `Look ${regionOf(def.geometry, hint.move.to)} — hint again to reveal the exact spot.`;
+  }, [hint, def]);
 
   return {
     def,
@@ -301,9 +353,36 @@ export function useGenericGame<S>(
     onCellClick,
     undo,
     canUndo: history.length > 0 && !thinking,
+    hintStage: hint ? hint.stage : 0,
+    hintCells,
+    hintNote,
+    hintUsed,
+    canHint: isHumanTurn && (hint === null || hint.stage < 2),
+    requestHint,
   };
 }
 
 function unique(xs: number[]): number[] {
   return [...new Set(xs)];
+}
+
+/** Rough board area of a cell ("near the top-left") for stage-1 placement hints. */
+function regionOf(geo: BoardGeometry, cell: number): string {
+  let x: number, y: number, w: number, h: number;
+  if (geo.kind === "grid") {
+    x = cell % geo.cols;
+    y = Math.floor(cell / geo.cols);
+    w = geo.cols - 1 || 1;
+    h = geo.rows - 1 || 1;
+  } else {
+    const p = geo.points[cell];
+    x = p.x;
+    y = p.y;
+    w = geo.width;
+    h = geo.height;
+  }
+  const row = y < h / 3 ? "top" : y > (2 * h) / 3 ? "bottom" : "";
+  const col = x < w / 3 ? "left" : x > (2 * w) / 3 ? "right" : "";
+  if (!row && !col) return "near the centre";
+  return `near the ${row}${row && col ? "-" : ""}${col}`;
 }

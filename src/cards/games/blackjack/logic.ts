@@ -161,6 +161,21 @@ function resolve(s: BJState): BJState {
   };
 }
 
+// ponytail: simplified basic strategy (no splits/surrender)
+export function basicStrategy(player: Card[], dealerUp: Card, canDouble: boolean): "hit" | "stand" | "double" {
+  const { total, soft } = blackjackValue(player);
+  const up = dealerUp.rank === 1 ? 11 : Math.min(dealerUp.rank, 10); // A=11, faces=10
+  if (soft) {
+    if (total <= 17) return "hit";
+    if (total >= 19) return "stand";
+    return up >= 2 && up <= 8 ? "stand" : "hit"; // soft 18
+  }
+  if (total >= 17) return "stand";
+  if ((total === 10 || total === 11) && canDouble && up >= 2 && up <= 9) return "double";
+  if (total <= 11) return "hit";
+  return up >= 2 && up <= 6 ? "stand" : "hit"; // hard 12–16
+}
+
 export function nextRound(s: BJState): BJState {
   return {
     ...s,

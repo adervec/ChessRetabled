@@ -3,9 +3,18 @@ import { PlayingCard } from "../../ui/PlayingCard";
 import { randomSeed } from "../../core/rng";
 import { useArchive, newId } from "../../../state/useArchive";
 import {
-  initPyramid, isExposed, removeRefs, draw, recycle, isWon, value,
+  initPyramid, isExposed, removeRefs, draw, recycle, isWon, value, exposedSlots,
   WASTE_REF, type PyramidState,
 } from "./logic";
+import { useCardHint } from "../../ui/useCardHint";
+
+type PyHint = { kind: "remove"; refs: number[] } | { kind: "stock" };
+
+const HINT_STYLE: React.CSSProperties = {
+  outline: "4px solid var(--sky)",
+  outlineOffset: "-4px",
+  borderRadius: "8px",
+};
 
 // Triangular slot indices grouped by row (row r starts at r(r+1)/2, holds r+1 cards).
 const ROWS: number[][] = (() => {
@@ -27,6 +36,7 @@ export function Pyramid({ onExit }: { onExit: () => void }) {
   const startedRef = useRef(new Date().toISOString());
   const cleared = useMemo(() => s.pyramid.filter((c) => c === null).length, [s.pyramid]);
   const won = isWon(s);
+  const { hint, used, request, clear, resetUsed } = useCardHint<PyHint>();
 
   useEffect(() => {
     if (!won || recordedRef.current) return;
@@ -43,15 +53,47 @@ export function Pyramid({ onExit }: { onExit: () => void }) {
       moveCount: 28,
       moves: [],
       reason: "Cleared the pyramid",
+      assisted: used || undefined,
     });
-  }, [won, addRecord]);
+  }, [won, addRecord, used]);
 
   const newGame = () => {
     recordedRef.current = false;
     startedRef.current = new Date().toISOString();
     setSel([]);
+    resetUsed();
     setS(initPyramid(randomSeed()));
   };
+
+  // ponytail: greedy — kings first, then the 13-pair using the most pyramid cards (uncovers more), else the stock
+  const pickHint = (): PyHint | null => {
+    if (won) return null;
+    const refs = [...exposedSlots(s), ...(s.waste.length ? [WASTE_REF] : [])];
+    const v = (ref: number) =>
+      ref === WASTE_REF ? value(s.waste[s.waste.length - 1].rank) : value(s.pyramid[ref]!.rank);
+    const king = refs.filter((r) => v(r) === 13).sort((a, b) => b - a)[0]; // pyramid king before the waste one
+    if (king !== undefined) return { kind: "remove", refs: [king] };
+    let best: number[] | null = null;
+    let bestScore = -1;
+    for (let i = 0; i < refs.length; i++) {
+      for (let j = i + 1; j < refs.length; j++) {
+        if (v(refs[i]) + v(refs[j]) !== 13) continue;
+        const score = (refs[i] !== WASTE_REF ? 1 : 0) + (refs[j] !== WASTE_REF ? 1 : 0);
+        if (score > bestScore) { bestScore = score; best = [refs[i], refs[j]]; }
+      }
+    }
+    if (best) return { kind: "remove", refs: best };
+    return s.stock.length > 0 || s.waste.length > 0 ? { kind: "stock" } : null;
+  };
+  const hintText = !hint
+    ? null
+    : hint.value.kind === "stock"
+      ? s.stock.length > 0 ? "No pairs — draw from the stock" : "No pairs — recycle the waste"
+      : hint.stage === 1
+        ? hint.value.refs.length === 1 ? "A king can clear alone" : "A pair totalling 13 is available"
+        : hint.value.refs.length === 1 ? "Clear the highlighted king" : "Take the highlighted pair";
+  const hinted = (ref: number) =>
+    hint?.stage === 2 && hint.value.kind === "remove" && hint.value.refs.includes(ref);
 
   const valOf = (ref: number) =>
     ref === WASTE_REF
@@ -63,6 +105,7 @@ export function Pyramid({ onExit }: { onExit: () => void }) {
 
   const pick = (ref: number) => {
     if (!available(ref)) return;
+    clear();
     if (valOf(ref) === 13) { setS(removeRefs(s, [ref])); setSel([]); return; }
     if (sel.length === 1) {
       const r0 = sel[0];
@@ -76,6 +119,7 @@ export function Pyramid({ onExit }: { onExit: () => void }) {
 
   const onStock = () => {
     setSel([]);
+    clear();
     if (s.stock.length > 0) setS(draw(s));
     else setS(recycle(s));
   };
@@ -88,6 +132,16 @@ export function Pyramid({ onExit }: { onExit: () => void }) {
       <div className="cardtable__bar">
         <button className="btn btn--sm btn--ghost" onClick={onExit}>← Card room</button>
         <span className="tag tag--gold">🔺 Pyramid · {cleared}/28 cleared</span>
+        {used && <span className="tag" title="A hint was used — this game counts as assisted">💡 assisted</span>}
+        <button
+          className="btn btn--sm btn--gold"
+          onClick={() => request(pickHint)}
+          disabled={won}
+          title="Progressive hint — using it marks this game as assisted"
+        >
+          💡 {hint?.stage === 1 ? "Reveal" : "Hint"}
+        </button>
+        {hintText && <span className="tag">{hintText}</span>}
         <button className="btn btn--sm" onClick={newGame}>↻ New deal</button>
       </div>
 
@@ -104,6 +158,7 @@ export function Pyramid({ onExit }: { onExit: () => void }) {
                     card={card}
                     selected={isSel(idx)}
                     dimmed={!free}
+                    style={hinted(idx) ? HINT_STYLE : undefined}
                     onClick={free ? () => pick(idx) : undefined}
                   />
                 </div>
@@ -120,7 +175,7 @@ export function Pyramid({ onExit }: { onExit: () => void }) {
         </div>
         <div className="py-waste">
           {wasteTop ? (
-            <PlayingCard card={wasteTop} selected={isSel(WASTE_REF)} onClick={() => pick(WASTE_REF)} />
+            <PlayingCard card={wasteTop} selected={isSel(WASTE_REF)} style={hinted(WASTE_REF) ? HINT_STYLE : undefined} onClick={() => pick(WASTE_REF)} />
           ) : (
             <div className="pcard-slot" />
           )}

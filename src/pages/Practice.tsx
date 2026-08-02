@@ -166,6 +166,13 @@ function DrillRunner({
             targets={g.controller.targets}
             lastMove={g.game.lastMove}
             checkSquare={g.game.checkSquare}
+            hintSquares={
+              g.hint
+                ? g.hint.stage === 1
+                  ? [g.hint.from]
+                  : [g.hint.from, g.hint.to]
+                : []
+            }
             onSquareClick={g.controller.onSquareClick}
           />
         </div>
@@ -183,6 +190,19 @@ function DrillRunner({
               : "Defender to move"}
           </div>
           <div className="drill__controls">
+            <button
+              className="btn btn--sm btn--sky"
+              onClick={g.requestHint}
+              disabled={
+                outcome !== "playing" ||
+                g.game.turn !== drill.humanColor ||
+                g.hintBusy ||
+                g.hint?.stage === 2
+              }
+              title="Progressive hint — piece first, then the move"
+            >
+              {g.hintBusy ? "…" : g.hint?.stage === 1 ? "💡 Reveal move" : "💡 Hint"}
+            </button>
             <button className="btn btn--sm btn--primary" onClick={onRestart}>
               ↻ Restart
             </button>

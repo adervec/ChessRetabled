@@ -5,8 +5,9 @@ import { randomSeed } from "../../core/rng";
 import { useSettings, aiThinkFloorMs } from "../../../state/useSettings";
 import { useArchive, newId } from "../../../state/useArchive";
 import {
-  initDurak, attack, defend, take, done, aiAct, applyAct, legalAttacks, legalDefenses, type DurakState,
+  initDurak, attack, defend, take, done, aiAct, applyAct, legalAttacks, legalDefenses, type DurakState, type DurakAct,
 } from "./logic";
+import { useCardHint } from "../../ui/useCardHint";
 
 const actingSeat = (s: DurakState) => (s.phase === "defend" ? (s.attacker === 0 ? 1 : 0) : s.attacker);
 
@@ -17,6 +18,7 @@ export function Durak({ onExit }: { onExit: () => void }) {
   const recordedRef = useRef(false);
   const startedRef = useRef(new Date().toISOString());
   const tok = useRef(0);
+  const { hint, used, request, clear, resetUsed } = useCardHint<DurakAct>();
 
   useEffect(() => {
     if (s.phase !== "done" || recordedRef.current) return;
@@ -26,8 +28,9 @@ export function Durak({ onExit }: { onExit: () => void }) {
       startedISO: startedRef.current, endedISO: new Date().toISOString(),
       outcome: s.loser === 1 ? "win" : s.loser === 0 ? "loss" : "draw", humanSide: "0", opponent: "AI",
       moveCount: s.discard, moves: [], reason: s.loser === null ? "draw" : s.loser === 0 ? "you fooled" : "rival fooled",
+      assisted: used || undefined,
     });
-  }, [s, addRecord]);
+  }, [s, addRecord, used]);
 
   useEffect(() => {
     if (s.phase === "done" || actingSeat(s) !== 1) return;
@@ -36,7 +39,7 @@ export function Durak({ onExit }: { onExit: () => void }) {
     return () => clearTimeout(id);
   }, [s, animSpeed]);
 
-  const newGame = () => { recordedRef.current = false; startedRef.current = new Date().toISOString(); setS(initDurak(randomSeed())); };
+  const newGame = () => { recordedRef.current = false; startedRef.current = new Date().toISOString(); resetUsed(); setS(initDurak(randomSeed())); };
 
   const myAttack = s.phase === "attack" && s.attacker === 0;
   const myDefend = s.phase === "defend" && s.attacker === 1;
@@ -45,15 +48,26 @@ export function Durak({ onExit }: { onExit: () => void }) {
   const allDefended = s.table.length > 0 && s.table.every((p) => p.defense !== null);
 
   const onCard = (id: string) => {
+    clear();
     if (myAttack && attackIds.has(id)) setS(attack(s, id));
     else if (myDefend && defenseIds.has(id)) setS(defend(s, id));
   };
+
+  const hintText = !hint
+    ? null
+    : hint.stage === 2 && hint.value.cardId
+      ? hint.value.type === "defend" ? "Defend with the highlighted card" : "Attack with the highlighted card"
+      : hint.value.type === "attack" ? "Best: press the attack"
+      : hint.value.type === "defend" ? "Best: defend the attack"
+      : hint.value.type === "take" ? "Best: take"
+      : "Best: stop attacking";
 
   return (
     <div className="cardtable" style={{ ["--card-w" as string]: "56px" } as React.CSSProperties}>
       <div className="cardtable__bar">
         <button className="btn btn--sm btn--ghost" onClick={onExit}>← Card room</button>
         <span className="tag tag--gold">🐻 Durak</span>
+        {used && <span className="tag" title="A hint was used — this game counts as assisted">💡 assisted</span>}
         <button className="btn btn--sm" onClick={newGame}>↻ New</button>
       </div>
 
@@ -78,13 +92,25 @@ export function Durak({ onExit }: { onExit: () => void }) {
       <div className={"c8-hand" + (actingSeat(s) === 0 && s.phase !== "done" ? " is-turn" : "")}>
         {s.hands[0].map((c) => {
           const live = (myAttack && attackIds.has(c.id)) || (myDefend && defenseIds.has(c.id));
-          return <PlayingCard key={c.id} card={c} onClick={live ? () => onCard(c.id) : undefined} />;
+          const hinted = hint?.stage === 2 && hint.value.cardId === c.id;
+          return <PlayingCard key={c.id} card={c} selected={hinted} onClick={live ? () => onCard(c.id) : undefined} />;
         })}
       </div>
 
       <div className="cardtable__controls">
-        {myAttack && allDefended && <button className="btn btn--sm btn--mint" onClick={() => setS(done(s))}>Done (beat off)</button>}
-        {myDefend && <button className="btn btn--sm btn--coral" onClick={() => setS(take(s))}>Take cards</button>}
+        {myAttack && allDefended && <button className="btn btn--sm btn--mint" onClick={() => { clear(); setS(done(s)); }}>Done (beat off)</button>}
+        {myDefend && <button className="btn btn--sm btn--coral" onClick={() => { clear(); setS(take(s)); }}>Take cards</button>}
+        {s.phase !== "done" && (
+          <button
+            className="btn btn--sm btn--gold"
+            onClick={() => request(() => aiAct(s, 0))}
+            disabled={actingSeat(s) !== 0}
+            title="Progressive hint — using it marks this game as assisted"
+          >
+            💡 {hint?.stage === 1 ? "Reveal" : "Hint"}
+          </button>
+        )}
+        {s.phase !== "done" && hintText && <span className="tag">{hintText}</span>}
         {s.phase === "done" && (
           <>
             <span className={"bj-result bj-result--" + (s.loser === 1 ? "win" : s.loser === 0 ? "loss" : "push")}>{s.message}</span>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Sudoku } from "../logic/ui/Sudoku";
 import { Mastermind } from "../logic/ui/Mastermind";
 import { Nonogram } from "../logic/ui/Nonogram";
@@ -71,6 +72,9 @@ export function Logic() {
           Pure deduction — no opponent, just you and the puzzle. Every Sudoku is
           generated with a guaranteed unique solution.
         </p>
+        <Link to="/guide" className="btn btn--sm btn--ghost" style={{ marginTop: "0.5rem", display: "inline-block" }}>
+          📖 Read the puzzle guides
+        </Link>
       </header>
       <div className="arcade__grid">
         {PUZZLES.map((p) => (

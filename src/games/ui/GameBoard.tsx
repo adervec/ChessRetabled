@@ -30,6 +30,7 @@ function GridBoard({ game, flat }: { game: BoardView; flat: boolean }) {
     if (game.lastMoveCells.includes(i)) classes.push("last");
     if (game.selected === i) classes.push("sel");
     if (game.removalTargets.includes(i)) classes.push("removal");
+    if (game.hintCells?.includes(i)) classes.push("hintcell");
     const clickable = game.isHumanTurn && !isVoid;
     cells.push(
       <button
@@ -127,12 +128,14 @@ function PointsBoard({ game, flat }: { game: BoardView; flat: boolean }) {
         {points.map((p, i) => {
           const isTarget = game.targets.includes(i);
           const isSel = game.selected === i;
+          const isHint = game.hintCells?.includes(i) === true;
           const clickable = game.isHumanTurn;
           return (
             <Fragment key={i}>
               <circle cx={p.x} cy={p.y} r={20} className="gpoints__base" />
               {isTarget && <circle cx={p.x} cy={p.y} r={13} className="gpoints__dot" />}
               {isSel && <circle cx={p.x} cy={p.y} r={30} className="gpoints__sel" />}
+              {isHint && <circle cx={p.x} cy={p.y} r={30} className="gpoints__hintring" />}
               {clickable && (
                 <circle cx={p.x} cy={p.y} r={32} className="gpoints__hit" onClick={() => game.onCellClick(i)} />
               )}

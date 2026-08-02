@@ -10,6 +10,8 @@ const SIZE = 7;
 export function Tents({ onExit }: { onExit: () => void }) {
   const [puzzle, setPuzzle] = useState<Puzzle>(() => generate(randomSeed(), SIZE));
   const [state, setState] = useState<number[]>(() => new Array(SIZE * SIZE).fill(0));
+  const [hintCell, setHintCell] = useState<number | null>(null);
+  const [hintUsed, setHintUsed] = useState(false);
   const addRecord = useArchive((a) => a.add);
   const recordedRef = useRef(false);
   const startedRef = useRef(new Date().toISOString());
@@ -23,6 +25,8 @@ export function Tents({ onExit }: { onExit: () => void }) {
     startedRef.current = new Date().toISOString();
     setPuzzle(generate(randomSeed(), SIZE));
     setState(new Array(SIZE * SIZE).fill(0));
+    setHintCell(null);
+    setHintUsed(false);
   };
 
   useEffect(() => {
@@ -33,12 +37,28 @@ export function Tents({ onExit }: { onExit: () => void }) {
       startedISO: startedRef.current, endedISO: new Date().toISOString(),
       outcome: "win", humanSide: "solo", opponent: "Tents",
       moveCount: tents.filter(Boolean).length, moves: [], reason: "Camp pitched",
+      assisted: hintUsed || undefined,
     });
-  }, [won, tents, addRecord]);
+  }, [won, tents, hintUsed, addRecord]);
 
   const click = (i: number) => {
     if (puzzle.tree[i]) return;
     setState((a) => a.map((s, k) => (k === i ? (s + 1) % 3 : s)));
+  };
+
+  // Stage 1 highlights a cell whose tent placement is wrong; stage 2 sets tent/grass.
+  const hint = () => {
+    if (won) return;
+    if (hintCell !== null) {
+      const t = hintCell;
+      setState((a) => a.map((s, k) => (k === t ? (puzzle.solution[t] ? 1 : 2) : s)));
+      setHintCell(null);
+      return;
+    }
+    const t = puzzle.solution.findIndex((want, i) => !puzzle.tree[i] && (state[i] === 1) !== want);
+    if (t < 0) return;
+    setHintUsed(true);
+    setHintCell(t);
   };
 
   const span = SIZE + 1;
@@ -51,7 +71,7 @@ export function Tents({ onExit }: { onExit: () => void }) {
       } else {
         const s = state[i];
         tiles.push(
-          <button key={i} className={`te-cell${s === 1 ? " tent" : s === 2 ? " grass" : ""}`} onClick={() => click(i)}>
+          <button key={i} className={`te-cell${s === 1 ? " tent" : s === 2 ? " grass" : ""}${i === hintCell ? " lhint" : ""}`} onClick={() => click(i)}>
             {s === 1 ? "⛺" : s === 2 ? "·" : ""}
           </button>,
         );
@@ -71,6 +91,7 @@ export function Tents({ onExit }: { onExit: () => void }) {
       <div className="logic-bar">
         <button className="btn btn--sm btn--ghost" onClick={onExit}>← Logic Lab</button>
         <span className="tag tag--gold">⛺ Tents</span>
+        {hintUsed && <span className="tag" title="A hint was used — this puzzle counts as assisted">💡 assisted</span>}
         <span className="text-muted">one tent per tree</span>
       </div>
 
@@ -80,6 +101,7 @@ export function Tents({ onExit }: { onExit: () => void }) {
         {won
           ? <span className="bj-result bj-result--win">Solved! 🎉</span>
           : <span className="text-muted">Pitch a tent beside each tree (one-to-one), no two tents touching. Tap twice to mark grass.</span>}
+        <button className="btn btn--sm btn--gold" title="Progressive hint — using it marks this puzzle as assisted" onClick={hint} disabled={won}>{hintCell !== null ? "💡 Reveal" : "💡 Hint"}</button>
         <button className="btn btn--sm btn--sky" onClick={newGame}>↻ New puzzle</button>
       </div>
     </div>

@@ -9,6 +9,8 @@ const SIZE = 6;
 export function StarBattle({ onExit }: { onExit: () => void }) {
   const [puzzle, setPuzzle] = useState<Puzzle>(() => generate(randomSeed(), SIZE));
   const [stars, setStars] = useState<boolean[]>(() => new Array(SIZE * SIZE).fill(false));
+  const [hintCell, setHintCell] = useState<number | null>(null);
+  const [hintUsed, setHintUsed] = useState(false);
   const addRecord = useArchive((a) => a.add);
   const recordedRef = useRef(false);
   const startedRef = useRef(new Date().toISOString());
@@ -22,6 +24,8 @@ export function StarBattle({ onExit }: { onExit: () => void }) {
     startedRef.current = new Date().toISOString();
     setPuzzle(generate(randomSeed(), SIZE));
     setStars(new Array(SIZE * SIZE).fill(false));
+    setHintCell(null);
+    setHintUsed(false);
   };
 
   useEffect(() => {
@@ -32,8 +36,24 @@ export function StarBattle({ onExit }: { onExit: () => void }) {
       startedISO: startedRef.current, endedISO: new Date().toISOString(),
       outcome: "win", humanSide: "solo", opponent: "Star Battle",
       moveCount: placed, moves: [], reason: "Solved",
+      assisted: hintUsed || undefined,
     });
-  }, [won, placed, addRecord]);
+  }, [won, placed, hintUsed, addRecord]);
+
+  // Stage 1 highlights a cell that's wrong vs the solution; stage 2 fixes it.
+  const hint = () => {
+    if (won) return;
+    if (hintCell !== null) {
+      const t = hintCell;
+      setStars((s) => s.map((v, k) => (k === t ? puzzle.solution[t] : v)));
+      setHintCell(null);
+      return;
+    }
+    const target = stars.findIndex((v, i) => v !== puzzle.solution[i]);
+    if (target < 0) return;
+    setHintUsed(true);
+    setHintCell(target);
+  };
 
   const rid = puzzle.regionId;
   return (
@@ -41,6 +61,7 @@ export function StarBattle({ onExit }: { onExit: () => void }) {
       <div className="logic-bar">
         <button className="btn btn--sm btn--ghost" onClick={onExit}>← Logic Lab</button>
         <span className="tag tag--gold">⭐ Star Battle</span>
+        {hintUsed && <span className="tag" title="A hint was used — this puzzle counts as assisted">💡 assisted</span>}
         <span className="text-muted">{placed}/{SIZE} stars</span>
       </div>
 
@@ -54,6 +75,7 @@ export function StarBattle({ onExit }: { onExit: () => void }) {
           if (c === SIZE - 1 || rid[i + 1] !== rid[i]) cls.push("edge-r");
           if (r === SIZE - 1 || rid[i + SIZE] !== rid[i]) cls.push("edge-b");
           if (bad[i]) cls.push("bad");
+          if (i === hintCell) cls.push("lhint");
           return (
             <button key={i} className={cls.join(" ")} onClick={() => setStars((s) => { const n = s.slice(); n[i] = !n[i]; return n; })}>
               {stars[i] ? "★" : ""}
@@ -64,6 +86,7 @@ export function StarBattle({ onExit }: { onExit: () => void }) {
 
       <div className="logic-foot">
         {won ? <span className="bj-result bj-result--win">Solved! 🎉</span> : <span className="text-muted">One star per row, column, and region — none touching.</span>}
+        <button className="btn btn--sm btn--gold" title="Progressive hint — using it marks this puzzle as assisted" onClick={hint} disabled={won}>{hintCell !== null ? "💡 Reveal" : "💡 Hint"}</button>
         <button className="btn btn--sm btn--sky" onClick={newGame}>↻ New puzzle</button>
       </div>
     </div>

@@ -12,7 +12,8 @@ export type ManualResult = {
   reason: "resign" | "agreement" | "timeout";
 } | null;
 
-export type Hint = { from: Square; to: Square } | null;
+/** Progressive: stage 1 reveals only the piece, stage 2 the full move. */
+export type Hint = { from: Square; to: Square; stage: 1 | 2 } | null;
 
 export function useBotGame(
   bot: Bot,
@@ -24,6 +25,7 @@ export function useBotGame(
   const [manualResult, setManualResult] = useState<ManualResult>(null);
   const [flipped, setFlipped] = useState(false);
   const [hint, setHint] = useState<Hint>(null);
+  const [hintUsed, setHintUsed] = useState(false);
   const [evalScore, setEvalScore] = useState<{ cp?: number; mate?: number }>({});
   const [hintBusy, setHintBusy] = useState(false);
   const botMoveToken = useRef(0);
@@ -88,16 +90,23 @@ export function useBotGame(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [game.fen, game.turn, gameOver, humanColor]);
 
+  // Progressive: first press shows which piece to move, second reveals the
+  // move. Using it at all flags the game as assisted (hintUsed is sticky).
   const requestHint = useCallback(async () => {
     if (gameOver || game.turn !== humanColor || hintBusy) return;
+    setHintUsed(true);
+    if (hint) {
+      setHint({ ...hint, stage: 2 });
+      return;
+    }
     setHintBusy(true);
     try {
       const mv = await getEngine().bestMove(game.fen, { depth: 14 });
-      if (mv) setHint({ from: mv.from, to: mv.to });
+      if (mv) setHint({ from: mv.from, to: mv.to, stage: 1 });
     } finally {
       setHintBusy(false);
     }
-  }, [game, gameOver, humanColor, hintBusy]);
+  }, [game, gameOver, humanColor, hintBusy, hint]);
 
   const takeback = useCallback(() => {
     if (thinking) return;
@@ -142,6 +151,7 @@ export function useBotGame(
     thinking,
     hintBusy,
     hint,
+    hintUsed,
     evalScore,
     gameOver,
     result,

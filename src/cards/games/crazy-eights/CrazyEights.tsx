@@ -5,8 +5,9 @@ import { randomSeed } from "../../core/rng";
 import { useSettings, aiThinkFloorMs } from "../../../state/useSettings";
 import { useArchive, newId } from "../../../state/useArchive";
 import {
-  initCrazyEights, applyMove, aiMove, legalPlays, options, topCard, type C8State,
+  initCrazyEights, applyMove, aiMove, legalPlays, options, topCard, type C8State, type C8Move,
 } from "./logic";
+import { useCardHint } from "../../ui/useCardHint";
 
 const SEAT_NAMES = ["You", "West", "North", "East"];
 
@@ -18,6 +19,7 @@ export function CrazyEights({ onExit }: { onExit: () => void }) {
   const recordedRef = useRef(false);
   const startedRef = useRef(new Date().toISOString());
   const aiToken = useRef(0);
+  const { hint, used, request, clear, resetUsed } = useCardHint<C8Move>();
 
   // archive on finish
   useEffect(() => {
@@ -35,8 +37,9 @@ export function CrazyEights({ onExit }: { onExit: () => void }) {
       moveCount: s.discard.length,
       moves: s.discard.map(cardCode),
       reason: `${SEAT_NAMES[s.winner]} went out`,
+      assisted: used || undefined,
     });
-  }, [s, addRecord]);
+  }, [s, addRecord, used]);
 
   // AI seats play with a watchable delay
   useEffect(() => {
@@ -55,9 +58,20 @@ export function CrazyEights({ onExit }: { onExit: () => void }) {
   const top = topCard(s);
 
   const playCard = (cardId: string, suit?: Suit) => {
+    clear();
     setS((cur) => applyMove(cur, { type: "play", cardId, suit }));
     setPendingEight(null);
   };
+
+  const hintText = !hint
+    ? null
+    : hint.value.type === "draw"
+      ? "Best: draw"
+      : hint.value.type === "pass"
+        ? "Best: pass"
+        : hint.stage === 1
+          ? "Best: play a card"
+          : `Best: play the highlighted card${hint.value.suit ? ` and call ${SUIT_SYMBOL[hint.value.suit]}` : ""}`;
 
   const onCardClick = (cardId: string, rank: number) => {
     if (!yourTurn || opt !== "play" || !playable.has(cardId)) return;
@@ -70,7 +84,8 @@ export function CrazyEights({ onExit }: { onExit: () => void }) {
       <div className="cardtable__bar">
         <button className="btn btn--sm btn--ghost" onClick={onExit}>← Card room</button>
         <span className="tag tag--gold">8️⃣ Crazy Eights</span>
-        <button className="btn btn--sm" onClick={() => { recordedRef.current = false; setS(initCrazyEights(randomSeed())); }}>↻ New</button>
+        {used && <span className="tag" title="A hint was used — this game counts as assisted">💡 assisted</span>}
+        <button className="btn btn--sm" onClick={() => { recordedRef.current = false; resetUsed(); setS(initCrazyEights(randomSeed())); }}>↻ New</button>
       </div>
 
       <div className="c8-opponents">
@@ -103,6 +118,7 @@ export function CrazyEights({ onExit }: { onExit: () => void }) {
             <PlayingCard
               key={c.id}
               card={c}
+              selected={hint?.stage === 2 && hint.value.type === "play" && hint.value.cardId === c.id}
               dimmed={yourTurn && opt === "play" && !playable.has(c.id)}
               onClick={yourTurn && opt === "play" ? () => onCardClick(c.id, c.rank) : undefined}
             />
@@ -116,16 +132,27 @@ export function CrazyEights({ onExit }: { onExit: () => void }) {
             </span>
           )}
           {yourTurn && opt === "draw" && (
-            <button className="btn btn--sm btn--sky" onClick={() => setS((c) => applyMove(c, { type: "draw" }))}>
+            <button className="btn btn--sm btn--sky" onClick={() => { clear(); setS((c) => applyMove(c, { type: "draw" })); }}>
               Draw a card
             </button>
           )}
           {yourTurn && opt === "pass" && (
-            <button className="btn btn--sm" onClick={() => setS((c) => applyMove(c, { type: "pass" }))}>
+            <button className="btn btn--sm" onClick={() => { clear(); setS((c) => applyMove(c, { type: "pass" })); }}>
               Pass
             </button>
           )}
           {yourTurn && opt === "play" && <span className="c8-hint">Play a card matching {SUIT_SYMBOL[s.activeSuit]} or rank {top.rank === 8 ? "8" : top.rank}.</span>}
+          {s.phase !== "done" && (
+            <button
+              className="btn btn--sm btn--gold"
+              onClick={() => request(() => aiMove(s, 0))}
+              disabled={!yourTurn}
+              title="Progressive hint — using it marks this game as assisted"
+            >
+              💡 {hint?.stage === 1 ? "Reveal" : "Hint"}
+            </button>
+          )}
+          {hintText && <span className="tag">{hintText}</span>}
         </div>
       </div>
 

@@ -5,7 +5,8 @@ import { COINS } from "../../core/italian";
 import { randomSeed } from "../../core/rng";
 import { useSettings, aiThinkFloorMs } from "../../../state/useSettings";
 import { useArchive, newId } from "../../../state/useArchive";
-import { initScopa, applyMove, aiMove, captureOptions, bestCapture, type ScopaState } from "./logic";
+import { initScopa, applyMove, aiMove, captureOptions, bestCapture, type ScopaState, type ScopaMove } from "./logic";
+import { useCardHint } from "../../ui/useCardHint";
 
 export function Scopa({ onExit }: { onExit: () => void }) {
   const [s, setS] = useState<ScopaState>(() => initScopa(randomSeed()));
@@ -14,6 +15,7 @@ export function Scopa({ onExit }: { onExit: () => void }) {
   const recordedRef = useRef(false);
   const startedRef = useRef(new Date().toISOString());
   const aiToken = useRef(0);
+  const { hint, used, request, clear, resetUsed } = useCardHint<ScopaMove>();
 
   useEffect(() => {
     if (s.phase !== "done" || recordedRef.current) return;
@@ -24,8 +26,9 @@ export function Scopa({ onExit }: { onExit: () => void }) {
       outcome: s.winner === 0 ? "win" : s.winner === 1 ? "loss" : "draw",
       humanSide: "0", opponent: "AI", moveCount: 40, moves: s.captured[0].map(cardCode),
       reason: `${s.scores[0]}–${s.scores[1]}`,
+      assisted: used || undefined,
     });
-  }, [s, addRecord]);
+  }, [s, addRecord, used]);
 
   useEffect(() => {
     if (s.phase !== "play" || s.turn !== 1) return;
@@ -39,20 +42,31 @@ export function Scopa({ onExit }: { onExit: () => void }) {
 
   const yourTurn = s.phase === "play" && s.turn === 0;
   const coins = (cards: ScopaState["captured"][number]) => cards.filter((c) => c.suit === COINS).length;
-  const play = (cardId: string) => setS((cur) => {
-    const card = cur.hands[0].find((c) => c.id === cardId);
-    if (!card) return cur;
-    const opts = captureOptions(cur.table, card);
-    const captureIds = opts.length ? bestCapture(opts).map((c) => c.id) : [];
-    return applyMove(cur, { cardId, captureIds });
-  });
-  const newGame = () => { recordedRef.current = false; startedRef.current = new Date().toISOString(); setS(initScopa(randomSeed())); };
+  const play = (cardId: string) => {
+    clear();
+    setS((cur) => {
+      const card = cur.hands[0].find((c) => c.id === cardId);
+      if (!card) return cur;
+      const opts = captureOptions(cur.table, card);
+      const captureIds = opts.length ? bestCapture(opts).map((c) => c.id) : [];
+      return applyMove(cur, { cardId, captureIds });
+    });
+  };
+  const newGame = () => { recordedRef.current = false; startedRef.current = new Date().toISOString(); resetUsed(); setS(initScopa(randomSeed())); };
+  const hintText = !hint
+    ? null
+    : hint.stage === 2
+      ? "Play the highlighted card"
+      : hint.value.captureIds.length > 0
+        ? "A capture is available"
+        : "No capture — discard carefully";
 
   return (
     <div className="cardtable" style={{ ["--card-w" as string]: "60px" } as React.CSSProperties}>
       <div className="cardtable__bar">
         <button className="btn btn--sm btn--ghost" onClick={onExit}>← Card room</button>
         <span className="tag tag--gold">🇮🇹 Scopa</span>
+        {used && <span className="tag" title="A hint was used — this game counts as assisted">💡 assisted</span>}
         <button className="btn btn--sm" onClick={newGame}>↻ New</button>
       </div>
 
@@ -71,10 +85,28 @@ export function Scopa({ onExit }: { onExit: () => void }) {
 
       <div className={"c8-hand" + (yourTurn ? " is-turn" : "")}>
         {s.hands[0].map((c) => (
-          <PlayingCard key={c.id} card={c} onClick={yourTurn ? () => play(c.id) : undefined} />
+          <PlayingCard
+            key={c.id}
+            card={c}
+            selected={hint?.stage === 2 && hint.value.cardId === c.id}
+            onClick={yourTurn ? () => play(c.id) : undefined}
+          />
         ))}
       </div>
 
+      {s.phase !== "done" && (
+        <div className="cardtable__controls">
+          <button
+            className="btn btn--sm btn--gold"
+            onClick={() => request(() => aiMove(s, 0))}
+            disabled={!yourTurn}
+            title="Progressive hint — using it marks this game as assisted"
+          >
+            💡 {hint?.stage === 1 ? "Reveal" : "Hint"}
+          </button>
+          {hintText && <span className="tag">{hintText}</span>}
+        </div>
+      )}
       {s.phase === "done" && (
         <div className="cardtable__controls">
           <span className={"bj-result bj-result--" + (s.winner === 0 ? "win" : s.winner === 1 ? "loss" : "push")}>{s.message}</span>

@@ -11,6 +11,8 @@ export function Numberlink({ onExit }: { onExit: () => void }) {
   const [puzzle, setPuzzle] = useState<Puzzle>(() => generate(randomSeed(), SIZE));
   const [paths, setPaths] = useState<number[][]>(() => puzzle.solutionPaths.map(() => []));
   const [active, setActive] = useState<number | null>(null);
+  const [hintColor, setHintColor] = useState<number | null>(null); // 0-based colour index
+  const [hintUsed, setHintUsed] = useState(false);
   const addRecord = useArchive((a) => a.add);
   const recordedRef = useRef(false);
   const startedRef = useRef(new Date().toISOString());
@@ -32,6 +34,8 @@ export function Numberlink({ onExit }: { onExit: () => void }) {
     recordedRef.current = false;
     startedRef.current = new Date().toISOString();
     reset(generate(randomSeed(), SIZE));
+    setHintColor(null);
+    setHintUsed(false);
   };
 
   useEffect(() => {
@@ -42,8 +46,9 @@ export function Numberlink({ onExit }: { onExit: () => void }) {
       startedISO: startedRef.current, endedISO: new Date().toISOString(),
       outcome: "win", humanSide: "solo", opponent: "Numberlink",
       moveCount: paths.reduce((a, p) => a + p.length, 0), moves: [], reason: "All linked",
+      assisted: hintUsed || undefined,
     });
-  }, [won, paths, addRecord]);
+  }, [won, paths, hintUsed, addRecord]);
 
   const ortho = (a: number, b: number) => {
     const ar = Math.floor(a / SIZE), ac = a % SIZE, br = Math.floor(b / SIZE), bc = b % SIZE;
@@ -64,6 +69,30 @@ export function Numberlink({ onExit }: { onExit: () => void }) {
     }
   };
 
+  // Stage 1 highlights the endpoints of a colour whose path is wrong; stage 2 draws its whole path.
+  const samePath = (a: number[], b: number[]) => a.length === b.length && a.every((x, i) => x === b[i]);
+  const hint = () => {
+    if (won) return;
+    if (hintColor !== null) {
+      const c = hintColor;
+      const solPath = puzzle.solutionPaths[c];
+      const taken = new Set(solPath);
+      // Draw the solution path; truncate other paths at the first cell it claims.
+      setPaths((ps) => ps.map((p, k) => {
+        if (k === c) return solPath.slice();
+        const cut = p.findIndex((cell) => taken.has(cell));
+        return cut >= 0 ? p.slice(0, cut) : p;
+      }));
+      setActive(null);
+      setHintColor(null);
+      return;
+    }
+    const c = puzzle.solutionPaths.findIndex((sol, k) => !samePath(paths[k], sol) && !samePath(paths[k], sol.slice().reverse()));
+    if (c < 0) return;
+    setHintUsed(true);
+    setHintColor(c);
+  };
+
   const tiles = [];
   for (let i = 0; i < SIZE * SIZE; i++) {
     const col = owner[i];
@@ -72,6 +101,7 @@ export function Numberlink({ onExit }: { onExit: () => void }) {
     if (col > 0) style.background = `color-mix(in srgb, ${COLORS[(col - 1) % COLORS.length]} 42%, var(--surface))`;
     const cls = ["nl-cell"];
     if (active && (endpointColor[i] === active || (paths[active - 1] && paths[active - 1][paths[active - 1].length - 1] === i))) cls.push("head");
+    if (hintColor !== null && endpointColor[i] === hintColor + 1) cls.push("lhint");
     if (isEnd) {
       const c = endpointColor[i];
       style.background = COLORS[(c - 1) % COLORS.length];
@@ -86,6 +116,7 @@ export function Numberlink({ onExit }: { onExit: () => void }) {
       <div className="logic-bar">
         <button className="btn btn--sm btn--ghost" onClick={onExit}>← Logic Lab</button>
         <span className="tag tag--gold">🔗 Numberlink</span>
+        {hintUsed && <span className="tag" title="A hint was used — this puzzle counts as assisted">💡 assisted</span>}
         <span className="text-muted">join the pairs, fill the grid</span>
       </div>
 
@@ -95,6 +126,7 @@ export function Numberlink({ onExit }: { onExit: () => void }) {
         {won
           ? <span className="bj-result bj-result--win">Solved! 🎉</span>
           : <span className="text-muted">Tap a number, then step through neighbours to its twin. Fill every cell; tap back to undo.</span>}
+        <button className="btn btn--sm btn--gold" title="Progressive hint — using it marks this puzzle as assisted" onClick={hint} disabled={won}>{hintColor !== null ? "💡 Reveal" : "💡 Hint"}</button>
         <button className="btn btn--sm btn--sky" onClick={newGame}>↻ New puzzle</button>
       </div>
       <p className="text-muted" style={{ textAlign: "center", fontSize: ".82rem" }}>{pairs.length} pairs to connect</p>
