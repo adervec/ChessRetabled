@@ -485,3 +485,16 @@ p {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Brand badge holding the current category's icon (see components/brand/Logo). */
+.brandmark {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 16px;
+  border: var(--outline);
+  background: linear-gradient(180deg, var(--violet), var(--violet-dark));
+  box-shadow: var(--shadow-sticker-sm);
+  color: var(--paper);
+  line-height: 1;
+}

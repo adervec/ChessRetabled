@@ -14,10 +14,12 @@ import { useArchive, newId } from "../state/useArchive";
 import { PIECE_VALUE, START_FEN, type Color } from "../chess/types";
 import type { Bot } from "../content/bots";
 import "./Play.css";
+import { useActiveGame } from "../state/activeGame";
 
 type Setup = { bot: Bot; color: Color; key: number };
 
 export function Play() {
+  useActiveGame("chess");
   const [setup, setSetup] = useState<Setup | null>(null);
 
   useEffect(() => {

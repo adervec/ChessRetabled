@@ -28,6 +28,13 @@ const RULES = [
   ["phone card scale", /--card-scale:\s*0?\.85/, true],
   ["landscape layout (setting-driven)", /\[data-orient=["']?landscape["']?\]\s*\.game/, true],
   ["portrait board cap (setting-driven)", /\[data-orient=["']?portrait["']?\]\s*\.board3d-scene/, true],
+  // A board capped on width alone either spills off a short screen or stays
+  // small on a big one — both were reported. Every cap must carry a height term.
+  ["boards fit both axes", /--board-max:\s*min\([^;]*100dvh/, true],
+  ["landscape arrangement needs width", /\(max-width:\s*900px\)\s*and\s*\(min-width:\s*560px\)/, true],
+  // touch-action: manipulation still hands drags to the browser, so a drag on
+  // the board scrolled the page instead of moving a piece.
+  ["board surface refuses pan/zoom", /touch-action:\s*none/, true],
   // The accelerometer must not reach the layout: only App.tsx may read device
   // orientation, and it writes data-orient. A bare orientation media query here
   // would flip the layout behind the user's setting.

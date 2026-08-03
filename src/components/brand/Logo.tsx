@@ -1,7 +1,36 @@
-type Props = { size?: number; title?: boolean };
+type Props = { size?: number; title?: boolean; icon?: string };
 
-/** Cel-shaded knight badge used as the app mark. */
-export function Logo({ size = 40, title = true }: Props) {
+/**
+ * The app mark: a cel-shaded badge plus the wordmark. The badge carries the icon
+ * of whatever you are currently playing — ♟ / 🎲 / 🃏 / 💡 — and falls back to
+ * the knight only where nothing is open, so the brand reads "<what you're
+ * doing>Retabled" rather than always claiming chess.
+ */
+export function Logo({ size = 40, title = true, icon }: Props) {
+  if (icon) return <IconLogo size={size} title={title} icon={icon} />;
+  return <KnightLogo size={size} title={title} />;
+}
+
+function IconLogo({ size, title, icon }: { size: number; title: boolean; icon: string }) {
+  return (
+    <div className="row gap-s" style={{ gap: 12 }}>
+      <span className="brandmark" style={{ width: size, height: size, fontSize: size * 0.52 }} aria-hidden>
+        {icon}
+      </span>
+      {title && <Wordmark />}
+    </div>
+  );
+}
+
+function Wordmark() {
+  return (
+    <span className="toon-title" style={{ fontSize: "1.4rem", lineHeight: 1 }}>
+      <span style={{ color: "var(--gold)" }}>Retabled</span>
+    </span>
+  );
+}
+
+function KnightLogo({ size = 40, title = true }: Props) {
   return (
     <div className="row gap-s" style={{ gap: 12 }}>
       <svg
@@ -62,14 +91,7 @@ export function Logo({ size = 40, title = true }: Props) {
           strokeWidth="3"
         />
       </svg>
-      {title && (
-        <span
-          className="toon-title"
-          style={{ fontSize: "1.4rem", lineHeight: 1 }}
-        >
-          Chess<span style={{ color: "var(--gold)" }}>Retabled</span>
-        </span>
-      )}
+      {title && <Wordmark />}
     </div>
   );
 }

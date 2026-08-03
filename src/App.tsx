@@ -2,7 +2,9 @@ import { useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { NavBar } from "./components/ui/NavBar";
 import { useProgress } from "./state/useProgress";
-import { useSettings, ANIM_MS, effectiveOrientation } from "./state/useSettings";
+import { useSettings, ANIM_MS } from "./state/useSettings";
+import { resolveLayout } from "./state/orientation";
+import { useActiveGameStore } from "./state/activeGame";
 import { applyCloudConfig } from "./state/cloudConfig";
 import { installUiSfx } from "./state/sfx";
 import { Home } from "./pages/Home";
@@ -26,6 +28,8 @@ export default function App() {
   const theme = useSettings((s) => s.theme);
   const animSpeed = useSettings((s) => s.animSpeed);
   const orientation = useSettings((s) => s.orientation);
+  const gameOrientation = useSettings((s) => s.gameOrientation);
+  const activeGame = useActiveGameStore((s) => s.id);
 
   useEffect(() => {
     touchDay();
@@ -43,22 +47,24 @@ export default function App() {
     root.style.setProperty("--anim-dur", `${ANIM_MS[animSpeed]}ms`);
   }, [theme, animSpeed]);
 
-  // Layout orientation is a setting, not the accelerometer. Pin it and turning
-  // the phone changes nothing; only "auto" subscribes to the device.
+  // One place decides the layout, so nothing fights over the attribute: the
+  // game's own pin, then the app-wide setting, then the game's logical default,
+  // and only with no game open at all, the device.
   useEffect(() => {
     const root = document.documentElement;
-    if (orientation !== "auto") {
-      root.dataset.orient = orientation;
-      return;
-    }
     const mq = window.matchMedia("(orientation: landscape)");
     const apply = () => {
-      root.dataset.orient = effectiveOrientation("auto", mq.matches);
+      root.dataset.orient = resolveLayout({
+        gameId: activeGame,
+        perGame: gameOrientation,
+        global: orientation,
+        deviceIsLandscape: mq.matches,
+      });
     };
     apply();
     mq.addEventListener("change", apply);
     return () => mq.removeEventListener("change", apply);
-  }, [orientation]);
+  }, [activeGame, gameOrientation, orientation]);
 
   return (
     <div className="app-shell">

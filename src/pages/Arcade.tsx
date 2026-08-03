@@ -6,6 +6,7 @@ import { useGenericGame } from "../games/ui/useGenericGame";
 import type { Difficulty, GameDefinition, Player } from "../games/core/types";
 import { useArchive, newId } from "../state/useArchive";
 import { useProgress } from "../state/useProgress";
+import { useActiveGame } from "../state/activeGame";
 import "./Arcade.css";
 
 type Setup = { difficulty: Difficulty; humanPlayer: Player; key: number };
@@ -14,6 +15,7 @@ export function Arcade() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [picked, setPicked] = useState<GameDefinition<any> | null>(null);
   const [setup, setSetup] = useState<Setup | null>(null);
+  useActiveGame(picked && setup ? picked.id : null);
 
   if (picked && setup) {
     return (

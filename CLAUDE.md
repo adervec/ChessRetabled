@@ -252,6 +252,18 @@ opponent-based games. Same discipline — pure logic in `.ts`, verified headless
   covered by `validate-stats.mjs` (archetype totality fuzz + brief
   no-`undefined` smoke).
 
+## Brand & landing page
+
+- **The mark is `<category icon>Retabled`**, not a knight: `NavBar.brandIcon()`
+  maps the route to ♟ / 🎲 / 🃏 / 💡 and falls back to a neutral ▦, `Logo` takes
+  an `icon` prop and renders the badge (`.brandmark`) plus the "Retabled"
+  wordmark. The knight SVG survives as `KnightLogo` for the icon-less case.
+- **`pages/Home.tsx` is category-agnostic** — four equal wings built from
+  `CATEGORY_ORDER` with counts derived from `CATALOG` (so a new game updates the
+  page for free), agnostic stats (played / tried / streak / level, not puzzle
+  rating and bot record), and the chess-specific modes demoted to the `.home__more`
+  chip row. Don't reintroduce a chess-first hero.
+
 ## Nav, sound & "What now?"
 
 - **NavBar** keeps only the first four links in the bar; **all twelve live in the
@@ -279,14 +291,29 @@ opponent-based games. Same discipline — pure logic in `.ts`, verified headless
 - **Width picks the layout, `(pointer: coarse)` / `(hover: none)` pick the
   interaction.** Boards were already fluid (`width:100%` + `max-width:
   var(--board-max)`), so this sheet only fixes what width alone can't.
-- **Portrait/landscape is a setting, not the accelerometer.**
-  `useSettings.orientation` (`auto` | `portrait` | `landscape`, default `auto`)
-  → `App.tsx` resolves it with `effectiveOrientation()` onto `<html
-  data-orient>`; **only `auto` subscribes to `matchMedia("(orientation:
-  landscape)")`**. Every layout rule keys off `data-orient`, so a pinned setting
-  survives turning the phone. There must be **no `@media (orientation: …)`
-  anywhere in the CSS** — that would flip the layout behind the user's choice,
-  and `validate-responsive.mjs` fails the build if one appears.
+- **Portrait/landscape is per game, not the accelerometer.**
+  `state/orientation.ts` (pure) owns the decision: `resolveLayout()` takes the
+  game's pin (`useSettings.gameOrientation[id]`) → the app-wide
+  `useSettings.orientation` → **`logicalOrientation(id)`** → and only with *no*
+  game open, the device. `state/activeGame.ts` holds which game is on screen
+  (`useActiveGame(id)`, called by the 8 game screens); `App.tsx` is the single
+  writer of `<html data-orient>`. The nav's `LayoutToggle` pins the current game.
+  - `logicalOrientation` is derived, not tabled: a board game answers from its
+    own geometry — **square board → `landscape`** (it's height-bound on a wide
+    screen, so the spare width takes the panel), **wide board → `portrait`** (the
+    board wants that width). Cards: only the seven-column tables are `portrait`.
+  - There must be **no `@media (orientation: …)` in the CSS** — that would flip
+    the layout behind the user's choice. `validate-responsive.mjs` fails on one;
+    `validate-orientation.mjs` proves the device can't change a game's layout in
+    any pin state (56 games × 4 pins × 3 globals).
+- **Boards are capped on both axes.** `--board-max: min(100%, calc((100dvh -
+  <chrome>) / 1.12))` — width-only caps let boards spill off short screens *and*
+  kept them at 560px when there was room. The `/1.12` is `.board3d-scene`'s
+  `padding-top`.
+- **`touch-action: none` on the board surface** (`.board3d`, `.gboard3d`,
+  `.gpoints__svg`). `manipulation` still hands drags/pinches to the browser, so
+  touching a piece scrolled the page instead of moving it. Everything else keeps
+  `manipulation`.
 - **It is imported LAST in `main.tsx`** (below `App`, below `global.css`) because
   most of its rules beat the per-page sheets on source order, not specificity.
   `scripts/validate-responsive.mjs` greps the built CSS and fails if that order

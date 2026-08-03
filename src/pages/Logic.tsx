@@ -26,11 +26,13 @@ import { Bridges } from "../logic/ui/Bridges";
 import { Tents } from "../logic/ui/Tents";
 import { Numberlink } from "../logic/ui/Numberlink";
 import { LOGIC_PUZZLES as PUZZLES } from "../logic/registry";
+import { useActiveGame } from "../state/activeGame";
 import "../logic/ui/Logic.css";
 
 export function Logic() {
   const [id, setId] = useState<string | null>(null);
   const exit = () => setId(null);
+  useActiveGame(id);
 
   if (id) {
     return (
