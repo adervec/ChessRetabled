@@ -19,11 +19,13 @@ import { Scopa } from "../cards/games/scopa/Scopa";
 import { Cribbage } from "../cards/games/cribbage/Cribbage";
 import { Durak } from "../cards/games/durak/Durak";
 import { Euchre } from "../cards/games/euchre/Euchre";
+import { useActiveGame } from "../state/activeGame";
 import "./Cards.css";
 
 export function Cards() {
   const [gameId, setGameId] = useState<string | null>(null);
   const exit = () => setGameId(null);
+  useActiveGame(gameId);
 
   if (gameId) {
     return (

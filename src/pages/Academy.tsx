@@ -6,6 +6,7 @@ import { getGame } from "../games/registry";
 import type { GLesson, GLessonStep } from "../games/learn/types";
 import type { GameDefinition } from "../games/core/types";
 import { useProgress } from "../state/useProgress";
+import { useActiveGame } from "../state/activeGame";
 import "./Academy.css";
 
 const lessonKey = (gameId: string, lessonId: string) => `g:${gameId}:${lessonId}`;
@@ -18,6 +19,7 @@ type View =
 export function Academy() {
   const [view, setView] = useState<View>({ mode: "paths" });
   const lessons = useProgress((s) => s.lessons);
+  useActiveGame(view.mode === "lesson" ? view.gameId : null);
 
   if (view.mode === "lesson") {
     const path = getPath(view.gameId)!;

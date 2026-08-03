@@ -1,10 +1,10 @@
 # ♞ ChessRetabled
 
-A **cel-shaded chess club** in the browser. Play smart bots, climb an interactive
-lesson curriculum, and crack tactics puzzles — all on a 2.5D board that pops off
-the table.
+A **cel-shaded games room** in the browser: chess against real engines, twelve
+board games, a card room, and a lab full of logic puzzles — **56 games in all**,
+on 2.5D boards that pop off the table. No accounts, no servers, works offline.
 
-![mode: Play • Puzzles • Learn • Practice](https://img.shields.io/badge/modes-Play%20%C2%B7%20Puzzles%20%C2%B7%20Learn%20%C2%B7%20Practice-9b6bff)
+![wings: Chess • Board games • Card room • Logic Lab](https://img.shields.io/badge/wings-Chess%20%C2%B7%20Board%20%C2%B7%20Cards%20%C2%B7%20Logic-9b6bff)
 
 ## Features
 
@@ -31,9 +31,12 @@ the table.
 - **📐 Phone and desktop** — the layout follows the screen and the controls
   follow the pointer: bigger tap targets and no stuck hover states on a
   touchscreen, card tables that shrink to fit, safe-area padding around notches,
-  and pinch-zoom left enabled. **Portrait or landscape is a setting, not the
-  accelerometer** — pick one in Settings → Layout and turning the phone won't
-  rearrange the board mid-game (Auto still follows the device if you want it to).
+  and pinch-zoom left enabled. Boards are sized to fit the screen you actually
+  have — both dimensions of it — and a touch on the board moves a piece instead
+  of scrolling the page. **Portrait or landscape is remembered per game, not read
+  off the accelerometer**: every game starts in the arrangement that suits its
+  board, one tap in the bar pins the other, and turning the phone never
+  rearranges a game you're in the middle of.
 - **🎭 Player archetype** — the dashboard reads your archive and names your play
   style (The Explorer, The Specialist, The Card Sharp, …) with the evidence.
 - **🧑‍🏫 AI Coach** — one click builds a *coaching brief* from your local stats

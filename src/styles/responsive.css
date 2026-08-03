@@ -18,6 +18,17 @@ a,
   touch-action: manipulation;
 }
 
+/* On the board surface itself, none. "manipulation" still hands drags and
+   pinches to the browser, which is why touching a piece scrolled or zoomed the
+   page instead of moving it: the gesture was gone before the tap resolved. The
+   board is sized to fit the viewport (below), so nothing is lost by refusing to
+   scroll from it — and the rest of the page still scrolls and zooms normally. */
+.board3d,
+.gboard3d,
+.gpoints__svg {
+  touch-action: none;
+}
+
 /* A hover lift is a cursor affordance. On a touchscreen :hover latches onto the
    last thing tapped, so the card or tile stays raised until you tap elsewhere. */
 @media (hover: none) {
@@ -119,6 +130,14 @@ a,
   }
 }
 
+/* On a phone the bar carries the mark, the level/streak chips, the layout pin
+   and the menu — the wordmark is the one thing that can go. */
+@media (max-width: 520px) {
+  .nav__brand .toon-title {
+    display: none;
+  }
+}
+
 @media (max-width: 460px) {
   .cardtable {
     --card-scale: 0.7;
@@ -148,15 +167,36 @@ a,
 
 /* ---------- portrait vs landscape ---------- */
 
-/* Which one you get is the `orientation` setting, NOT the accelerometer: App.tsx
-   resolves auto|portrait|landscape onto <html data-orient>, and only "auto"
-   subscribes to the device. Pin it and turning the phone changes nothing.
-   Portrait needs no layout rules — it is what the width breakpoints in the page
+/* Which one you get is a decision, NOT the accelerometer. state/orientation.ts
+   resolves it — the game's own pin, then the app-wide setting, then that game's
+   logical default, and only with nothing open at all, the device — and App.tsx
+   writes the answer to <html data-orient>. Turning the phone never rearranges a
+   game you are in the middle of.
+   Portrait needs no layout rules: it is what the width breakpoints in the page
    sheets already do. */
 
+/* A board must fit BOTH axes. Capping only the width is what let boards run off
+   the bottom of a phone, and the fixed 560px cap is what kept them small when
+   there was room to spare. One rule does both: take the width available, but
+   never more height than there is. The /1.12 covers .board3d-scene's padding-top,
+   which sits on top of the square. */
 @media (max-width: 900px) {
-  /* Landscape: the width breakpoints stack board-above-panel, which pushes the
-     board off a short screen. Put the panel back beside it. */
+  :root[data-orient="portrait"] .board3d-scene,
+  :root[data-orient="portrait"] .gboard-scene,
+  :root[data-orient="portrait"] .gpoints {
+    --board-max: min(100%, calc((100dvh - 210px) / 1.12));
+  }
+  :root[data-orient="landscape"] .board3d-scene,
+  :root[data-orient="landscape"] .gboard-scene,
+  :root[data-orient="landscape"] .gpoints {
+    --board-max: min(100%, calc((100dvh - 96px) / 1.12));
+  }
+}
+
+/* The landscape arrangement needs width to be worth having: below ~560px a side
+   panel would leave the board a sliver, so a landscape-pinned game still stacks
+   until the device is actually turned. */
+@media (max-width: 900px) and (min-width: 560px) {
   :root[data-orient="landscape"] .game,
   :root[data-orient="landscape"] .drill,
   :root[data-orient="landscape"] .puz,
@@ -174,18 +214,18 @@ a,
   }
 }
 
-/* The one rule about the window rather than the setting: on a short viewport the
-   board has to be sized by height or you scroll to see your own back rank. Both
-   layouts need it, because portrait can be pinned on a phone lying sideways. */
+/* Short viewport, any width — a laptop with the window squashed, or a phone on
+   its side. The board is height-bound here whatever the arrangement, and in the
+   landscape one it also has to leave room for the panel beside it. */
 @media (max-height: 620px) {
   :root[data-orient="landscape"] .board3d-scene,
   :root[data-orient="landscape"] .gboard-scene,
   :root[data-orient="landscape"] .gpoints {
-    --board-max: min(62vh, 58vw);
+    --board-max: min(62vw, calc((100dvh - 96px) / 1.12));
   }
   :root[data-orient="portrait"] .board3d-scene,
   :root[data-orient="portrait"] .gboard-scene,
   :root[data-orient="portrait"] .gpoints {
-    --board-max: min(560px, 78vh);
+    --board-max: min(100%, calc((100dvh - 150px) / 1.12));
   }
 }

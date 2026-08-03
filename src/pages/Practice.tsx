@@ -7,8 +7,10 @@ import { DRILLS, type Drill } from "../content/drills";
 import type { Bot } from "../content/bots";
 import { useProgress } from "../state/useProgress";
 import "./Practice.css";
+import { useActiveGame } from "../state/activeGame";
 
 export function Practice() {
+  useActiveGame("chess");
   const [drill, setDrill] = useState<Drill | null>(null);
   const [runKey, setRunKey] = useState(0);
   const drills = useProgress((s) => s.drills);

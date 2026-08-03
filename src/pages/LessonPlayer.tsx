@@ -14,8 +14,10 @@ import {
 import { getLesson, type Course, type Lesson } from "../content/lessons";
 import { useProgress } from "../state/useProgress";
 import "./LessonPlayer.css";
+import { useActiveGame } from "../state/activeGame";
 
 export function LessonPlayer() {
+  useActiveGame("chess");
   const { courseId, lessonId } = useParams();
   const found = getLesson(courseId ?? "", lessonId ?? "");
   if (!found) {

@@ -11,6 +11,7 @@ import {
 } from "../content/puzzles";
 import { useProgress } from "../state/useProgress";
 import "./Puzzles.css";
+import { useActiveGame } from "../state/activeGame";
 
 function ratingDelta(user: number, puzzle: number, solved: boolean): number {
   const expected = 1 / (1 + Math.pow(10, (puzzle - user) / 400));
@@ -22,6 +23,7 @@ type Session =
   | { kind: "theme"; theme: string };
 
 export function Puzzles() {
+  useActiveGame("chess");
   const [session, setSession] = useState<Session | null>(null);
 
   if (!session) {

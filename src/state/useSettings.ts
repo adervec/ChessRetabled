@@ -15,14 +15,8 @@ export const ORIENTATIONS: { id: OrientationId; name: string; icon: string }[] =
   { id: "landscape", name: "Landscape", icon: "🖥" },
 ];
 
-/** What <html data-orient> should be. Only "auto" defers to the device. */
-export function effectiveOrientation(
-  setting: OrientationId,
-  deviceIsLandscape: boolean
-): "portrait" | "landscape" {
-  if (setting !== "auto") return setting;
-  return deviceIsLandscape ? "landscape" : "portrait";
-}
+// Resolution (per-game pin → global → the game's logical default → device) lives
+// in state/orientation.ts, which is pure so it can be validated headlessly.
 
 export const THEMES: { id: ThemeId; name: string; swatch: string[] }[] = [
   { id: "dusk", name: "Dusk", swatch: ["#1e1640", "#9b6bff", "#44e0a4", "#ffce4f"] },
@@ -61,8 +55,10 @@ export type SettingsState = {
   animSpeed: AnimSpeedId;
   /** Tilt the 2.5D boards, or render them flat. */
   boardTilt: boolean;
-  /** Small-screen layout. Pin it to stop the layout flipping when the phone turns. */
+  /** App-wide layout fallback, used where no game is open or pinned. */
   orientation: OrientationId;
+  /** Per-game layout pins, keyed by catalogue id. Unset = the game's own default. */
+  gameOrientation: Record<string, OrientationId>;
   /** Synthesised move/win/UI cues (state/sfx.ts). */
   sound: boolean;
   /** 0–1, applied on top of the pack's own master trim. */
@@ -71,6 +67,7 @@ export type SettingsState = {
   setAnimSpeed: (s: AnimSpeedId) => void;
   setBoardTilt: (v: boolean) => void;
   setOrientation: (o: OrientationId) => void;
+  setGameOrientation: (gameId: string, o: OrientationId) => void;
   setSound: (v: boolean) => void;
   setVolume: (v: number) => void;
 };
@@ -82,12 +79,15 @@ export const useSettings = create<SettingsState>()(
       animSpeed: "normal",
       boardTilt: true,
       orientation: "auto",
+      gameOrientation: {},
       sound: true,
       volume: 0.6,
       setTheme: (theme) => set({ theme }),
       setAnimSpeed: (animSpeed) => set({ animSpeed }),
       setBoardTilt: (boardTilt) => set({ boardTilt }),
       setOrientation: (orientation) => set({ orientation }),
+      setGameOrientation: (gameId, o) =>
+        set((s) => ({ gameOrientation: { ...s.gameOrientation, [gameId]: o } })),
       setSound: (sound) => set({ sound }),
       setVolume: (volume) => set({ volume: Math.min(1, Math.max(0, volume)) }),
     }),
