@@ -20,6 +20,7 @@ import { Academy } from "./pages/Academy";
 import { Practice } from "./pages/Practice";
 import { Dashboard } from "./pages/Dashboard";
 import { Coach } from "./pages/Coach";
+import { Review } from "./pages/Review";
 import { Guide, GuideEntry } from "./pages/Guide";
 import { Profile } from "./pages/Profile";
 
@@ -84,6 +85,7 @@ export default function App() {
           <Route path="/practice" element={<Practice />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/coach" element={<Coach />} />
+          <Route path="/review" element={<Review />} />
           <Route path="/guide" element={<Guide />} />
           <Route path="/guide/:id" element={<GuideEntry />} />
           <Route path="/profile" element={<Profile />} />

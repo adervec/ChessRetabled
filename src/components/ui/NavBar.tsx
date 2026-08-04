@@ -34,6 +34,7 @@ const LINKS = [
   { to: "/learn", label: "Learn", ico: "🎓" },
   { to: "/academy", label: "Academy", ico: "📚" },
   { to: "/practice", label: "Practice", ico: "🎯" },
+  { to: "/review", label: "Review", ico: "🔍" },
   { to: "/dashboard", label: "Dashboard", ico: "📊" },
   { to: "/coach", label: "Coach", ico: "🧑‍🏫" },
   { to: "/guide", label: "Guides", ico: "📖" },

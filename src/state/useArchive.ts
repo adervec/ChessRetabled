@@ -47,12 +47,14 @@ export type ArchiveState = {
   records: GameRecord[];
   add: (r: GameRecord) => void;
   remove: (id: string) => void;
+  /** Drop every record matching a predicate — one game, one category, a date range. */
+  removeWhere: (pred: (r: GameRecord) => boolean) => number;
   clear: () => void;
 };
 
 export const useArchive = create<ArchiveState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       records: [],
       add: (r) => {
         // Every mode logs here when a game finishes, so this is the one place
@@ -63,6 +65,11 @@ export const useArchive = create<ArchiveState>()(
         set((s) => ({ records: [r, ...s.records].slice(0, MAX_RECORDS) }));
       },
       remove: (id) => set((s) => ({ records: s.records.filter((x) => x.id !== id) })),
+      removeWhere: (pred) => {
+        const before = get().records.length;
+        set((s) => ({ records: s.records.filter((r) => !pred(r)) }));
+        return before - get().records.length;
+      },
       clear: () => set({ records: [] }),
     }),
     { name: "chessretabled.archive.v1" }
