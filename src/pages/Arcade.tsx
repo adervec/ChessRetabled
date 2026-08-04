@@ -7,6 +7,7 @@ import type { Difficulty, GameDefinition, Player } from "../games/core/types";
 import { useArchive, newId } from "../state/useArchive";
 import { useProgress } from "../state/useProgress";
 import { useActiveGame } from "../state/activeGame";
+import { useGameSession } from "../state/useGameSession";
 import "./Arcade.css";
 
 type Setup = { difficulty: Difficulty; humanPlayer: Player; key: number };
@@ -162,6 +163,18 @@ function GameScreen({
   onExit: () => void;
 }) {
   const game = useGenericGame(def, humanPlayer, difficulty);
+  // Keeps this game in the bottom bar until it resolves, so closing the tab
+  // mid-game no longer loses it silently.
+  useGameSession({
+    gameId: def.id,
+    gameName: def.name,
+    icon: def.icon,
+    route: "/games",
+    moveCount: game.moveLog.length,
+    over: game.status.over,
+    assisted: game.hintUsed,
+    resume: { moves: game.moveLog, setup: { difficulty: difficulty.id, humanPlayer } },
+  });
   const aiPlayer: Player = humanPlayer === 0 ? 1 : 0;
   const { status } = game;
 

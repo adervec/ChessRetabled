@@ -252,6 +252,44 @@ opponent-based games. Same discipline — pure logic in `.ts`, verified headless
   covered by `validate-stats.mjs` (archetype totality fuzz + brief
   no-`undefined` smoke).
 
+## Review, sessions & the abandon policy
+
+- **`/review` (`pages/Review.tsx`) is the only place games are looked at again.**
+  Two tabs: your archive (filter by category/game; delete one match, one game,
+  one category or everything) and the seeded library.
+- **`src/review/` rates moves on one scale everywhere: the share of winning
+  chances given up (0–1), turned into a verdict by `rate.ts`.**
+  - chess → engine eval before/after each ply through the logistic in
+    `winChance`; a second search only on bad moves, to say what was better.
+  - board → **the game's own engine at full strength is the referee**
+    (`refereeFor`). Three attempts to get here: a private depth-2 search called
+    the shipped AI's own Reversi openings blunders; depth-5 cost 4m26s and still
+    disagreed on Hex/LOA. Judging a player with a weaker judge is the bug, and
+    chess-calibrated thresholds don't transfer to a differently scaled quantity.
+    Don't reintroduce a bespoke search here.
+  - logic → each entry vs the generator's unique solution (`useSolveLog`).
+  - cards → refused on purpose: hidden deal, so per-move verdicts are guesswork.
+- **`state/cowork.ts`** builds the markdown brief (copy / download / take to
+  Coach). Pure string building — nothing leaves the device unless the user sends it.
+- **`content/famous.ts`** is the library; `validate-famous.mjs` replays every
+  chess move list through chess.js and confirms claimed mates, so a mistyped SAN
+  fails the build. Non-chess entries are `kind: "note"` — solved-game results and
+  theory, not invented games.
+- **Sessions (`state/useSessions.ts`)**: an unfinished game is written as you
+  play and offered back by the bottom bar (`components/ui/SessionBar.tsx`).
+  **Device-local on purpose** — absent from `dataTransfer.ts` and the cloud
+  bundle, because a half-finished game is a fact about this device; only the
+  resolved record syncs. `useGameSession` is the one-line wiring (chess + the 12
+  board games; cards/logic keep state inside each component).
+- **`state/abandon.ts`** decides what leaving costs: under 4 moves *and* 90s it
+  is a misclick and nothing is recorded; a solo puzzle is logged `abandoned`,
+  never a loss (or the solo win rate means nothing); a versus game you were
+  actually playing is a resignation. Covered by `validate-sessions.mjs`.
+- **Academy absorbed Learn.** `/learn` redirects to `/academy`, which lists the
+  chess curriculum and the game paths together. `/learn/:courseId/:lessonId`
+  still serves the player. `/puzzles` points at the Logic Lab, the board-game
+  challenges and the drills, so "puzzles" means all of them.
+
 ## Brand & landing page
 
 - **The mark is `<category icon>Retabled`**, not a knight: `NavBar.brandIcon()`

@@ -134,3 +134,18 @@
     position: static;
   }
 }
+
+/* Pointers to the other kinds of puzzle in the app — the Logic Lab, the board
+   games' challenge positions, and the endgame drills. */
+.puz__wings { margin-top: 30px; }
+.puz__wings-h2 { font-family: var(--font-display); font-size: 1.25rem; margin-bottom: 12px; }
+.puz__wings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+.puz__wing {
+  display: flex; flex-direction: column; gap: 5px; padding: 16px;
+  border: var(--outline); border-radius: var(--radius-m);
+  background: var(--surface); box-shadow: var(--shadow-sticker-sm); color: inherit;
+}
+.puz__wing:hover { transform: translateY(-3px); }
+.puz__wing-ico { font-size: 1.8rem; line-height: 1; }
+.puz__wing-name { font-family: var(--font-display); font-weight: 700; }
+.puz__wing-sub { font-size: 0.85rem; color: var(--text-muted); line-height: 1.45; }

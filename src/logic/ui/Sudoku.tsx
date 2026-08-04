@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { generate, conflicts, type Grid, type Puzzle } from "../sudoku";
 import { randomSeed } from "../../cards/core/rng";
 import { useArchive, newId } from "../../state/useArchive";
+import { useSolveLog } from "./useSolveLog";
 import "./Logic.css";
 
 type Diff = "easy" | "medium" | "hard";
@@ -15,6 +16,7 @@ export function Sudoku({ onExit }: { onExit: () => void }) {
   const [hintCell, setHintCell] = useState<number | null>(null);
   const [hintUsed, setHintUsed] = useState(false);
   const addRecord = useArchive((a) => a.add);
+  const log = useSolveLog();
   const recordedRef = useRef(false);
   const startedRef = useRef(new Date().toISOString());
 
@@ -28,6 +30,7 @@ export function Sudoku({ onExit }: { onExit: () => void }) {
     startedRef.current = new Date().toISOString();
     setPuzzle(p);
     setCells(p.puzzle.slice());
+    log.reset();
     setSel(null);
     setHintCell(null);
     setHintUsed(false);
@@ -40,16 +43,17 @@ export function Sudoku({ onExit }: { onExit: () => void }) {
       id: newId(), gameId: "sudoku", gameName: "Sudoku",
       startedISO: startedRef.current, endedISO: new Date().toISOString(),
       outcome: "win", humanSide: "solo", opponent: `Sudoku · ${diff}`,
-      moveCount: cells.filter((v) => v !== 0).length, moves: [], reason: `Solved (${diff})`,
+      moveCount: cells.filter((v) => v !== 0).length, moves: log.events(), reason: `Solved (${diff})`,
       assisted: hintUsed || undefined,
     });
-  }, [won, diff, cells, hintUsed, addRecord]);
+  }, [won, diff, cells, hintUsed, addRecord, log]);
 
   const place = (n: number) => {
     if (sel === null || puzzle.givens[sel]) return;
     setCells((c) => {
       const next = c.slice();
       next[sel] = next[sel] === n ? 0 : n;
+      log.record(sel, next[sel], puzzle.solution[sel]);
       return next;
     });
   };
@@ -60,6 +64,7 @@ export function Sudoku({ onExit }: { onExit: () => void }) {
     if (hintCell !== null) {
       const t = hintCell;
       setCells((c) => c.map((v, k) => (k === t ? puzzle.solution[t] : v)));
+      log.record(t, puzzle.solution[t], puzzle.solution[t], { hint: true });
       setHintCell(null);
       return;
     }

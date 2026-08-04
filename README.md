@@ -19,7 +19,7 @@ on 2.5D boards that pop off the table. No accounts, no servers, works offline.
   tactical motifs) with rated training, themed sets, hints, and a personal
   puzzle rating. Every solution is *derived and verified* with chess.js, so the
   content is correct by construction.
-- **🎓 Lessons** — **5 courses / 16 interactive lessons** from "how the knight
+- **🎓 Academy** — one place to be taught anything: the chess curriculum and a learning path for every other game. **Courses / interactive lessons** from "how the knight
   moves" to endgame technique, mixing explanation with hands-on guided moves.
 - **🎯 Practice Arena** — endgame drills (K+Q vs K, K+R vs K, two rooks, king &
   pawn, back-rank) played against the engine, with success/stalemate detection.
@@ -37,6 +37,23 @@ on 2.5D boards that pop off the table. No accounts, no servers, works offline.
   off the accelerometer**: every game starts in the arrangement that suits its
   board, one tap in the bar pins the other, and turning the phone never
   rearranges a game you're in the middle of.
+- **🔍 Review everything you play** — a single review area, not a history screen
+  per mode. Any finished game with a move list is replayed and marked move by
+  move: chess against the engine's own evaluation, board games against the very
+  AI you just played, logic puzzles against the unique solution their generator
+  proved. Delete one game, one category, or the lot. And a library of famous
+  games with context — the Opera Game, the Immortal, Fischer at thirteen — plus
+  the results worth knowing for the other wings (checkers is a draw; Connect Four
+  is a first-player win, but only from the middle).
+- **🤝 Cowork sync** — one click builds a full markdown brief of a reviewed game:
+  every move, its verdict, what it cost, where it turned. Hand it to Claude,
+  Cowork or any assistant for the coaching a number can't give you. It stays on
+  your device unless you send it.
+- **⏸ Nothing gets lost** — unfinished games live in a bar along the bottom and
+  survive a reload, so closing the app mid-game no longer throws it away. Leaving
+  is deliberate: under four moves it's a misclick and nothing is recorded, an
+  unfinished puzzle is logged as unfinished rather than a defeat, and walking out
+  of a real game is a resignation.
 - **🎭 Player archetype** — the dashboard reads your archive and names your play
   style (The Explorer, The Specialist, The Card Sharp, …) with the evidence.
 - **🧑‍🏫 AI Coach** — one click builds a *coaching brief* from your local stats
