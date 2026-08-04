@@ -112,3 +112,10 @@
   justify-content: space-between;
   margin-top: 16px;
 }
+
+/* Section heads for the merged Academy (chess curriculum + game paths). */
+.academy__h2 {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  margin: 26px 0 12px;
+}

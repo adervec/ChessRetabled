@@ -1,0 +1,102 @@
+/* Fixed to the bottom, above the safe-area inset so it clears a home indicator. */
+.sessionbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px clamp(10px, 3vw, 22px);
+  padding-bottom: calc(8px + env(safe-area-inset-bottom));
+  background: linear-gradient(0deg, var(--bg-2), var(--bg-1));
+  border-top: var(--outline);
+  box-shadow: 0 -6px 0 -3px var(--ink), 0 -10px 30px -10px rgba(0, 0, 0, 0.6);
+}
+.sessionbar__lbl {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+.sessionbar__items {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  min-width: 0;
+}
+.sessionbar__item {
+  display: flex;
+  align-items: stretch;
+  border: var(--outline);
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.sessionbar__resume {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 12px;
+  background: none;
+  border: 0;
+  color: var(--text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.sessionbar__resume:hover { background: var(--surface-raised); }
+.sessionbar__moves {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: var(--radius-pill);
+  padding: 1px 7px;
+}
+.sessionbar__drop {
+  border: 0;
+  border-left: var(--outline);
+  background: none;
+  color: var(--text-muted);
+  padding: 0 10px;
+  cursor: pointer;
+}
+.sessionbar__drop:hover { background: var(--coral); color: var(--text-on-light); }
+
+/* Leave room so the bar never sits on top of the last thing on the page. */
+body:has(.sessionbar) .page { padding-bottom: 120px; }
+
+.sessionbar__scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: grid;
+  place-items: center;
+  background: rgba(12, 8, 24, 0.72);
+  padding: 16px;
+}
+.sessionbar__dialog {
+  max-width: 420px;
+  padding: 22px;
+  border: var(--outline);
+  border-radius: var(--radius-l);
+  background: var(--surface-raised);
+  box-shadow: var(--shadow-pop);
+}
+.sessionbar__dialog h3 { font-family: var(--font-display); margin: 0 0 8px; }
+.sessionbar__dialog-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 520px) {
+  .sessionbar__lbl { display: none; }
+  .sessionbar__name { max-width: 92px; overflow: hidden; text-overflow: ellipsis; }
+}

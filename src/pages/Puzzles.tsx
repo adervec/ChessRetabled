@@ -11,6 +11,9 @@ import {
 } from "../content/puzzles";
 import { useProgress } from "../state/useProgress";
 import "./Puzzles.css";
+import { Link } from "react-router-dom";
+import { LOGIC_PUZZLES } from "../logic/registry";
+import { LEARN_PATHS } from "../games/learn/paths";
 import { useActiveGame } from "../state/activeGame";
 
 function ratingDelta(user: number, puzzle: number, solved: boolean): number {
@@ -106,6 +109,8 @@ function PuzzleHub({
           </button>
         ))}
       </div>
+
+      <PuzzleWings />
     </div>
   );
 }
@@ -272,5 +277,49 @@ function PuzzleView({
         />
       )}
     </div>
+  );
+}
+
+/**
+ * Puzzles are not only a chess thing: the Logic Lab is nothing but puzzles, and
+ * every board game has a set of solvable challenge positions in the Academy.
+ * They used to be three unrelated corners of the app; this points at all of them
+ * from the one place people look.
+ */
+export function PuzzleWings() {
+  const challenges = LEARN_PATHS.reduce(
+    (n, p) => n + p.lessons.reduce((k, l) => k + l.steps.filter((st) => st.kind === "challenge").length, 0),
+    0
+  );
+  return (
+    <section className="puz__wings">
+      <h2 className="puz__wings-h2">More puzzles</h2>
+      <div className="puz__wings-grid">
+        <Link className="puz__wing" to="/logic">
+          <span className="puz__wing-ico" aria-hidden>💡</span>
+          <span className="puz__wing-name">Logic Lab</span>
+          <span className="puz__wing-sub">
+            {LOGIC_PUZZLES.length} kinds of deduction puzzle, each generated with a
+            single provable solution.
+          </span>
+        </Link>
+        <Link className="puz__wing" to="/academy">
+          <span className="puz__wing-ico" aria-hidden>🎲</span>
+          <span className="puz__wing-name">Board-game challenges</span>
+          <span className="puz__wing-sub">
+            {challenges} set positions across the twelve games — find the move that
+            wins, in the Academy.
+          </span>
+        </Link>
+        <Link className="puz__wing" to="/practice">
+          <span className="puz__wing-ico" aria-hidden>🎯</span>
+          <span className="puz__wing-name">Endgame drills</span>
+          <span className="puz__wing-sub">
+            Technique you either know or don't: king and rook, back rank, king and
+            pawn.
+          </span>
+        </Link>
+      </div>
+    </section>
   );
 }

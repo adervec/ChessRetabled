@@ -14,13 +14,13 @@ import { Simul } from "./pages/Simul";
 import { Cards } from "./pages/Cards";
 import { Logic } from "./pages/Logic";
 import { Puzzles } from "./pages/Puzzles";
-import { Learn } from "./pages/Learn";
 import { LessonPlayer } from "./pages/LessonPlayer";
 import { Academy } from "./pages/Academy";
 import { Practice } from "./pages/Practice";
 import { Dashboard } from "./pages/Dashboard";
 import { Coach } from "./pages/Coach";
 import { Review } from "./pages/Review";
+import { SessionBar } from "./components/ui/SessionBar";
 import { Guide, GuideEntry } from "./pages/Guide";
 import { Profile } from "./pages/Profile";
 
@@ -79,7 +79,8 @@ export default function App() {
           <Route path="/cards" element={<Cards />} />
           <Route path="/logic" element={<Logic />} />
           <Route path="/puzzles" element={<Puzzles />} />
-          <Route path="/learn" element={<Learn />} />
+          {/* Learn folded into the Academy — one place to be taught anything. */}
+          <Route path="/learn" element={<Navigate to="/academy" replace />} />
           <Route path="/learn/:courseId/:lessonId" element={<LessonPlayer />} />
           <Route path="/academy" element={<Academy />} />
           <Route path="/practice" element={<Practice />} />
@@ -92,6 +93,7 @@ export default function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
+      <SessionBar />
     </div>
   );
 }

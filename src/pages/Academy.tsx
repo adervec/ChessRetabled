@@ -5,6 +5,8 @@ import { GameBoard } from "../games/ui/GameBoard";
 import { getGame } from "../games/registry";
 import type { GLesson, GLessonStep } from "../games/learn/types";
 import type { GameDefinition } from "../games/core/types";
+import { Link } from "react-router-dom";
+import { COURSES } from "../content/lessons";
 import { useProgress } from "../state/useProgress";
 import { useActiveGame } from "../state/activeGame";
 import "./Academy.css";
@@ -75,12 +77,32 @@ export function Academy() {
   return (
     <div className="page">
       <header className="arcade__head">
-        <h1 className="arcade__title">Games Academy</h1>
+        <h1 className="arcade__title">Academy</h1>
         <p className="arcade__sub">
-          Complete learning paths for every game — rules, tactics, and strategy,
-          with hands-on challenges.
+          Everything the app can teach you, in one place — the chess curriculum
+          and a learning path for every other game, all rules, tactics and
+          strategy with hands-on challenges.
         </p>
       </header>
+
+      <h2 className="academy__h2">♟ Chess curriculum</h2>
+      <div className="academy__grid">
+        {COURSES.map((c) => {
+          const done = c.lessons.filter((l) => lessons[l.id]?.completed).length;
+          return (
+            <Link key={c.id} className="academy-card" to={`/learn/${c.id}/${c.lessons[0]?.id ?? ""}`}>
+              <span className="academy-card__icon">{c.icon}</span>
+              <span className="academy-card__name">{c.title}</span>
+              <span className="academy-card__tag">{c.level} · {c.description}</span>
+              <span className="academy-card__progress">
+                {done}/{c.lessons.length} lessons
+              </span>
+            </Link>
+          );
+        })}
+      </div>
+
+      <h2 className="academy__h2">🎲 Game paths</h2>
       <div className="academy__grid">
         {LEARN_PATHS.map((p) => {
           const def = getGame(p.gameId)!;

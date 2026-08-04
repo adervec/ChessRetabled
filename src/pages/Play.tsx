@@ -15,6 +15,7 @@ import { PIECE_VALUE, START_FEN, type Color } from "../chess/types";
 import type { Bot } from "../content/bots";
 import "./Play.css";
 import { useActiveGame } from "../state/activeGame";
+import { useGameSession } from "../state/useGameSession";
 
 type Setup = { bot: Bot; color: Color; key: number };
 
@@ -67,6 +68,17 @@ function BotGame({
   onNewOpponent: () => void;
 }) {
   const g = useBotGame(bot, humanColor);
+  // Survives a reload: the bottom bar offers this game back until it resolves.
+  useGameSession({
+    gameId: "chess",
+    gameName: "Chess",
+    icon: "♟",
+    route: "/play",
+    moveCount: g.history.length,
+    over: g.result.over,
+    assisted: g.hintUsed,
+    resume: { san: g.history.map((m) => m.san), setup: { bot: bot.id, colour: humanColor } },
+  });
   const recordGame = useProgress((s) => s.recordGame);
   const addRecord = useArchive((s) => s.add);
   const recordedRef = useRef(false);
