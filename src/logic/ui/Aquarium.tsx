@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { generate, counts, isSolved, type Puzzle } from "../aquarium";
 import { randomSeed } from "../../cards/core/rng";
 import { useArchive, newId } from "../../state/useArchive";
+import { useSolveTrace } from "./useSolveLog";
+import { useLogicSession } from "./useLogicSession";
 import "./Logic.css";
 
 const SIZE = 6;
@@ -10,6 +12,9 @@ export function Aquarium({ onExit }: { onExit: () => void }) {
   const [puzzle, setPuzzle] = useState<Puzzle>(() => generate(randomSeed(), SIZE));
   // water line per region: cells with row >= floodTop are water (default size = empty)
   const [floodTop, setFloodTop] = useState<Record<number, number>>({});
+  // One line catches every entry: the working array is watched for changes
+  // rather than each click handler being instrumented separately.
+  const trace = useSolveTrace(Object.values(floodTop), puzzle.solution);
   const [hintRegion, setHintRegion] = useState<number | null>(null);
   const [hintUsed, setHintUsed] = useState(false);
   const addRecord = useArchive((a) => a.add);
@@ -32,6 +37,9 @@ export function Aquarium({ onExit }: { onExit: () => void }) {
     setHintUsed(false);
   };
 
+  // Unfinished grids survive closing the app, and show up in the bottom bar.
+  useLogicSession("aquarium", trace.events().length, won);
+
   useEffect(() => {
     if (!won || recordedRef.current) return;
     recordedRef.current = true;
@@ -39,7 +47,7 @@ export function Aquarium({ onExit }: { onExit: () => void }) {
       id: newId(), gameId: "aquarium", gameName: "Aquarium",
       startedISO: startedRef.current, endedISO: new Date().toISOString(),
       outcome: "win", humanSide: "solo", opponent: "Aquarium",
-      moveCount: water.filter(Boolean).length, moves: [], reason: "Levels set",
+      moveCount: water.filter(Boolean).length, moves: trace.events(), reason: "Levels set",
       assisted: hintUsed || undefined,
     });
   }, [won, water, hintUsed, addRecord]);

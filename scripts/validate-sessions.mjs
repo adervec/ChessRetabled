@@ -13,6 +13,10 @@ import {
 } from "../src/state/abandon.ts";
 import { otherSessions } from "../src/state/useSessions.ts";
 import { CATALOG } from "../src/catalog.ts";
+import { GAMES } from "../src/games/registry.ts";
+import { chooseMove } from "../src/games/core/ai.ts";
+import { foldMoves } from "../src/games/core/replay.ts";
+import { Chess } from "chess.js";
 
 let checks = 0;
 let problems = 0;
@@ -102,6 +106,74 @@ check(otherSessions(list, "chess").length === 1, "the active game is hidden from
 check(otherSessions(list, "chess")[0].gameId === "hex", "the other game is still offered");
 check(otherSessions(list, null).length === 2, "with no game open, everything is offered");
 check(otherSessions([], "chess").length === 0, "no sessions, nothing to show");
+
+/* ---- resuming actually returns you to the position you left --------------
+   A bar that offers a game back and then hands you a fresh board would be worse
+   than no bar at all. */
+for (const def of GAMES) {
+  const diff = { ...def.difficulties[0], randomness: 0, timeMs: 40 };
+
+  // Play a real game, snapshotting the board after every move.
+  let live = def.initial();
+  const log = [];
+  const positions = [];
+  for (let i = 0; i < 8 && !def.status(live).over; i++) {
+    const { move } = chooseMove(def, live, diff);
+    if (!move) break;
+    log.push(move);
+    live = def.applyMove(live, move);
+    positions.push(JSON.stringify(def.cells(live)));
+  }
+  if (log.length === 0) continue;
+
+  // Resuming from the log must land on exactly the same board, at every point.
+  for (let n = 1; n <= log.length; n++) {
+    const r = foldMoves(def, log.slice(0, n));
+    check(r.applied.length === n, `${def.id}: resume applied ${r.applied.length}/${n} moves`);
+    check(!r.truncated, `${def.id}: resume truncated a log it had just produced`);
+    check(
+      JSON.stringify(def.cells(r.state)) === positions[n - 1],
+      `${def.id}: resumed position differs from the one played, after ${n} moves`
+    );
+  }
+
+  // A log the rules no longer accept stops cleanly instead of inventing a game.
+  const bad = foldMoves(def, [...log.slice(0, 2), { id: "not-a-real-move", to: -1 }]);
+  check(bad.truncated, `${def.id}: a corrupt log was not flagged as truncated`);
+  check(bad.applied.length === 2, `${def.id}: a corrupt log applied ${bad.applied.length} moves, expected 2`);
+
+  check(foldMoves(def, []).applied.length === 0, `${def.id}: an empty log applies nothing`);
+  check(
+    JSON.stringify(def.cells(foldMoves(def, undefined).state)) ===
+      JSON.stringify(def.cells(def.initial())),
+    `${def.id}: no log should give the opening position`
+  );
+}
+
+/* ---- chess resumes the same way, through SAN ----------------------------- */
+{
+  const played = new Chess();
+  const san = ["e4", "e5", "Nf3", "Nc6", "Bb5", "a6"];
+  for (const m of san) played.move(m);
+
+  const resumed = new Chess();
+  for (const m of san) resumed.move(m);
+  check(resumed.fen() === played.fen(), "chess: resumed position differs from the one played");
+  check(resumed.history().length === san.length, "chess: resumed history is short");
+
+  // An impossible move stops the replay rather than throwing at the player.
+  const partial = new Chess();
+  let stopped = 0;
+  for (const m of ["e4", "e5", "Qxf7", "Nf3"]) {
+    try {
+      if (!partial.move(m)) break;
+    } catch {
+      break;
+    }
+    stopped++;
+  }
+  check(stopped === 2, `chess: an illegal move should stop the replay at 2, stopped at ${stopped}`);
+}
 
 console.log(`\n[validate-sessions] catalogue=${CATALOG.length} checks=${checks} problems=${problems}`);
 if (problems > 0) process.exit(1);

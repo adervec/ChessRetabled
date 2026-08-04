@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { generate, isSolved, type Puzzle } from "../nurikabe";
 import { randomSeed } from "../../cards/core/rng";
 import { useArchive, newId } from "../../state/useArchive";
+import { useSolveTrace } from "./useSolveLog";
+import { useLogicSession } from "./useLogicSession";
 import "./Logic.css";
 
 const SIZE = 6;
@@ -9,6 +11,9 @@ const SIZE = 6;
 export function Nurikabe({ onExit }: { onExit: () => void }) {
   const [puzzle, setPuzzle] = useState<Puzzle>(() => generate(randomSeed(), SIZE, SIZE));
   const [sea, setSea] = useState<boolean[]>(() => new Array(SIZE * SIZE).fill(false));
+  // One line catches every entry: the working array is watched for changes
+  // rather than each click handler being instrumented separately.
+  const trace = useSolveTrace(sea, puzzle.solution);
   const [hintCell, setHintCell] = useState<number | null>(null);
   const [hintUsed, setHintUsed] = useState(false);
   const addRecord = useArchive((a) => a.add);
@@ -32,6 +37,9 @@ export function Nurikabe({ onExit }: { onExit: () => void }) {
     setHintUsed(false);
   };
 
+  // Unfinished grids survive closing the app, and show up in the bottom bar.
+  useLogicSession("nurikabe", trace.events().length, won);
+
   useEffect(() => {
     if (!won || recordedRef.current) return;
     recordedRef.current = true;
@@ -39,7 +47,7 @@ export function Nurikabe({ onExit }: { onExit: () => void }) {
       id: newId(), gameId: "nurikabe", gameName: "Nurikabe",
       startedISO: startedRef.current, endedISO: new Date().toISOString(),
       outcome: "win", humanSide: "solo", opponent: "Nurikabe",
-      moveCount: sea.filter(Boolean).length, moves: [], reason: "Sea shaded",
+      moveCount: sea.filter(Boolean).length, moves: trace.events(), reason: "Sea shaded",
       assisted: hintUsed || undefined,
     });
   }, [won, sea, hintUsed, addRecord]);

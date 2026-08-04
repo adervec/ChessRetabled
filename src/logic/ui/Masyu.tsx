@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { generate, isSolved, hSegCount, vSegCount, solutionEdges, WHITE, BLACK, type Puzzle } from "../masyu";
 import { randomSeed } from "../../cards/core/rng";
 import { useArchive, newId } from "../../state/useArchive";
+import { useSolveTrace } from "./useSolveLog";
+import { useLogicSession } from "./useLogicSession";
 import "./Logic.css";
 
 const ROWS = 6, COLS = 6;
@@ -9,6 +11,9 @@ const ROWS = 6, COLS = 6;
 export function Masyu({ onExit }: { onExit: () => void }) {
   const [puzzle, setPuzzle] = useState<Puzzle>(() => generate(randomSeed(), ROWS, COLS));
   const [h, setH] = useState<boolean[]>(() => new Array(hSegCount(ROWS, COLS)).fill(false));
+  // One line catches every entry: the working array is watched for changes
+  // rather than each click handler being instrumented separately.
+  const trace = useSolveTrace(h, undefined);
   const [v, setV] = useState<boolean[]>(() => new Array(vSegCount(ROWS, COLS)).fill(false));
   const [hintSeg, setHintSeg] = useState<{ dir: "h" | "v"; i: number } | null>(null);
   const [hintUsed, setHintUsed] = useState(false);
@@ -28,6 +33,9 @@ export function Masyu({ onExit }: { onExit: () => void }) {
     setHintUsed(false);
   };
 
+  // Unfinished grids survive closing the app, and show up in the bottom bar.
+  useLogicSession("masyu", trace.events().length, won);
+
   useEffect(() => {
     if (!won || recordedRef.current) return;
     recordedRef.current = true;
@@ -35,7 +43,7 @@ export function Masyu({ onExit }: { onExit: () => void }) {
       id: newId(), gameId: "masyu", gameName: "Masyu",
       startedISO: startedRef.current, endedISO: new Date().toISOString(),
       outcome: "win", humanSide: "solo", opponent: "Masyu",
-      moveCount: h.filter(Boolean).length + v.filter(Boolean).length, moves: [], reason: "Loop closed",
+      moveCount: h.filter(Boolean).length + v.filter(Boolean).length, moves: trace.events(), reason: "Loop closed",
       assisted: hintUsed || undefined,
     });
   }, [won, h, v, hintUsed, addRecord]);

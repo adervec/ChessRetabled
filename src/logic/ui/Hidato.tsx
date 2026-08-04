@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { generate, conflicts, isSolved, type Puzzle, type Grid } from "../hidato";
 import { randomSeed } from "../../cards/core/rng";
 import { useArchive, newId } from "../../state/useArchive";
+import { useSolveTrace } from "./useSolveLog";
+import { useLogicSession } from "./useLogicSession";
 import "./Logic.css";
 
 const SIZE = 6;
@@ -10,6 +12,9 @@ const N = SIZE * SIZE;
 export function Hidato({ onExit }: { onExit: () => void }) {
   const [puzzle, setPuzzle] = useState<Puzzle>(() => generate(randomSeed(), SIZE));
   const [cells, setCells] = useState<Grid>(() => puzzle.board.slice());
+  // One line catches every entry: the working array is watched for changes
+  // rather than each click handler being instrumented separately.
+  const trace = useSolveTrace(cells, puzzle.solution);
   const [sel, setSel] = useState<number | null>(null);
   const [hintCell, setHintCell] = useState<number | null>(null);
   const [hintUsed, setHintUsed] = useState(false);
@@ -31,6 +36,9 @@ export function Hidato({ onExit }: { onExit: () => void }) {
     setHintUsed(false);
   };
 
+  // Unfinished grids survive closing the app, and show up in the bottom bar.
+  useLogicSession("hidato", trace.events().length, won);
+
   useEffect(() => {
     if (!won || recordedRef.current) return;
     recordedRef.current = true;
@@ -38,7 +46,7 @@ export function Hidato({ onExit }: { onExit: () => void }) {
       id: newId(), gameId: "hidato", gameName: "Hidato",
       startedISO: startedRef.current, endedISO: new Date().toISOString(),
       outcome: "win", humanSide: "solo", opponent: "Hidato",
-      moveCount: N, moves: [], reason: "Path complete",
+      moveCount: N, moves: trace.events(), reason: "Path complete",
       assisted: hintUsed || undefined,
     });
   }, [won, hintUsed, addRecord]);

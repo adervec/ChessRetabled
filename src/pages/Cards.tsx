@@ -20,12 +20,16 @@ import { Cribbage } from "../cards/games/cribbage/Cribbage";
 import { Durak } from "../cards/games/durak/Durak";
 import { Euchre } from "../cards/games/euchre/Euchre";
 import { useActiveGame } from "../state/activeGame";
+import { useCardSession } from "../cards/ui/useCardSession";
 import "./Cards.css";
 
 export function Cards() {
   const [gameId, setGameId] = useState<string | null>(null);
   const exit = () => setGameId(null);
   useActiveGame(gameId);
+  // Card games keep their state inside each component, so the session is tracked
+  // here: opened when you sit down, closed when a result lands in the archive.
+  useCardSession(gameId);
 
   if (gameId) {
     return (

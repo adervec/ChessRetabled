@@ -12,16 +12,21 @@ import { getEngine } from "../engine";
 import { useProgress } from "../state/useProgress";
 import { useArchive, newId } from "../state/useArchive";
 import { PIECE_VALUE, START_FEN, type Color } from "../chess/types";
+import { BOTS } from "../content/bots";
 import type { Bot } from "../content/bots";
 import "./Play.css";
 import { useActiveGame } from "../state/activeGame";
 import { useGameSession } from "../state/useGameSession";
+import { useSessions } from "../state/useSessions";
 
-type Setup = { bot: Bot; color: Color; key: number };
+type Setup = { bot: Bot; color: Color; key: number; resumeSan?: string[] };
 
 export function Play() {
   useActiveGame("chess");
   const [setup, setSetup] = useState<Setup | null>(null);
+  const saved = useSessions((s) => s.sessions.find((x) => x.gameId === "chess"));
+  const savedSan = saved?.resume?.san ?? [];
+  const savedBot = BOTS.find((b) => b.id === saved?.resume?.setup?.bot);
 
   useEffect(() => {
     // warm up the engine as soon as the user is on the Play page
@@ -31,6 +36,26 @@ export function Play() {
   if (!setup) {
     return (
       <div className="page">
+        {saved && savedSan.length > 0 && savedBot && (
+          <div className="arcade-setup__resume">
+            <p>
+              You have a game against {savedBot.name} going — {savedSan.length} moves in.
+            </p>
+            <button
+              className="btn btn--mint"
+              onClick={() =>
+                setSetup({
+                  bot: savedBot,
+                  color: (saved.resume?.setup?.colour === "b" ? "b" : "w") as Color,
+                  key: 0,
+                  resumeSan: savedSan,
+                })
+              }
+            >
+              ▶ Pick it back up
+            </button>
+          </div>
+        )}
         <BotPicker
           onStart={(bot, color) => setSetup({ bot, color, key: 0 })}
         />
@@ -49,7 +74,8 @@ export function Play() {
         key={setup.key}
         bot={setup.bot}
         humanColor={setup.color}
-        onRematch={() => setSetup((s) => (s ? { ...s, key: s.key + 1 } : s))}
+        resumeSan={setup.resumeSan}
+        onRematch={() => setSetup((s) => (s ? { ...s, key: s.key + 1, resumeSan: undefined } : s))}
         onNewOpponent={() => setSetup(null)}
       />
     </div>
@@ -59,15 +85,17 @@ export function Play() {
 function BotGame({
   bot,
   humanColor,
+  resumeSan,
   onRematch,
   onNewOpponent,
 }: {
   bot: Bot;
   humanColor: Color;
+  resumeSan?: string[];
   onRematch: () => void;
   onNewOpponent: () => void;
 }) {
-  const g = useBotGame(bot, humanColor);
+  const g = useBotGame(bot, humanColor, undefined, resumeSan);
   // Survives a reload: the bottom bar offers this game back until it resolves.
   useGameSession({
     gameId: "chess",

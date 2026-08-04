@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { generate, conflicts, type Grid, type Puzzle } from "../sudoku";
 import { randomSeed } from "../../cards/core/rng";
 import { useArchive, newId } from "../../state/useArchive";
+import { useLogicSession } from "./useLogicSession";
 import { useSolveLog } from "./useSolveLog";
 import "./Logic.css";
 
@@ -35,6 +36,9 @@ export function Sudoku({ onExit }: { onExit: () => void }) {
     setHintCell(null);
     setHintUsed(false);
   };
+
+  // Unfinished grids survive closing the app, and show up in the bottom bar.
+  useLogicSession("sudoku", log.events().length, won);
 
   useEffect(() => {
     if (!won || recordedRef.current) return;

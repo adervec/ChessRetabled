@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { generate, conflicts, isSolved, type Puzzle } from "../mosaic";
 import { randomSeed } from "../../cards/core/rng";
 import { useArchive, newId } from "../../state/useArchive";
+import { useSolveTrace } from "./useSolveLog";
+import { useLogicSession } from "./useLogicSession";
 import "./Logic.css";
 
 const SIZE = 7;
@@ -9,6 +11,9 @@ const SIZE = 7;
 export function Mosaic({ onExit }: { onExit: () => void }) {
   const [puzzle, setPuzzle] = useState<Puzzle>(() => generate(randomSeed(), SIZE));
   const [shaded, setShaded] = useState<boolean[]>(() => new Array(SIZE * SIZE).fill(false));
+  // One line catches every entry: the working array is watched for changes
+  // rather than each click handler being instrumented separately.
+  const trace = useSolveTrace(shaded, puzzle.solution);
   const [hintCell, setHintCell] = useState<number | null>(null);
   const [hintUsed, setHintUsed] = useState(false);
   const addRecord = useArchive((a) => a.add);
@@ -27,6 +32,9 @@ export function Mosaic({ onExit }: { onExit: () => void }) {
     setHintUsed(false);
   };
 
+  // Unfinished grids survive closing the app, and show up in the bottom bar.
+  useLogicSession("mosaic", trace.events().length, won);
+
   useEffect(() => {
     if (!won || recordedRef.current) return;
     recordedRef.current = true;
@@ -34,7 +42,7 @@ export function Mosaic({ onExit }: { onExit: () => void }) {
       id: newId(), gameId: "mosaic", gameName: "Mosaic",
       startedISO: startedRef.current, endedISO: new Date().toISOString(),
       outcome: "win", humanSide: "solo", opponent: "Mosaic",
-      moveCount: shaded.filter(Boolean).length, moves: [], reason: "Picture complete",
+      moveCount: shaded.filter(Boolean).length, moves: trace.events(), reason: "Picture complete",
       assisted: hintUsed || undefined,
     });
   }, [won, shaded, hintUsed, addRecord]);

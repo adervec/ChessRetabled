@@ -19,6 +19,12 @@ export interface SolveEvent {
   undid?: boolean;
   /** The value came from a hint rather than the player. */
   hint?: boolean;
+  /**
+   * The puzzle keeps its answer in a shape this entry can't be checked against
+   * (loops and paths, mostly). Recorded, but not judged — better than a guess
+   * dressed up as a verdict.
+   */
+  unknown?: boolean;
 }
 
 const CLEARED = (v: number | string) => v === 0 || v === "" || v === "-";
@@ -30,13 +36,16 @@ export function reviewLogicSolve(
   const moves: MoveReview[] = [];
   const losses: number[] = [];
   let worst = { ply: 0, loss: 0 };
+  const unverified = events.filter((e) => e.unknown).length;
 
   events.forEach((e, idx) => {
     const cleared = CLEARED(e.v);
     let loss = 0;
     let note: string | undefined;
 
-    if (e.hint) {
+    if (e.unknown) {
+      note = "Recorded, but this puzzle's answer can't be checked square by square.";
+    } else if (e.hint) {
       note = "Revealed by a hint.";
     } else if (cleared && e.undid) {
       loss = 0.15;
@@ -52,11 +61,13 @@ export function reviewLogicSolve(
       note = "This square can't hold that value in the finished grid.";
     }
 
-    const label = e.hint
+    const label = e.unknown
+      ? "unrated"
+      : e.hint
       ? "forced"
       : rateMove({ loss, onlyMove: false });
 
-    if (!e.hint) losses.push(loss);
+    if (!e.hint && !e.unknown) losses.push(loss);
     if (loss > worst.loss) worst = { ply: idx + 1, loss };
 
     moves.push({
@@ -73,7 +84,9 @@ export function reviewLogicSolve(
     recordId: meta.recordId ?? "",
     gameId: meta.gameId,
     gameName: meta.gameName,
-    method: "Every entry checked against the generator's unique solution",
+    method: unverified > 0
+      ? `Entries checked against the generator's unique solution (${unverified} of ${events.length} not checkable for this puzzle type)`
+      : "Every entry checked against the generator's unique solution",
     moves,
     accuracy: accuracy(losses),
     turningPointPly: worst.loss >= 0.5 ? worst.ply : undefined,

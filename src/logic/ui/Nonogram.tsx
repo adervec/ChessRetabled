@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { generate, satisfies, type NonoPuzzle } from "../nonogram";
 import { randomSeed } from "../../cards/core/rng";
 import { useArchive, newId } from "../../state/useArchive";
+import { useSolveTrace } from "./useSolveLog";
+import { useLogicSession } from "./useLogicSession";
 import "./Logic.css";
 
 const SIZE = 10;
@@ -9,6 +11,9 @@ const SIZE = 10;
 export function Nonogram({ onExit }: { onExit: () => void }) {
   const [puzzle, setPuzzle] = useState<NonoPuzzle>(() => generate(randomSeed(), SIZE));
   const [cells, setCells] = useState<number[]>(() => new Array(SIZE * SIZE).fill(0)); // 0 empty,1 fill,2 cross
+  // One line catches every entry: the working array is watched for changes
+  // rather than each click handler being instrumented separately.
+  const trace = useSolveTrace(cells, puzzle.solution);
   const [mode, setMode] = useState<"fill" | "cross">("fill");
   const [hintCell, setHintCell] = useState<number | null>(null);
   const [hintUsed, setHintUsed] = useState(false);
@@ -27,6 +32,9 @@ export function Nonogram({ onExit }: { onExit: () => void }) {
     setHintUsed(false);
   };
 
+  // Unfinished grids survive closing the app, and show up in the bottom bar.
+  useLogicSession("nonogram", trace.events().length, won);
+
   useEffect(() => {
     if (!won || recordedRef.current) return;
     recordedRef.current = true;
@@ -34,7 +42,7 @@ export function Nonogram({ onExit }: { onExit: () => void }) {
       id: newId(), gameId: "nonogram", gameName: "Nonogram",
       startedISO: startedRef.current, endedISO: new Date().toISOString(),
       outcome: "win", humanSide: "solo", opponent: "Nonogram",
-      moveCount: cells.filter((v) => v === 1).length, moves: [], reason: "Picture complete",
+      moveCount: cells.filter((v) => v === 1).length, moves: trace.events(), reason: "Picture complete",
       assisted: hintUsed || undefined,
     });
   }, [won, cells, hintUsed, addRecord]);

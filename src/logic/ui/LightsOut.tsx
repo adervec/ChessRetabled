@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { generate, toggle, isSolved, type LightsPuzzle } from "../lightsout";
 import { randomSeed } from "../../cards/core/rng";
 import { useArchive, newId } from "../../state/useArchive";
+import { useSolveTrace } from "./useSolveLog";
+import { useLogicSession } from "./useLogicSession";
 import "./Logic.css";
 
 type Diff = "easy" | "medium" | "hard";
@@ -13,6 +15,9 @@ export function LightsOut({ onExit }: { onExit: () => void }) {
   const [diff, setDiff] = useState<Diff>("medium");
   const [puzzle, setPuzzle] = useState<LightsPuzzle>(() => generate(randomSeed(), SIZE, PRESSES.medium));
   const [grid, setGrid] = useState<number[]>(() => puzzle.grid.slice());
+  // One line catches every entry: the working array is watched for changes
+  // rather than each click handler being instrumented separately.
+  const trace = useSolveTrace(grid, undefined);
   const [moves, setMoves] = useState(0);
   // Parity of presses per cell — lets the hint compute the remaining solving
   // presses (solution XOR pressed-so-far) without re-solving the board.
@@ -37,6 +42,9 @@ export function LightsOut({ onExit }: { onExit: () => void }) {
     setHintUsed(false);
   };
 
+  // Unfinished grids survive closing the app, and show up in the bottom bar.
+  useLogicSession("lightsout", moves, won);
+
   useEffect(() => {
     if (!won || recordedRef.current || moves === 0) return;
     recordedRef.current = true;
@@ -44,7 +52,7 @@ export function LightsOut({ onExit }: { onExit: () => void }) {
       id: newId(), gameId: "lightsout", gameName: "Lights Out",
       startedISO: startedRef.current, endedISO: new Date().toISOString(),
       outcome: "win", humanSide: "solo", opponent: `Lights Out · ${diff}`,
-      moveCount: moves, moves: [], reason: `Cleared in ${moves} taps`,
+      moveCount: moves, moves: trace.events(), reason: `Cleared in ${moves} taps`,
       assisted: hintUsed || undefined,
     });
   }, [won, moves, diff, hintUsed, addRecord]);
