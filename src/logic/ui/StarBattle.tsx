@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { generate, conflicts, isSolved, type Puzzle } from "../starbattle";
 import { randomSeed } from "../../cards/core/rng";
 import { useArchive, newId } from "../../state/useArchive";
+import { useSolveTrace } from "./useSolveLog";
+import { useLogicSession } from "./useLogicSession";
 import "./Logic.css";
 
 const SIZE = 6;
@@ -9,6 +11,9 @@ const SIZE = 6;
 export function StarBattle({ onExit }: { onExit: () => void }) {
   const [puzzle, setPuzzle] = useState<Puzzle>(() => generate(randomSeed(), SIZE));
   const [stars, setStars] = useState<boolean[]>(() => new Array(SIZE * SIZE).fill(false));
+  // One line catches every entry: the working array is watched for changes
+  // rather than each click handler being instrumented separately.
+  const trace = useSolveTrace(stars, puzzle.solution);
   const [hintCell, setHintCell] = useState<number | null>(null);
   const [hintUsed, setHintUsed] = useState(false);
   const addRecord = useArchive((a) => a.add);
@@ -28,6 +33,9 @@ export function StarBattle({ onExit }: { onExit: () => void }) {
     setHintUsed(false);
   };
 
+  // Unfinished grids survive closing the app, and show up in the bottom bar.
+  useLogicSession("starbattle", trace.events().length, won);
+
   useEffect(() => {
     if (!won || recordedRef.current) return;
     recordedRef.current = true;
@@ -35,7 +43,7 @@ export function StarBattle({ onExit }: { onExit: () => void }) {
       id: newId(), gameId: "starbattle", gameName: "Star Battle",
       startedISO: startedRef.current, endedISO: new Date().toISOString(),
       outcome: "win", humanSide: "solo", opponent: "Star Battle",
-      moveCount: placed, moves: [], reason: "Solved",
+      moveCount: placed, moves: trace.events(), reason: "Solved",
       assisted: hintUsed || undefined,
     });
   }, [won, placed, hintUsed, addRecord]);

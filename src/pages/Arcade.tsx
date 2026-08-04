@@ -3,14 +3,21 @@ import { Link } from "react-router-dom";
 import { GAMES } from "../games/registry";
 import { GameBoard } from "../games/ui/GameBoard";
 import { useGenericGame } from "../games/ui/useGenericGame";
-import type { Difficulty, GameDefinition, Player } from "../games/core/types";
+import type { Difficulty, GameDefinition, GameMove, Player } from "../games/core/types";
 import { useArchive, newId } from "../state/useArchive";
 import { useProgress } from "../state/useProgress";
 import { useActiveGame } from "../state/activeGame";
 import { useGameSession } from "../state/useGameSession";
+import { useSessions } from "../state/useSessions";
 import "./Arcade.css";
 
-type Setup = { difficulty: Difficulty; humanPlayer: Player; key: number };
+type Setup = {
+  difficulty: Difficulty;
+  humanPlayer: Player;
+  key: number;
+  /** Present when picking an unfinished game back up. */
+  resumeMoves?: GameMove[];
+};
 
 export function Arcade() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -26,7 +33,8 @@ export function Arcade() {
           def={picked}
           difficulty={setup.difficulty}
           humanPlayer={setup.humanPlayer}
-          onRematch={() => setSetup((s) => (s ? { ...s, key: s.key + 1 } : s))}
+          resumeMoves={setup.resumeMoves}
+          onRematch={() => setSetup((s) => (s ? { ...s, key: s.key + 1, resumeMoves: undefined } : s))}
           onBack={() => setSetup(null)}
           onExit={() => {
             setSetup(null);
@@ -43,6 +51,9 @@ export function Arcade() {
         <GameSetup
           def={picked}
           onStart={(difficulty, humanPlayer) => setSetup({ difficulty, humanPlayer, key: 0 })}
+          onResume={(difficulty, humanPlayer, resumeMoves) =>
+            setSetup({ difficulty, humanPlayer, key: 0, resumeMoves })
+          }
           onBack={() => setPicked(null)}
         />
       </div>
@@ -77,15 +88,19 @@ export function Arcade() {
 function GameSetup({
   def,
   onStart,
+  onResume,
   onBack,
 }: {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   def: GameDefinition<any>;
   onStart: (d: Difficulty, p: Player) => void;
+  onResume: (d: Difficulty, p: Player, moves: GameMove[]) => void;
   onBack: () => void;
 }) {
   const [diff, setDiff] = useState<Difficulty>(def.difficulties[1] ?? def.difficulties[0]);
   const [first, setFirst] = useState(true); // human moves first?
+  const saved = useSessions((s) => s.sessions.find((x) => x.gameId === def.id));
+  const savedMoves = (saved?.resume?.moves as GameMove[] | undefined) ?? [];
 
   return (
     <div className="arcade-setup">
@@ -105,6 +120,25 @@ function GameSetup({
       <Link to={`/guide/${def.id}`} className="btn btn--sm btn--ghost" style={{ display: "inline-block", marginBottom: "0.5rem" }}>
         📖 Full strategy guide
       </Link>
+
+      {savedMoves.length > 0 && (
+        <div className="arcade-setup__resume">
+          <p>
+            You have a game of {def.name} going — {savedMoves.length} moves in.
+          </p>
+          <button
+            className="btn btn--mint"
+            onClick={() => {
+              const d =
+                def.difficulties.find((x) => x.id === saved?.resume?.setup?.difficulty) ?? diff;
+              const p = (Number(saved?.resume?.setup?.humanPlayer) === 1 ? 1 : 0) as Player;
+              onResume(d, p, savedMoves);
+            }}
+          >
+            ▶ Pick it back up
+          </button>
+        </div>
+      )}
 
       <div className="arcade-setup__group">
         <h3>Difficulty</h3>
@@ -150,6 +184,7 @@ function GameScreen({
   def,
   difficulty,
   humanPlayer,
+  resumeMoves,
   onRematch,
   onBack,
   onExit,
@@ -158,11 +193,12 @@ function GameScreen({
   def: GameDefinition<any>;
   difficulty: Difficulty;
   humanPlayer: Player;
+  resumeMoves?: GameMove[];
   onRematch: () => void;
   onBack: () => void;
   onExit: () => void;
 }) {
-  const game = useGenericGame(def, humanPlayer, difficulty);
+  const game = useGenericGame(def, humanPlayer, difficulty, resumeMoves);
   // Keeps this game in the bottom bar until it resolves, so closing the tab
   // mid-game no longer loses it silently.
   useGameSession({

@@ -267,7 +267,13 @@ opponent-based games. Same discipline — pure logic in `.ts`, verified headless
     disagreed on Hex/LOA. Judging a player with a weaker judge is the bug, and
     chess-calibrated thresholds don't transfer to a differently scaled quantity.
     Don't reintroduce a bespoke search here.
-  - logic → each entry vs the generator's unique solution (`useSolveLog`).
+  - logic → each entry vs the generator's unique solution. `useSolveTrace`
+    watches the puzzle's working array and derives the log from state changes —
+    one line per puzzle instead of instrumenting every click handler, which is
+    how all 25 got covered. Where a puzzle keeps its answer in another shape
+    (loops, paths), entries are recorded and marked **unverifiable** rather than
+    guessed at; Mastermind rates a guess on consistency with its own feedback,
+    Slide on whether a tile reached home.
   - cards → refused on purpose: hidden deal, so per-move verdicts are guesswork.
 - **`state/cowork.ts`** builds the markdown brief (copy / download / take to
   Coach). Pure string building — nothing leaves the device unless the user sends it.
@@ -279,8 +285,17 @@ opponent-based games. Same discipline — pure logic in `.ts`, verified headless
   play and offered back by the bottom bar (`components/ui/SessionBar.tsx`).
   **Device-local on purpose** — absent from `dataTransfer.ts` and the cloud
   bundle, because a half-finished game is a fact about this device; only the
-  resolved record syncs. `useGameSession` is the one-line wiring (chess + the 12
-  board games; cards/logic keep state inside each component).
+  resolved record syncs. Three wirings, one per shape: `useGameSession` (chess +
+  the 12 board games, which have a move log to count), `logic/ui/useLogicSession`
+  (all 25 puzzles, counting entries), and `cards/ui/useCardSession` (all 18 card
+  games from the lobby — their state lives inside each component, so time at the
+  table is the engagement signal instead of a move count).
+- **Resume rebuilds the position, it doesn't just reopen the screen.**
+  `games/core/replay.ts` `foldMoves()` folds a logged move list back into a
+  state, stopping at the first move the current rules reject rather than
+  inventing the rest; `useGenericGame` and the review scrubber both use it, and
+  `useChessGame` does the same with SAN. `validate-sessions` plays each game,
+  then proves the resumed board matches the played one **at every ply**.
 - **`state/abandon.ts`** decides what leaving costs: under 4 moves *and* 90s it
   is a misclick and nothing is recorded; a solo puzzle is logged `abandoned`,
   never a loss (or the solo win rate means nothing); a versus game you were

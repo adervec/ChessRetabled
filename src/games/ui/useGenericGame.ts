@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { chooseMove } from "../core/ai";
+import { foldMoves, type Replay } from "../core/replay";
 import type {
   BoardGeometry,
   CellView,
@@ -130,7 +131,13 @@ function reconcile(
 export function useGenericGame<S>(
   def: GameDefinition<S>,
   humanPlayer: Player,
-  difficulty: Difficulty
+  difficulty: Difficulty,
+  /**
+   * A move log from an unfinished session. Replaying it is how a resumed game
+   * comes back to the exact position rather than a fresh board — the log is
+   * already the archive/replay format, so nothing new has to be serialised.
+   */
+  resumeMoves?: GameMove[]
 ): GenericGame<S> {
   const idRef = useRef(0);
   const nextId = useCallback(() => `t${idRef.current++}`, []);
@@ -147,11 +154,19 @@ export function useGenericGame<S>(
     [nextId]
   );
 
-  const [state, setState] = useState<S>(() => def.initial());
-  const [tokens, setTokens] = useState<Token[]>(() => buildTokens(def.cells(def.initial())));
+  // Fold the saved moves once, before first paint, so a resumed game never
+  // flashes the opening position. The fold itself lives in core/replay.ts,
+  // where it can be proven to reconstruct the same position that was played.
+  const resumed = useRef<Replay<S> | null>(null);
+  if (resumed.current === null) resumed.current = foldMoves(def, resumeMoves);
+
+  const [state, setState] = useState<S>(() => resumed.current!.state);
+  const [tokens, setTokens] = useState<Token[]>(() =>
+    buildTokens(def.cells(resumed.current!.state))
+  );
   const [graveyard, setGraveyard] = useState<Token[]>([]);
   const [history, setHistory] = useState<Snapshot<S>[]>([]);
-  const [moveLog, setMoveLog] = useState<GameMove[]>([]);
+  const [moveLog, setMoveLog] = useState<GameMove[]>(() => resumed.current!.applied);
   const [selected, setSelected] = useState<number | null>(null);
   const [pending, setPending] = useState<GameMove[] | null>(null);
   const [lastMove, setLastMove] = useState<GameMove | null>(null);

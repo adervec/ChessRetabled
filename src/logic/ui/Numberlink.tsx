@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { generate, isSolved, endpointPairs, type Puzzle } from "../numberlink";
 import { randomSeed } from "../../cards/core/rng";
 import { useArchive, newId } from "../../state/useArchive";
+import { useSolveTrace } from "./useSolveLog";
+import { useLogicSession } from "./useLogicSession";
 import "./Logic.css";
 
 const SIZE = 5;
@@ -10,6 +12,9 @@ const COLORS = ["#e0533d", "#3b82f6", "#3aa856", "#e6a817", "#9b6bff", "#e85d9e"
 export function Numberlink({ onExit }: { onExit: () => void }) {
   const [puzzle, setPuzzle] = useState<Puzzle>(() => generate(randomSeed(), SIZE));
   const [paths, setPaths] = useState<number[][]>(() => puzzle.solutionPaths.map(() => []));
+  // One line catches every entry: the working array is watched for changes
+  // rather than each click handler being instrumented separately.
+  const trace = useSolveTrace(paths, undefined);
   const [active, setActive] = useState<number | null>(null);
   const [hintColor, setHintColor] = useState<number | null>(null); // 0-based colour index
   const [hintUsed, setHintUsed] = useState(false);
@@ -38,6 +43,9 @@ export function Numberlink({ onExit }: { onExit: () => void }) {
     setHintUsed(false);
   };
 
+  // Unfinished grids survive closing the app, and show up in the bottom bar.
+  useLogicSession("numberlink", trace.events().length, won);
+
   useEffect(() => {
     if (!won || recordedRef.current) return;
     recordedRef.current = true;
@@ -45,7 +53,7 @@ export function Numberlink({ onExit }: { onExit: () => void }) {
       id: newId(), gameId: "numberlink", gameName: "Numberlink",
       startedISO: startedRef.current, endedISO: new Date().toISOString(),
       outcome: "win", humanSide: "solo", opponent: "Numberlink",
-      moveCount: paths.reduce((a, p) => a + p.length, 0), moves: [], reason: "All linked",
+      moveCount: paths.reduce((a, p) => a + p.length, 0), moves: trace.events(), reason: "All linked",
       assisted: hintUsed || undefined,
     });
   }, [won, paths, hintUsed, addRecord]);

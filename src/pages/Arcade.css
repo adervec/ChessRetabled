@@ -133,3 +133,12 @@
   justify-content: center;
   flex-wrap: wrap;
 }
+
+/* "You have a game going" prompt on the setup screen. */
+.arcade-setup__resume {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  padding: 14px 16px; margin-bottom: 16px;
+  border: var(--outline); border-radius: var(--radius-m);
+  background: color-mix(in srgb, var(--mint) 18%, var(--surface));
+}
+.arcade-setup__resume p { margin: 0; font-weight: 700; }

@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { generate, conflicts, isSolved, type Puzzle, type Grid } from "../kenken";
 import { randomSeed } from "../../cards/core/rng";
 import { useArchive, newId } from "../../state/useArchive";
+import { useSolveTrace } from "./useSolveLog";
+import { useLogicSession } from "./useLogicSession";
 import "./Logic.css";
 
 const SIZE = 5;
@@ -9,6 +11,9 @@ const SIZE = 5;
 export function KenKen({ onExit }: { onExit: () => void }) {
   const [puzzle, setPuzzle] = useState<Puzzle>(() => generate(randomSeed(), SIZE));
   const [cells, setCells] = useState<Grid>(() => new Array(SIZE * SIZE).fill(0));
+  // One line catches every entry: the working array is watched for changes
+  // rather than each click handler being instrumented separately.
+  const trace = useSolveTrace(cells, puzzle.solution);
   const [sel, setSel] = useState<number | null>(null);
   const [hintCell, setHintCell] = useState<number | null>(null);
   const [hintUsed, setHintUsed] = useState(false);
@@ -39,6 +44,9 @@ export function KenKen({ onExit }: { onExit: () => void }) {
     setHintUsed(false);
   };
 
+  // Unfinished grids survive closing the app, and show up in the bottom bar.
+  useLogicSession("kenken", trace.events().length, won);
+
   useEffect(() => {
     if (!won || recordedRef.current) return;
     recordedRef.current = true;
@@ -46,7 +54,7 @@ export function KenKen({ onExit }: { onExit: () => void }) {
       id: newId(), gameId: "kenken", gameName: "KenKen",
       startedISO: startedRef.current, endedISO: new Date().toISOString(),
       outcome: "win", humanSide: "solo", opponent: "KenKen",
-      moveCount: cells.length, moves: [], reason: "Solved",
+      moveCount: cells.length, moves: trace.events(), reason: "Solved",
       assisted: hintUsed || undefined,
     });
   }, [won, cells, hintUsed, addRecord]);

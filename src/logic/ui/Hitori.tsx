@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { generate, conflicts, isSolved, type Puzzle } from "../hitori";
 import { randomSeed } from "../../cards/core/rng";
 import { useArchive, newId } from "../../state/useArchive";
+import { useSolveTrace } from "./useSolveLog";
+import { useLogicSession } from "./useLogicSession";
 import "./Logic.css";
 
 const SIZE = 6;
@@ -9,6 +11,9 @@ const SIZE = 6;
 export function Hitori({ onExit }: { onExit: () => void }) {
   const [puzzle, setPuzzle] = useState<Puzzle>(() => generate(randomSeed(), SIZE));
   const [mask, setMask] = useState<boolean[]>(() => new Array(SIZE * SIZE).fill(false));
+  // One line catches every entry: the working array is watched for changes
+  // rather than each click handler being instrumented separately.
+  const trace = useSolveTrace(mask, puzzle.solution);
   const [hintCell, setHintCell] = useState<number | null>(null);
   const [hintUsed, setHintUsed] = useState(false);
   const addRecord = useArchive((a) => a.add);
@@ -27,6 +32,9 @@ export function Hitori({ onExit }: { onExit: () => void }) {
     setHintUsed(false);
   };
 
+  // Unfinished grids survive closing the app, and show up in the bottom bar.
+  useLogicSession("hitori", trace.events().length, won);
+
   useEffect(() => {
     if (!won || recordedRef.current) return;
     recordedRef.current = true;
@@ -34,7 +42,7 @@ export function Hitori({ onExit }: { onExit: () => void }) {
       id: newId(), gameId: "hitori", gameName: "Hitori",
       startedISO: startedRef.current, endedISO: new Date().toISOString(),
       outcome: "win", humanSide: "solo", opponent: "Hitori",
-      moveCount: mask.filter(Boolean).length, moves: [], reason: "Solved",
+      moveCount: mask.filter(Boolean).length, moves: trace.events(), reason: "Solved",
       assisted: hintUsed || undefined,
     });
   }, [won, mask, hintUsed, addRecord]);

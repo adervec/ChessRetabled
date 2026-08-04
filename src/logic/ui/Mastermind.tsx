@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { initMastermind, submitGuess, CODE_LENGTH, COLORS, MAX_GUESSES, type MMState } from "../mastermind";
+import { initMastermind, submitGuess, feedback, CODE_LENGTH, COLORS, MAX_GUESSES, type MMState } from "../mastermind";
 import { randomSeed } from "../../cards/core/rng";
 import { useArchive, newId } from "../../state/useArchive";
+import { useLogicSession } from "./useLogicSession";
 import "./Logic.css";
 
 const PEG = ["#e23b3b", "#ff9e2e", "#ffe14a", "#3ccf5a", "#3c9bff", "#b15aff"];
@@ -15,6 +16,26 @@ export function Mastermind({ onExit }: { onExit: () => void }) {
   const recordedRef = useRef(false);
   const startedRef = useRef(new Date().toISOString());
 
+  // Unfinished games survive closing the app, and show up in the bottom bar.
+  useLogicSession("mastermind", mm.guesses.length, mm.phase !== "play");
+
+  // A guess is rated on whether it could still be the answer given every reply
+  // so far. Guessing a code your own feedback has already ruled out throws away
+  // a turn, and that is the mistake worth showing back to the player.
+  const solveLog = mm.guesses.map((g, i) => {
+    const before = mm.guesses.slice(0, i);
+    const possible = before.every((p) => {
+      const fb = feedback(p.guess, g.guess);
+      return fb.black === p.fb.black && fb.white === p.fb.white;
+    });
+    return {
+      i,
+      v: g.guess.join(""),
+      ok: possible,
+      undid: undefined,
+    };
+  });
+
   useEffect(() => {
     if (mm.phase === "play" || recordedRef.current) return;
     recordedRef.current = true;
@@ -22,7 +43,7 @@ export function Mastermind({ onExit }: { onExit: () => void }) {
       id: newId(), gameId: "mastermind", gameName: "Mastermind",
       startedISO: startedRef.current, endedISO: new Date().toISOString(),
       outcome: mm.phase === "won" ? "win" : "loss",
-      humanSide: "solo", opponent: "Codemaker", moveCount: mm.guesses.length, moves: [],
+      humanSide: "solo", opponent: "Codemaker", moveCount: mm.guesses.length, moves: solveLog,
       reason: mm.phase === "won" ? `Cracked in ${mm.guesses.length}` : "Out of guesses",
       assisted: hintUsed || undefined,
     });

@@ -98,8 +98,28 @@ function computeResult(chess: Chess): GameResult {
   return { over: true, winner: null, reason: "draw" };
 }
 
-export function useChessGame(initialFen: string = START_FEN) {
-  const chessRef = useRef<Chess>(new Chess(initialFen));
+export function useChessGame(
+  initialFen: string = START_FEN,
+  /**
+   * SAN from an unfinished session. Replayed before first paint so a resumed
+   * game comes back with its move list and takebacks intact — restoring a FEN
+   * alone would lose the history the whole screen is built around.
+   */
+  resumeSan?: string[]
+) {
+  const chessRef = useRef<Chess>(
+    (() => {
+      const c = new Chess(initialFen);
+      for (const san of resumeSan ?? []) {
+        try {
+          if (!c.move(san)) break;
+        } catch {
+          break; // a log that no longer fits the rules stops here
+        }
+      }
+      return c;
+    })()
+  );
   const [state, setState] = useState<{ fen: string; ids: IdMap }>(() => ({
     fen: chessRef.current.fen(),
     ids: freshIds(chessRef.current),

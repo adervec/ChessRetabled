@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { generate, conflicts, isValid, type Grid, type Puzzle } from "../binairo";
 import { randomSeed } from "../../cards/core/rng";
 import { useArchive, newId } from "../../state/useArchive";
+import { useSolveTrace } from "./useSolveLog";
+import { useLogicSession } from "./useLogicSession";
 import "./Logic.css";
 
 type Diff = "easy" | "medium" | "hard";
@@ -12,6 +14,9 @@ export function Binairo({ onExit }: { onExit: () => void }) {
   const [diff, setDiff] = useState<Diff>("medium");
   const [puzzle, setPuzzle] = useState<Puzzle>(() => generate(randomSeed(), SIZE, "medium"));
   const [cells, setCells] = useState<Grid>(() => puzzle.puzzle.slice());
+  // One line catches every entry: the working array is watched for changes
+  // rather than each click handler being instrumented separately.
+  const trace = useSolveTrace(cells, puzzle.solution);
   const [hintCell, setHintCell] = useState<number | null>(null);
   const [hintUsed, setHintUsed] = useState(false);
   const addRecord = useArchive((a) => a.add);
@@ -31,6 +36,9 @@ export function Binairo({ onExit }: { onExit: () => void }) {
     setHintUsed(false);
   };
 
+  // Unfinished grids survive closing the app, and show up in the bottom bar.
+  useLogicSession("binairo", trace.events().length, won);
+
   useEffect(() => {
     if (!won || recordedRef.current) return;
     recordedRef.current = true;
@@ -38,7 +46,7 @@ export function Binairo({ onExit }: { onExit: () => void }) {
       id: newId(), gameId: "binairo", gameName: "Binairo",
       startedISO: startedRef.current, endedISO: new Date().toISOString(),
       outcome: "win", humanSide: "solo", opponent: `Binairo · ${diff}`,
-      moveCount: cells.length, moves: [], reason: `Solved (${diff})`,
+      moveCount: cells.length, moves: trace.events(), reason: `Solved (${diff})`,
       assisted: hintUsed || undefined,
     });
   }, [won, diff, cells, hintUsed, addRecord]);

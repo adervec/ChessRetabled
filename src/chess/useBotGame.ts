@@ -18,9 +18,11 @@ export type Hint = { from: Square; to: Square; stage: 1 | 2 } | null;
 export function useBotGame(
   bot: Bot,
   humanColor: Color,
-  initialFen?: string
+  initialFen?: string,
+  /** SAN from an unfinished game, replayed on mount. */
+  resumeSan?: string[]
 ) {
-  const game = useChessGame(initialFen);
+  const game = useChessGame(initialFen, resumeSan);
   const [thinking, setThinking] = useState(false);
   const [manualResult, setManualResult] = useState<ManualResult>(null);
   const [flipped, setFlipped] = useState(false);

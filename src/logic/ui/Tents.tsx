@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { generate, counts, isSolved, type Puzzle } from "../tents";
 import { randomSeed } from "../../cards/core/rng";
 import { useArchive, newId } from "../../state/useArchive";
+import { useSolveTrace } from "./useSolveLog";
+import { useLogicSession } from "./useLogicSession";
 import "./Logic.css";
 
 const SIZE = 7;
@@ -10,6 +12,9 @@ const SIZE = 7;
 export function Tents({ onExit }: { onExit: () => void }) {
   const [puzzle, setPuzzle] = useState<Puzzle>(() => generate(randomSeed(), SIZE));
   const [state, setState] = useState<number[]>(() => new Array(SIZE * SIZE).fill(0));
+  // One line catches every entry: the working array is watched for changes
+  // rather than each click handler being instrumented separately.
+  const trace = useSolveTrace(state, puzzle.solution);
   const [hintCell, setHintCell] = useState<number | null>(null);
   const [hintUsed, setHintUsed] = useState(false);
   const addRecord = useArchive((a) => a.add);
@@ -29,6 +34,9 @@ export function Tents({ onExit }: { onExit: () => void }) {
     setHintUsed(false);
   };
 
+  // Unfinished grids survive closing the app, and show up in the bottom bar.
+  useLogicSession("tents", trace.events().length, won);
+
   useEffect(() => {
     if (!won || recordedRef.current) return;
     recordedRef.current = true;
@@ -36,7 +44,7 @@ export function Tents({ onExit }: { onExit: () => void }) {
       id: newId(), gameId: "tents", gameName: "Tents",
       startedISO: startedRef.current, endedISO: new Date().toISOString(),
       outcome: "win", humanSide: "solo", opponent: "Tents",
-      moveCount: tents.filter(Boolean).length, moves: [], reason: "Camp pitched",
+      moveCount: tents.filter(Boolean).length, moves: trace.events(), reason: "Camp pitched",
       assisted: hintUsed || undefined,
     });
   }, [won, tents, hintUsed, addRecord]);

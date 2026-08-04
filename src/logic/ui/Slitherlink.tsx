@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { generate, isSolved, hCount, vCount, solutionEdges, type Puzzle } from "../slitherlink";
 import { randomSeed } from "../../cards/core/rng";
 import { useArchive, newId } from "../../state/useArchive";
+import { useSolveTrace } from "./useSolveLog";
+import { useLogicSession } from "./useLogicSession";
 import "./Logic.css";
 
 const ROWS = 6, COLS = 6;
@@ -10,6 +12,9 @@ const ROWS = 6, COLS = 6;
 export function Slitherlink({ onExit }: { onExit: () => void }) {
   const [puzzle, setPuzzle] = useState<Puzzle>(() => generate(randomSeed(), ROWS, COLS));
   const [hState, setHState] = useState<number[]>(() => new Array(hCount(ROWS, COLS)).fill(0));
+  // One line catches every entry: the working array is watched for changes
+  // rather than each click handler being instrumented separately.
+  const trace = useSolveTrace(hState, undefined);
   const [vState, setVState] = useState<number[]>(() => new Array(vCount(ROWS, COLS)).fill(0));
   const [hintEdge, setHintEdge] = useState<{ dir: "h" | "v"; i: number } | null>(null);
   const [hintUsed, setHintUsed] = useState(false);
@@ -32,6 +37,9 @@ export function Slitherlink({ onExit }: { onExit: () => void }) {
     setHintUsed(false);
   };
 
+  // Unfinished grids survive closing the app, and show up in the bottom bar.
+  useLogicSession("slitherlink", trace.events().length, won);
+
   useEffect(() => {
     if (!won || recordedRef.current) return;
     recordedRef.current = true;
@@ -40,7 +48,7 @@ export function Slitherlink({ onExit }: { onExit: () => void }) {
       startedISO: startedRef.current, endedISO: new Date().toISOString(),
       outcome: "win", humanSide: "solo", opponent: "Slitherlink",
       moveCount: hState.filter((s) => s === 1).length + vState.filter((s) => s === 1).length,
-      moves: [], reason: "Loop closed",
+      moves: trace.events(), reason: "Loop closed",
       assisted: hintUsed || undefined,
     });
   }, [won, hState, vState, hintUsed, addRecord]);
