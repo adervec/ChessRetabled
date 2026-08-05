@@ -16,6 +16,20 @@ body,
   height: 100%;
 }
 
+/* The app owns its scrolling, the document doesn't.
+   Letting the document scroll on a phone means the browser's own chrome joins
+   in: the URL bar retracts, 100% resolves against a viewport that no longer
+   exists, and the sticky nav ends up half off the top of the screen. Pinning
+   the document and scrolling inside the shell also means every scrollbar is
+   ours to style — see the themed scrollbars below. */
+html {
+  overflow: hidden;
+}
+body {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
 body {
   font-family: var(--font-body);
   color: var(--text);
@@ -123,7 +137,8 @@ p {
 
 /* ============================ Layout helpers ============================ */
 .app-shell {
-  min-height: 100%;
+  /* dvh, not vh: the small viewport is the one that's actually visible. */
+  height: 100dvh;
   display: flex;
   flex-direction: column;
 }
@@ -170,6 +185,12 @@ p {
 }
 .grow {
   flex: 1;
+  /* min-height:0 lets a flex child actually shrink, which is what makes the
+     scrolling happen here instead of on the document. */
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
 }
 .spacer {
   flex: 1;
@@ -497,4 +518,35 @@ p {
   box-shadow: var(--shadow-sticker-sm);
   color: var(--paper);
   line-height: 1;
+}
+
+
+/* ---- scrollbars, in the app and in the theme ----
+   Every scrolling surface is inside the app now, so these are ours: tokens, so
+   they re-skin with the rest of the chrome instead of showing the OS default
+   grey against a cel-shaded page. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--violet) transparent;
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: color-mix(in srgb, var(--ink) 35%, transparent);
+  border-radius: var(--radius-pill);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--violet);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  border-radius: var(--radius-pill);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--violet-dark);
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
 }

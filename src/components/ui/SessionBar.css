@@ -1,9 +1,9 @@
-/* Fixed to the bottom, above the safe-area inset so it clears a home indicator. */
+/* The shell's bottom row, padded past the safe-area inset so it clears a home
+   indicator on a phone. */
 .sessionbar {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  /* The last row of the shell rather than a floating overlay: it can't cover
+     the end of a page, and the scrolling area above simply gets shorter. */
+  flex-shrink: 0;
   z-index: 45;
   display: flex;
   align-items: center;
@@ -66,9 +66,6 @@
   cursor: pointer;
 }
 .sessionbar__drop:hover { background: var(--coral); color: var(--text-on-light); }
-
-/* Leave room so the bar never sits on top of the last thing on the page. */
-body:has(.sessionbar) .page { padding-bottom: 120px; }
 
 .sessionbar__scrim {
   position: fixed;

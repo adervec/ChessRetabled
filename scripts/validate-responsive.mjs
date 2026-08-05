@@ -18,7 +18,11 @@ try {
   process.exit(1);
 }
 
-// [label, regex, mustComeAfterThePageSheets]
+// [label, regex, ordering]
+//   true    — a mobile rule: must land after the per-page sheets
+//   false   — a page sheet: defines the line the mobile rules must clear
+//   "any"   — must exist, but takes no part in the ordering (global.css)
+//   "absent"— must NOT exist
 const RULES = [
   ["page sheet: .game 2-col", /\.game\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s*336px/, false],
   ["page sheet: 900px stack", /@media\s*\(max-width:\s*900px\)/, false],
@@ -35,6 +39,18 @@ const RULES = [
   // touch-action: manipulation still hands drags to the browser, so a drag on
   // the board scrolled the page instead of moving a piece.
   ["board surface refuses pan/zoom", /touch-action:\s*none/, true],
+  // The app scrolls its own main area; the document does not scroll at all.
+  // Letting it scroll on a phone hands the browser chrome a say in the layout,
+  // which is how the nav ended up half off the top of the screen.
+  ["document scrolling is pinned", /html\s*\{[^}]*overflow:\s*hidden/, "any"],
+  ["shell is exactly one viewport tall", /\.app-shell\s*\{[^}]*height:\s*100dvh/, "any"],
+  ["main is the scrolling surface", /\.grow\s*\{[^}]*overflow-y:\s*auto/, "any"],
+  ["scroll does not chain to the document", /overscroll-behavior:\s*(none|contain)/, "any"],
+  // Every scrollbar is inside the app now, so every scrollbar is themed.
+  ["scrollbars use theme tokens", /scrollbar-color:\s*var\(--/, "any"],
+  ["webkit scrollbar thumb is themed", /::-webkit-scrollbar-thumb\s*\{[^}]*var\(--/, "any"],
+  // The nav is a flex row of the shell now — sticky would mean it can scroll.
+  ["nav no longer relies on sticky", /\.nav\s*\{[^}]*position:\s*sticky/, "absent"],
   // The accelerometer must not reach the layout: only App.tsx may read device
   // orientation, and it writes data-orient. A bare orientation media query here
   // would flip the layout behind the user's setting.
@@ -52,6 +68,13 @@ let problems = 0;
 const found = new Map();
 for (const [label, re, mobile] of RULES) {
   const at = css.match(re)?.index ?? -1;
+  if (mobile === "any") {
+    if (at < 0) {
+      console.error(`  MISSING  ${label}`);
+      problems++;
+    }
+    continue;
+  }
   if (mobile === "absent") {
     if (at >= 0) {
       console.error(`  PRESENT  ${label} — found at ${at}, but it must not exist`);

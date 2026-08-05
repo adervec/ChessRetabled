@@ -1,7 +1,10 @@
 .nav {
-  position: sticky;
-  top: 0;
+  /* The shell scrolls its main area, not the document, so the bar is simply the
+     first row of a flex column — it can't be scrolled away and doesn't need to
+     stick. flex-shrink:0 keeps it from being squeezed by a tall page. */
+  position: relative;
   z-index: 50;
+  flex-shrink: 0;
   height: var(--nav-h);
   display: flex;
   align-items: center;
@@ -61,6 +64,10 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  /* Never push the menu button off the edge — the stats give way first. */
+  min-width: 0;
+}
+.nav__burger {
   flex-shrink: 0;
 }
 

@@ -109,18 +109,18 @@ export function NavBar() {
 
       <div className="nav__stats">
         <LayoutToggle />
-        <NavLink to="/profile" className="nav__stat" title="Puzzle rating">
+        <NavLink to="/profile" className="nav__stat nav__stat--rating" title="Puzzle rating">
           <span className="ico" aria-hidden>⚡</span>
           {rating}
         </NavLink>
-        <div className="nav__stat" title="Day streak">
+        <div className="nav__stat nav__stat--streak" title="Day streak">
           <span className="ico" aria-hidden>🔥</span>
           {streak}
           <span className="label" style={{ color: "var(--text-muted)" }}>day</span>
         </div>
         <NavLink
           to="/profile"
-          className="nav__stat"
+          className="nav__stat nav__stat--level"
           title="Level"
           style={{ background: "var(--violet)", color: "#fff" }}
         >

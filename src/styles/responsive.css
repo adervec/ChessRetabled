@@ -114,7 +114,9 @@ a,
   padding-right: max(clamp(14px, 4vw, 34px), env(safe-area-inset-right));
 }
 .page {
-  padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  /* The session bar is a row of the shell now, not an overlay, so this only has
+     to clear the home indicator. */
+  padding-bottom: calc(28px + env(safe-area-inset-bottom));
 }
 /* vh counts the collapsible toolbars, so the menu can run off the bottom. */
 .nav__menu {
@@ -167,10 +169,19 @@ a,
   }
 }
 
-/* On a phone the bar carries the mark, the level/streak chips, the layout pin
-   and the menu — the wordmark is the one thing that can go. */
+/* On a phone the bar carries the mark, three stat chips, the layout pin and the
+   menu — more than fits in 360px, and what got pushed off the edge was the menu
+   button. Drop the wordmark first, then the two glanceable stats; the level chip
+   stays because it doubles as the way into your profile, and the menu is the one
+   thing that is never optional. */
 @media (max-width: 520px) {
   .nav__brand .toon-title {
+    display: none;
+  }
+}
+@media (max-width: 560px) {
+  .nav__stat--rating,
+  .nav__stat--streak {
     display: none;
   }
 }
