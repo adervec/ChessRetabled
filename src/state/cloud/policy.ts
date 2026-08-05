@@ -9,14 +9,23 @@ export type SyncProvider = "local" | "drive";
 export interface SyncGateInput {
   provider: SyncProvider;
   consented: boolean;
+  /**
+   * The **effective** OAuth client id — the user's own, or the built-in one on an
+   * origin it is registered for (see cloud/googleDrive.effectiveClientId).
+   * Callers resolve it before asking; an empty string means Drive is not usable
+   * here, whatever the other settings say.
+   */
   clientId: string;
 }
 
 /**
  * Decide which adapter to actually use. Returns "drive" only when the user opted
- * into it, consented, and supplied an OAuth client id — otherwise "local" (the
- * on-device mirror that never makes a network request). This is the single
+ * into it, consented, and there is a usable OAuth client id — otherwise "local"
+ * (the on-device mirror that never makes a network request). This is the single
  * chokepoint every caller routes through, so the default is always private.
+ *
+ * Note what did NOT change when Drive gained a built-in client id: consent is
+ * still required. Making sign-in easy must not make it automatic.
  */
 export function chooseAdapterKind(c: SyncGateInput): SyncProvider {
   if (c.provider === "drive" && c.consented === true && c.clientId.trim() !== "") {

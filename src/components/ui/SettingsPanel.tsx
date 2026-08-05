@@ -5,7 +5,7 @@ import { downloadExport, importJson } from "../../state/dataTransfer";
 import { syncNow } from "../../state/sync";
 import { useCloudConfig } from "../../state/cloudConfig";
 import { chooseAdapterKind, CLOUD_CONSENT_TEXT } from "../../state/cloud/policy";
-import { ensureAccessToken, fetchGoogleAccount } from "../../state/cloud/googleDrive";
+import { ensureAccessToken, fetchGoogleAccount, currentClientId } from "../../state/cloud/googleDrive";
 import "./SettingsPanel.css";
 
 export function SettingsPanel() {
@@ -16,12 +16,16 @@ export function SettingsPanel() {
   const cloud = useCloudConfig();
   const [msg, setMsg] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
-  const cloudActive = chooseAdapterKind(cloud) === "drive";
+  // The id actually in play: the user's own if they pasted one, otherwise the
+  // built-in one on an origin it's registered for.
+  const clientId = currentClientId(cloud.clientId);
+  const builtIn = !cloud.clientId.trim() && clientId !== "";
+  const cloudActive = chooseAdapterKind({ ...cloud, clientId }) === "drive";
 
   async function onConnect() {
     setMsg("Opening Google Drive authorization…");
     try {
-      const token = await ensureAccessToken(cloud.clientId, true);
+      const token = await ensureAccessToken(clientId, true);
       const account = await fetchGoogleAccount(token);
       cloud.connected(account);
       setMsg(`Connected as ${account.email || account.name || "your Google account"}`);
@@ -223,8 +227,11 @@ export function SettingsPanel() {
               <span>{CLOUD_CONSENT_TEXT}</span>
             </label>
 
-            <div className="settings__field">
-              <label htmlFor="cfg-client">Google OAuth client ID</label>
+            <details className="settings__field">
+              <summary>
+                Google OAuth client ID{" "}
+                {builtIn ? "(not needed here)" : cloud.clientId.trim() ? "(yours)" : "(required)"}
+              </summary>
               <input
                 id="cfg-client"
                 className="settings__input"
@@ -232,7 +239,12 @@ export function SettingsPanel() {
                 placeholder="….apps.googleusercontent.com"
                 onChange={(e) => cloud.update({ clientId: e.target.value })}
               />
-            </div>
+              <p className="settings__hint">
+                {builtIn
+                  ? "This site is already registered with Google, so Drive sync works as-is. Paste your own client ID only if you'd rather sync under a project you control."
+                  : "This deployment isn't a registered origin for the built-in client, so Drive needs your own: Google Cloud Console → OAuth consent screen → Credentials → OAuth client ID (Web), with this site's URL as an authorized JavaScript origin."}
+              </p>
+            </details>
 
             <div className="settings__account">
               {cloud.account ? (
@@ -256,7 +268,7 @@ export function SettingsPanel() {
                 <button
                   className="btn btn--sm btn--mint"
                   onClick={onConnect}
-                  disabled={!cloud.consented || !cloud.clientId.trim()}
+                  disabled={!cloud.consented || !clientId}
                 >
                   Connect Google Drive
                 </button>
@@ -265,11 +277,9 @@ export function SettingsPanel() {
 
             <p className="settings__hint">
               Syncs to a private per-app folder in your own Google Drive (the
-              <code> drive.appdata </code> scope — hidden from your normal files).
-              Needs a Google OAuth client ID (an identifier, not a secret): create
-              one in the Google Cloud Console → OAuth consent screen → Credentials
-              → OAuth client ID (Web), and add this site’s URL as an authorized
-              JavaScript origin. Nothing uploads until you tick consent and connect.
+              <code> drive.appdata </code> scope — hidden from your normal files,
+              and it can't see anything else in your Drive). Nothing uploads until
+              you tick consent and connect, and you can disconnect at any time.
             </p>
           </div>
         )}
