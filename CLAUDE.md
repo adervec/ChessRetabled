@@ -147,14 +147,31 @@ of Action, Hex, Tic-Tac-Toe) living **beside** the chess app, reachable at
   GymTracker app) — `cloud/googleDrive.ts` requests only the `drive.appdata` scope
   (a private, hidden per-app folder) and keeps the whole `DataBundle` as one JSON
   file (`chessretabled-state.json`). The access token is **in memory only, never
-  persisted**. **Privacy-gated**: `cloud/policy.ts` (`chooseAdapterKind`) is the
+  persisted**. Mirrors Tachyread's `syncProviders.js`, deliberately:
+  - **Built-in OAuth client id** (`BUILTIN_GOOGLE_CLIENT_ID`), shared with
+    Tachyread/GymTracker — Google authorises a client per **origin**, not per
+    path, and all three deploy under `https://adervec.github.io`, so the
+    registered origin already covers this app. Two gates: Google refuses it off
+    a registered origin, and `driveOriginAllowed` refuses it app-side too, so a
+    fork elsewhere gets a clear "supply your own id" instead of a confusing
+    failure from Google. A user-supplied id always wins.
+  - **Silent, then consent.** `ensureAccessToken(id, interactive)` tries
+    `prompt:''` first (an existing grant + live session returns a token with no
+    UI, which is what lets sync resume on boot) and only falls back to the
+    consent popup when the call came from a click. `error_callback` goes in the
+    GIS config, or a dismissed popup leaves the promise hanging forever.
+  - **Resumable upload past 4 MB.** A simple upload caps at 5 MB and this bundle
+    is not small — a thousand archived games carry their move lists.
+  - `remoteStamp()` is the cheap change probe: one metadata query, no body. **Privacy-gated**: `cloud/policy.ts` (`chooseAdapterKind`) is the
   single chokepoint — cloud is OFF by default and nothing uploads until the user
   opts in, **consents**, and supplies an OAuth client id; otherwise the local
   mirror is used. `state/cloudConfig.ts` (persisted: provider/consent/clientId/
   account only) registers the adapter via `applyCloudConfig()` (app start + every
   change). Bring-your-own OAuth client id (an identifier, not a secret); the GIS
   script loads lazily only on connect. Pure pieces (gate, serialize/parse, LWW)
-  covered by `scripts/validate-sync.mjs`. NB: TS **parameter properties** break
+  covered by `scripts/validate-sync.mjs` — including the origin gate, and that
+  a built-in client id does **not** remove the consent requirement. Easy
+  sign-in must not become automatic sign-in. NB: TS **parameter properties** break
   Node type-stripping — assign fields explicitly in `.ts` constructors.
 
 ## More modes & content

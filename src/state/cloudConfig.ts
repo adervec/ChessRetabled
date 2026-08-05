@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { setSyncAdapter, LocalSyncAdapter } from "./sync";
 import {
-  GoogleDriveSyncAdapter, DEFAULT_GOOGLE_CLIENT_ID, clearAccessToken, forgetDriveFile,
+  GoogleDriveSyncAdapter, currentClientId, clearAccessToken, forgetDriveFile,
   type GoogleAccount,
 } from "./cloud/googleDrive";
 import { chooseAdapterKind, type SyncProvider } from "./cloud/policy";
@@ -32,7 +32,9 @@ export interface CloudConfigState {
 const initial = {
   provider: "local" as SyncProvider,
   consented: false,
-  clientId: DEFAULT_GOOGLE_CLIENT_ID,
+  // Empty means "use the built-in id where it's registered" — a fork elsewhere
+  // pastes its own here.
+  clientId: "",
   account: null as GoogleAccount | null,
 };
 
@@ -63,10 +65,17 @@ export const useCloudConfig = create<CloudConfigState>()(
   )
 );
 
-/** Build the adapter the current config resolves to (through the privacy gate). */
+/**
+ * Build the adapter the current config resolves to (through the privacy gate).
+ * The gate is asked about the *effective* client id — the user's own if they
+ * supplied one, otherwise the built-in one where it is registered — so Drive
+ * works out of the box on this deployment and still needs an explicit opt-in
+ * and consent before anything leaves the device.
+ */
 export function buildAdapterFor(c: CloudConfigState) {
-  if (chooseAdapterKind(c) === "drive") {
-    return new GoogleDriveSyncAdapter({ clientId: c.clientId.trim() });
+  const clientId = currentClientId(c.clientId);
+  if (chooseAdapterKind({ ...c, clientId }) === "drive") {
+    return new GoogleDriveSyncAdapter({ clientId });
   }
   return new LocalSyncAdapter();
 }
