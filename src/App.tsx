@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { useEffect, useRef } from "react";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { NavBar } from "./components/ui/NavBar";
 import { useProgress } from "./state/useProgress";
 import { useSettings, ANIM_MS } from "./state/useSettings";
@@ -31,6 +31,8 @@ export default function App() {
   const orientation = useSettings((s) => s.orientation);
   const gameOrientation = useSettings((s) => s.gameOrientation);
   const activeGame = useActiveGameStore((s) => s.id);
+  const loc = useLocation();
+  const mainRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     touchDay();
@@ -67,10 +69,16 @@ export default function App() {
     return () => mq.removeEventListener("change", apply);
   }, [activeGame, gameOrientation, orientation]);
 
+  // The scroll lives on <main> now, so arriving at a new page has to reset it —
+  // the document scroll that used to do this for free is pinned.
+  useEffect(() => {
+    mainRef.current?.scrollTo({ top: 0 });
+  }, [loc.pathname]);
+
   return (
     <div className="app-shell">
       <NavBar />
-      <main className="grow">
+      <main className="grow" ref={mainRef}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/play" element={<Play />} />

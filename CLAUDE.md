@@ -339,6 +339,24 @@ opponent-based games. Same discipline — pure logic in `.ts`, verified headless
   reshuffling. Rendered by `components/ui/WhatNow.tsx` on Home + Dashboard.
   Covered by `validate-stats.mjs` (shape, rule triggers, 200-archive totality).
 
+## The app owns its scrolling
+
+- **`html`/`body` are `overflow: hidden`; `.app-shell` is `height: 100dvh`; the
+  scroll lives on `main.grow`** (`overflow-y: auto; min-height: 0`). Letting the
+  *document* scroll on a phone gives the browser chrome a vote in the layout —
+  the URL bar retracts, `height: 100%` resolves against a viewport that is no
+  longer there, and the nav ends up half off the top of the screen. That was the
+  reported bug; `min-height` on the shell is what to avoid reintroducing.
+- The nav and the session bar are **flex rows of the shell**, not `sticky`/`fixed`
+  overlays, so neither can be scrolled away or cover the end of a page.
+- **`App.tsx` resets `main.scrollTop` on navigation** — the document scroll used
+  to do that for free.
+- **Scrollbars are therefore all ours, and all themed**: `scrollbar-color` plus
+  the `::-webkit-scrollbar*` rules at the end of `global.css`, built from tokens
+  so they re-skin with everything else. Don't hardcode a colour there.
+- `validate-responsive.mjs` covers every one of these, and the negative control
+  (putting `min-height: 100%` back) was checked to fail.
+
 ## Mobile vs desktop (`src/styles/responsive.css`)
 
 - **Width picks the layout, `(pointer: coarse)` / `(hover: none)` pick the
