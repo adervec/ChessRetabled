@@ -162,6 +162,14 @@ export function Home() {
             rel="noopener noreferrer"
           >
             Source &amp; license (GPL-3.0)
+          </a>{" "}
+          ·{" "}
+          <a
+            href="https://adervec.github.io"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            More apps by this maker
           </a>
         </p>
         <p>
