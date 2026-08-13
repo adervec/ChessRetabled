@@ -15,6 +15,19 @@ if (import.meta.env.PROD && "serviceWorker" in navigator) {
   });
 }
 
+// Let the app portal (same origin, adervec.github.io) know this app is installed:
+// a same-origin localStorage registry, no network. Only written when we're
+// actually running as an installed app, never in a normal browser tab.
+try {
+  const modes = ["standalone", "minimal-ui", "fullscreen", "window-controls-overlay"];
+  if (modes.some((m) => matchMedia(`(display-mode: ${m})`).matches)) {
+    const key = "portal-installed";
+    const reg: Record<string, number> = JSON.parse(localStorage.getItem(key) || "{}");
+    reg["ChessRetabled"] = Date.now();
+    localStorage.setItem(key, JSON.stringify(reg));
+  }
+} catch {}
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter
