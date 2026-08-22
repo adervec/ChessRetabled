@@ -64,7 +64,11 @@ export const useProgress = create<ProgressState>()(
     (set) => ({
       ...initial,
 
-      addXp: (n) => set((s) => ({ xp: s.xp + Math.max(0, Math.round(n)) })),
+      addXp: (n) => {
+        // maker-portal character sheet: XP means you played — same-origin localStorage, nothing leaves the browser
+        try { const k = "portal-activity", a = JSON.parse(localStorage.getItem(k) || "[]"); a.push([Math.round(Date.now() / 1000), "ChessRetabled", "chess", Math.max(1, Math.round(n / 20))]); localStorage.setItem(k, JSON.stringify(a.slice(-2000))); } catch (_) { /* quota — ignore */ }
+        set((s) => ({ xp: s.xp + Math.max(0, Math.round(n)) }));
+      },
 
       recordPuzzle: (solved, ratingDelta) =>
         set((s) => {
