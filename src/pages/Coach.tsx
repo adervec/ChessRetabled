@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useArchive } from "../state/useArchive";
 import { useProgress, useLevel } from "../state/useProgress";
 import { buildDashboard } from "../state/stats";
@@ -21,6 +21,51 @@ that exist in the app. Keep answers compact and practical.`;
 
 type ChatMsg = { role: "user" | "assistant"; content: string };
 
+// Folder cowork through the maker's shared panel (https://adervec.github.io/cowork.js, fs mode):
+// the panel drives a folder you pick — we hand it the brief as coach/request.json and show
+// whatever an agent writes to coach/reply.json. CoworkSyncHub (or Claude Desktop pointed at
+// the folder) answers; nothing here talks to a network.
+type CoworkGlobal = { mount: (host: HTMLElement, cfg: unknown) => unknown };
+function loadCowork(): Promise<CoworkGlobal | null> {
+  const w = window as unknown as { cowork?: CoworkGlobal };
+  if (w.cowork) return Promise.resolve(w.cowork);
+  return new Promise((res) => {
+    const s = document.createElement("script");
+    s.src = "https://adervec.github.io/cowork.js";
+    s.async = true;
+    s.onload = () => res(w.cowork ?? null);
+    s.onerror = () => res(null);
+    document.head.appendChild(s);
+  });
+}
+function djb2(text: string): string {
+  let h = 5381;
+  for (let i = 0; i < text.length; i++) h = ((h * 33) ^ text.charCodeAt(i)) >>> 0;
+  return h.toString(16);
+}
+const COWORK_MANIFEST = {
+  protocol: "cowork-manifest", protocolVersion: 1, app: "chessretabled",
+  channels: [{ name: "coach", request: ["coach/request.json"], instructions: "coach/INSTRUCTIONS.md", replyPath: "coach/reply.json" }],
+};
+const COWORK_INSTRUCTIONS = `# ChessRetabled — coach channel
+
+Read \`coach/request.json\`: the player's coaching brief is \`payload.brief\` (play, puzzles,
+lessons, games, archetype — all generated from data on their device).
+
+Write \`coach/reply.json\`:
+
+\`\`\`json
+{ "requestHash": "<copy the request's requestHash verbatim>",
+  "reply": "<your coaching in markdown: be encouraging but honest, ground every observation in the brief, and when you recommend training name modes / games / difficulties that exist in the app. Compact and practical.>" }
+\`\`\`
+`;
+function coworkRequest(brief: string) {
+  const payload = { brief };
+  return { protocol: "chessretabled-coach", protocolVersion: 1, kind: "coach-request",
+    generatedAt: new Date().toISOString(), requestHash: djb2(JSON.stringify(payload)), payload };
+}
+const COACH_REPLY_KEY = "cr-coach-reply";
+
 const STARTERS = [
   "Assess my play — strengths and weaknesses?",
   "Build me a two-week training plan.",
@@ -31,6 +76,28 @@ export function Coach() {
   const records = useArchive((a) => a.records);
   const progress = useProgress();
   const { level } = useLevel();
+
+  const coworkHost = useRef<HTMLDivElement>(null);
+  const briefRef = useRef("");
+  const [folderReply, setFolderReply] = useState(() => localStorage.getItem(COACH_REPLY_KEY) || "");
+  useEffect(() => {
+    const host = coworkHost.current;
+    if (!host) return;
+    loadCowork().then((cw) => {
+      if (!cw || !host.isConnected || host.childElementCount) return;
+      cw.mount(host, {
+        app: "chessretabled", manifest: COWORK_MANIFEST,
+        files: () => ({ "coach/request.json": coworkRequest(briefRef.current), "coach/INSTRUCTIONS.md": COWORK_INSTRUCTIONS }),
+        apply: (_ch: string, reply: unknown) => {
+          const r = reply as { reply?: string; payload?: { reply?: string } } | string;
+          const text = typeof r === "string" ? r : r?.reply ?? r?.payload?.reply ?? JSON.stringify(reply, null, 2);
+          localStorage.setItem(COACH_REPLY_KEY, text);
+          setFolderReply(text);
+        },
+      });
+    });
+    return () => { host.replaceChildren(); };
+  }, []);
 
   const { brief, arch } = useMemo(() => {
     const d = buildDashboard(records);
@@ -73,6 +140,7 @@ export function Coach() {
   // ---- live chat (bring your own Anthropic API key; key stays in memory) ----
   const [apiKey, setApiKey] = useState("");
   const [consent, setConsent] = useState(false);
+  briefRef.current = brief;
   const [messages, setMessages] = useState<ChatMsg[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
@@ -154,6 +222,21 @@ export function Coach() {
           Tip: paste a fresh brief into the same AI conversation every week or two
           — ask it to compare briefs and it becomes your progress tracker.
         </p>
+      </section>
+
+      <section className="coach__section">
+        <h2 className="dash__h2">🤝 Folder cowork</h2>
+        <p className="text-dim coach__chat-sub">
+          No key needed: connect a folder, send the brief, and let an agent (CoworkSyncHub,
+          Claude Desktop, or a person) answer in it. The reply shows up here.
+        </p>
+        <div ref={coworkHost} />
+        {folderReply && (
+          <>
+            <h3 className="coach__arch" style={{ marginTop: 12 }}>Coach's reply</h3>
+            <pre className="coach__brief scroll-y">{folderReply}</pre>
+          </>
+        )}
       </section>
 
       <section className="coach__section">
