@@ -66,6 +66,10 @@ jobs:
       - name: Validate move review
         run: node scripts/validate-review.mjs
 
+      # House font standard: Atkinson Hyperlegible default + a reader font choice.
+      - name: Validate house font
+        run: node scripts/validate-font.mjs
+
       # Dashboard analytics: catalogue integrity + buildDashboard aggregation.
       - name: Validate dashboard stats
         run: node scripts/validate-stats.mjs

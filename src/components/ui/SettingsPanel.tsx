@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { createElement, useRef, useState } from "react";
 import { useSettings, THEMES, ANIM_SPEEDS, ORIENTATIONS } from "../../state/useSettings";
 import { playSfx } from "../../state/sfx";
 import { downloadExport, importJson } from "../../state/dataTransfer";
@@ -62,6 +62,12 @@ export function SettingsPanel() {
   return (
     <section className="settings">
       <h2 className="settings__title">⚙ Settings</h2>
+
+      <div className="settings__group">
+        <h3>Font</h3>
+        {/* shared picker from https://adervec.github.io/font.js; the choice applies to every app by this maker */}
+        <div className="settings__row">{createElement("app-font-picker")}</div>
+      </div>
 
       <div className="settings__group">
         <h3>Theme</h3>

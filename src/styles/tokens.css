@@ -67,7 +67,7 @@
 
   /* ---- Typography ---- */
   --font-display: "Baloo 2", "Trebuchet MS", system-ui, sans-serif;
-  --font-body: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-body: var(--app-font, "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif);
 
   /* ---- Outlines & shadows (the cel-shaded signature) ---- */
   --outline-w: 3px;
