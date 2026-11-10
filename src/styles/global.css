@@ -550,3 +550,29 @@ p {
 ::-webkit-scrollbar-corner {
   background: transparent;
 }
+
+/* Daily-challenge strip — used on both Home and the Logic Lab, so it lives
+   here rather than in either page's sheet. Tokens only, so it re-skins. */
+.daily-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--surface-raised);
+  border: var(--outline-w) solid var(--outline);
+  border-radius: var(--radius-m);
+  box-shadow: var(--shadow-sticker-sm);
+  color: var(--text);
+  text-decoration: none;
+}
+.daily-strip:hover { background: var(--surface-2); }
+.daily-strip__icon { font-size: 1.6rem; }
+.daily-strip__text { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.daily-strip__text > span { font-size: 0.85rem; }
+
+.arcade-card__badge {
+  margin-top: 0.35rem;
+  font-size: 0.72rem;
+  color: var(--gold);
+}

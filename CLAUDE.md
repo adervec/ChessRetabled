@@ -241,6 +241,48 @@ opponent-based games. Same discipline — pure logic in `.ts`, verified headless
   `countSolutions`/`isSolved` module + a `.tsx`; the loop/path ones use bespoke
   segment- or path-drawing UIs rather than the shading grid.
 
+## Daily challenge (`/daily`)
+
+- **One puzzle a day, the same for everyone, with no server.** Every Logic Lab
+  generator is already `generate(seed, …)` and nothing in `src/logic/` touches
+  `Math.random`, so `src/logic/daily.ts` hashes the date into that seed and the
+  day's puzzle is fixed — offline, unfetched, identical for every player.
+- **`src/logic/daily.ts` is pure and total**: `dailyKey` (the viewer's *local*
+  day, so it turns over at their midnight), `dailySeed` (FNV-1a), `dailyPuzzleId`,
+  `shiftKey`/`dayIndex`, `streak`, `shareText`. Key arithmetic reads keys as UTC
+  midnight on purpose — a calendar day is then a fixed 24h, so stepping across a
+  DST change can't land on the wrong date.
+- **`dailyPuzzleId` is a block-shuffle, not a hash.** Each run of 25 days is its
+  own seeded permutation of the pool, so all 25 puzzles come up once before any
+  repeats. A plain `seed % 25` repeats within a week and starves others.
+- **The seed is pinned, not threaded.** `cards/core/rng.ts` gained
+  `pinSeed(n | null)`, and `pages/Daily.tsx` sets it **during render** (each
+  puzzle seeds itself in a `useState` initialiser, which runs in its own render
+  pass) and clears it on unmount. That's what avoids a `seed` prop through 25
+  components and 46 call sites; the ceiling is that it's global — one pinned
+  surface at a time.
+- **Solves are detected via `useArchive.add`**, the single funnel all 25 puzzles
+  already use, so no puzzle component needed a callback prop. `state/useDaily.ts`
+  is the per-day ledger (its own store, because the archive can't tell a daily
+  from a casual play of the same puzzle that day) and it **does** ride in the
+  export/sync bundle — a streak lost by switching devices is no streak.
+- `logic/ui/components.tsx` maps id → puzzle screen; the lobby and the daily both
+  render from an id instead of each keeping a 25-line if-chain.
+- **The share text is deliberately spoiler-free** — which days you solved, never
+  anything about the grid. `validate-daily.mjs` asserts no long digit run from
+  the live solution appears in it.
+- `scripts/validate-daily.mjs` (98 checks, in CI) covers the date maths, leap and
+  DST boundaries, the 25-cycle, streak rules, and that **all 25 generators
+  reproduce from a pinned seed**. That last check caught a real shipped bug:
+  Kakuro's 0.12 wall density made runs too long for sums to force a unique fill,
+  so all 60 attempts failed and `generate` dropped through to its "should never
+  hit" 1-cell fallback — for **76 of every 80 seeds**. Fixed at 0.38 (and ~170x
+  faster). The validator now fails any generator whose 14 consecutive days
+  collapse to one puzzle.
+- **Not wired into CI yet** (pre-existing): `validate-famous`,
+  `validate-sessions`, `validate-orientation` and `validate-responsive` — the
+  last needs `npm run build` first, since it greps the built CSS.
+
 ## PWA, hints, archetype & coach
 
 - **PWA**: `public/manifest.webmanifest` uses **relative URLs** (`./`) so the
@@ -279,7 +321,10 @@ opponent-based games. Same discipline — pure logic in `.ts`, verified headless
   - chess → engine eval before/after each ply through the logistic in
     `winChance`; a second search only on bad moves, to say what was better.
   - board → **the game's own engine at full strength is the referee**
-    (`refereeFor`). Three attempts to get here: a private depth-2 search called
+    (`refereeFor`), searching a **fixed per-game depth** (`REVIEW_DEPTH` in
+    `review/board.ts`), never a time budget — a clock reaches a different depth
+    on a busy device and flipped verdicts (Konane's own opening rated a blunder
+    under load). `validate-review.mjs` is in CI. Three attempts to get here: a private depth-2 search called
     the shipped AI's own Reversi openings blunders; depth-5 cost 4m26s and still
     disagreed on Hex/LOA. Judging a player with a weaker judge is the bug, and
     chess-calibrated thresholds don't transfer to a differently scaled quantity.

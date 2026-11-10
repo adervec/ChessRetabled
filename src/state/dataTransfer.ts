@@ -1,6 +1,7 @@
 import { useProgress } from "./useProgress";
 import { useSettings } from "./useSettings";
 import { useArchive } from "./useArchive";
+import { useDaily } from "./useDaily";
 
 // One-stop JSON export/import of all persisted app data. The same bundle shape
 // is what the cloud-sync layer pushes/pulls (state/sync.ts), so a future cloud
@@ -16,6 +17,8 @@ export interface DataBundle {
   progress: Record<string, unknown>;
   settings: Record<string, unknown>;
   archive: Record<string, unknown>;
+  /** Optional: added after v1, so an older bundle simply has none. */
+  daily?: Record<string, unknown>;
 }
 
 /** Strip action functions so only serialisable data is captured. */
@@ -35,6 +38,7 @@ export function buildBundle(): DataBundle {
     progress: dataOnly(useProgress.getState() as unknown as Record<string, unknown>),
     settings: dataOnly(useSettings.getState() as unknown as Record<string, unknown>),
     archive: dataOnly(useArchive.getState() as unknown as Record<string, unknown>),
+    daily: dataOnly(useDaily.getState() as unknown as Record<string, unknown>),
   };
 }
 
@@ -58,6 +62,7 @@ export function applyBundle(bundle: DataBundle): ImportResult {
   if (bundle.progress) useProgress.setState(bundle.progress as never);
   if (bundle.settings) useSettings.setState(bundle.settings as never);
   if (bundle.archive) useArchive.setState(bundle.archive as never);
+  if (bundle.daily) useDaily.setState(bundle.daily as never);
   return { ok: true };
 }
 

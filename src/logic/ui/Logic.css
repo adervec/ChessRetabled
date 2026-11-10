@@ -789,3 +789,44 @@
   0%, 100% { opacity: 1; }
   50% { opacity: 0.45; }
 }
+
+/* ---- Daily challenge ---------------------------------------------------- */
+/* All colour comes from tokens, so this re-skins with every theme. */
+
+.daily-card {
+  max-width: 34rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 1.25rem;
+  background: var(--surface-raised);
+  border: var(--outline-w) solid var(--outline);
+  border-radius: var(--radius-l);
+  box-shadow: var(--shadow-sticker);
+}
+.daily-card__head { display: flex; align-items: center; gap: 0.75rem; }
+.daily-card__no {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--text-muted);
+}
+.daily-card__icon { font-size: 2.2rem; }
+.daily-card__name { display: flex; flex-direction: column; min-width: 0; }
+.daily-card__name > span { font-size: 0.85rem; }
+
+.daily-stats { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+.daily-week { display: flex; gap: 0.35rem; }
+.daily-week__day {
+  flex: 1;
+  text-align: center;
+  padding: 0.4rem 0;
+  font-size: 0.75rem;
+  border-radius: var(--radius-s);
+  border: var(--outline-w) solid var(--outline);
+  background: var(--surface);
+  color: var(--text-dim);
+}
+.daily-week__day.is-done { background: var(--good); color: var(--text-on-light); }
+.daily-week__day.is-assisted { background: var(--gold); color: var(--text-on-light); }

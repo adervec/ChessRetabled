@@ -1,10 +1,13 @@
 import { useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useProgress, useLevel } from "../state/useProgress";
 import { useArchive } from "../state/useArchive";
 import { buildDashboard } from "../state/stats";
 import { CATALOG, CATEGORY_LABEL, CATEGORY_ORDER, type CatalogCategory } from "../catalog";
 import { WhatNow } from "../components/ui/WhatNow";
+import { dailyKey, dailyNumber, dailyPuzzleId } from "../logic/daily";
+import { LOGIC_PUZZLES } from "../logic/registry";
+import { useDaily } from "../state/useDaily";
 import "./Home.css";
 
 // The landing page is deliberately category-agnostic: chess is one of four
@@ -94,6 +97,8 @@ export function Home() {
         </div>
       </section>
 
+      <DailyStrip />
+
       <WhatNow />
 
       <section className="home__progress">
@@ -181,5 +186,23 @@ export function Home() {
         </p>
       </footer>
     </div>
+  );
+}
+
+function DailyStrip() {
+  const todayKey = dailyKey(new Date());
+  const meta = LOGIC_PUZZLES.find((p) => p.id === dailyPuzzleId(todayKey));
+  const done = !!useDaily((s) => s.results[todayKey]);
+  return (
+    <Link to="/daily" className="daily-strip">
+      <span className="daily-strip__icon">📅</span>
+      <span className="daily-strip__text">
+        <strong>Daily Challenge #{dailyNumber(todayKey)} · {meta?.name}</strong>
+        <span className="text-muted">
+          {done ? "Solved today — the next one lands at midnight" : "One puzzle a day, the same one for everyone"}
+        </span>
+      </span>
+      <span className={"tag" + (done ? " tag--gold" : "")}>{done ? "✓ done" : "play"}</span>
+    </Link>
   );
 }

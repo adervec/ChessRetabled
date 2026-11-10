@@ -19,7 +19,7 @@ const NEUTRAL_ICON = "▦";
 function brandIcon(pathname: string): string {
   if (/^\/(games|academy)/.test(pathname)) return CATEGORY_ICON.board;
   if (/^\/cards/.test(pathname)) return CATEGORY_ICON.cards;
-  if (/^\/logic/.test(pathname)) return CATEGORY_ICON.logic;
+  if (/^\/(logic|daily)/.test(pathname)) return CATEGORY_ICON.logic;
   if (/^\/(play|puzzles|learn|practice|simul)/.test(pathname)) return CATEGORY_ICON.chess;
   return NEUTRAL_ICON;
 }
@@ -29,6 +29,7 @@ const LINKS = [
   { to: "/games", label: "Games", ico: "🎲" },
   { to: "/cards", label: "Cards", ico: "🃏" },
   { to: "/logic", label: "Logic", ico: "💡" },
+  { to: "/daily", label: "Daily", ico: "📅" },
   { to: "/simul", label: "Simul", ico: "♞" },
   { to: "/puzzles", label: "Puzzles", ico: "🧩" },
   { to: "/academy", label: "Academy", ico: "🎓" },
@@ -39,7 +40,7 @@ const LINKS = [
   { to: "/guide", label: "Guides", ico: "📖" },
 ];
 
-// Only these stay in the bar itself; all 12 live in the ☰ menu. Twelve labelled
+// Only these stay in the bar itself; all 13 live in the ☰ menu. Twelve labelled
 // pills need ~1750px of bar — they used to overflow and shove the menu button
 // off-screen on any normal display.
 const PRIMARY = LINKS.slice(0, 4);

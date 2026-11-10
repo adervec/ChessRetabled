@@ -13,6 +13,7 @@ import { Arcade } from "./pages/Arcade";
 import { Simul } from "./pages/Simul";
 import { Cards } from "./pages/Cards";
 import { Logic } from "./pages/Logic";
+import { Daily } from "./pages/Daily";
 import { Puzzles } from "./pages/Puzzles";
 import { LessonPlayer } from "./pages/LessonPlayer";
 import { Academy } from "./pages/Academy";
@@ -86,6 +87,7 @@ export default function App() {
           <Route path="/simul" element={<Simul />} />
           <Route path="/cards" element={<Cards />} />
           <Route path="/logic" element={<Logic />} />
+          <Route path="/daily" element={<Daily />} />
           <Route path="/puzzles" element={<Puzzles />} />
           {/* Learn folded into the Academy — one place to be taught anything. */}
           <Route path="/learn" element={<Navigate to="/academy" replace />} />

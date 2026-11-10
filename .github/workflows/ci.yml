@@ -55,6 +55,17 @@ jobs:
       - name: Validate logic puzzles
         run: node scripts/validate-logic.mjs
 
+      # Daily challenge: the date -> seed -> puzzle mapping, streak maths, and
+      # that all 25 generators really are reproducible from a pinned seed (the
+      # check that caught Kakuro collapsing to a 1-cell fallback).
+      - name: Validate daily challenge
+        run: node scripts/validate-daily.mjs
+
+      # Move review: the referee searches a fixed depth (not a time budget),
+      # so verdicts are the same on a busy runner as on a fast laptop.
+      - name: Validate move review
+        run: node scripts/validate-review.mjs
+
       # Dashboard analytics: catalogue integrity + buildDashboard aggregation.
       - name: Validate dashboard stats
         run: node scripts/validate-stats.mjs
