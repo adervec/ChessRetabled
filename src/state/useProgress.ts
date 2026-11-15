@@ -1,5 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { dayKey, dayDiff } from "./day.ts";
+import { logSession } from "./ledger.ts";
 
 export type LessonRecord = { completed: boolean; stars: number; ts: number };
 export type DrillRecord = { completed: boolean; best: number | null };
@@ -29,13 +31,8 @@ export type ProgressState = {
   reset: () => void;
 };
 
-const todayISO = () => new Date().toISOString().slice(0, 10);
-
-function dayDiff(aISO: string, bISO: string): number {
-  const a = new Date(aISO + "T00:00:00");
-  const b = new Date(bISO + "T00:00:00");
-  return Math.round((b.getTime() - a.getTime()) / 86400000);
-}
+// The streak turns over at the player's own midnight, not UTC's.
+const todayISO = () => dayKey();
 
 /** XP curve: level N needs N*150 cumulative-ish. Simple + readable. */
 export function levelFromXp(xp: number): { level: number; into: number; need: number } {
@@ -64,11 +61,9 @@ export const useProgress = create<ProgressState>()(
     (set) => ({
       ...initial,
 
-      addXp: (n) => {
-        // maker-portal character sheet: XP means you played — same-origin localStorage, nothing leaves the browser
-        try { const k = "portal-activity", a = JSON.parse(localStorage.getItem(k) || "[]"); a.push([Math.round(Date.now() / 1000), "ChessRetabled", "chess", Math.max(1, Math.round(n / 20))]); localStorage.setItem(k, JSON.stringify(a.slice(-2000))); } catch (_) { /* quota — ignore */ }
-        set((s) => ({ xp: s.xp + Math.max(0, Math.round(n)) }));
-      },
+      // XP is an event, not a session: the hub hears about finished games from
+      // useArchive.add and about lessons from completeLesson (standard 25).
+      addXp: (n) => set((s) => ({ xp: s.xp + Math.max(0, Math.round(n)) })),
 
       recordPuzzle: (solved, ratingDelta) =>
         set((s) => {
@@ -85,7 +80,11 @@ export const useProgress = create<ProgressState>()(
           };
         }),
 
-      completeLesson: (id, stars) =>
+      completeLesson: (id, stars) => {
+        // A finished lesson is a study session. The key carries the local day, so
+        // coming back to the same lesson next week counts again but a re-save
+        // today does not (font.js de-duplicates by id).
+        logSession("study", `lesson:${id}:${dayKey()}`);
         set((s) => {
           const prev = s.lessons[id];
           const bestStars = Math.max(prev?.stars ?? 0, stars);
@@ -97,7 +96,8 @@ export const useProgress = create<ProgressState>()(
             },
             xp: s.xp + (firstTime ? 25 : 5),
           };
-        }),
+        });
+      },
 
       completeDrill: (id, stat) =>
         set((s) => {

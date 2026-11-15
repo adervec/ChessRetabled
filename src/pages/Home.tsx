@@ -103,22 +103,22 @@ export function Home() {
 
       <section className="home__progress">
         <div className="home__stat">
-          <div className="big" style={{ color: "var(--violet)" }}>Lv {level}</div>
+          <div className="big" style={{ color: "var(--violet-ink)" }}>Lv {level}</div>
           <div className="lbl">Level</div>
           <div className="bar" style={{ marginTop: 10 }}>
             <span style={{ width: `${Math.round((into / need) * 100)}%` }} />
           </div>
         </div>
         <div className="home__stat">
-          <div className="big" style={{ color: "var(--gold)" }}>🎮 {d.totalPlayed}</div>
+          <div className="big" style={{ color: "var(--gold-ink)" }}>🎮 {d.totalPlayed}</div>
           <div className="lbl">Games played</div>
         </div>
         <div className="home__stat">
-          <div className="big" style={{ color: "var(--coral)" }}>🔥 {streak}</div>
+          <div className="big" style={{ color: "var(--coral-ink)" }}>🔥 {streak}</div>
           <div className="lbl">Day streak</div>
         </div>
         <div className="home__stat">
-          <div className="big" style={{ color: "var(--mint)" }}>
+          <div className="big" style={{ color: "var(--mint-ink)" }}>
             {d.triedCount}/{d.catalogCount}
           </div>
           <div className="lbl">Games tried</div>

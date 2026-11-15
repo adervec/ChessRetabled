@@ -7,6 +7,29 @@
     <!-- Zoom stays enabled on purpose (blocking it fails WCAG 1.4.4); the
          double-tap delay is handled by touch-action in responsive.css.
          viewport-fit=cover lets the safe-area insets there do their job. -->
+    <!-- Every app shares the adervec.github.io origin, so one injected script in any
+         of them could read every app's data and the Drive token. Modelled on
+         MicroMiniger's, tightened where this app allows it: no 'unsafe-inline' for
+         scripts, because the built page has none (Vite emits a src'd module only).
+         'wasm-unsafe-eval' is for the Stockfish NNUE build, which compiles WebAssembly;
+         plain 'unsafe-eval' is never allowed. style-src needs 'unsafe-inline' for React
+         style props, the per-card --card-w, and font.js's injected @font-face. The hosts
+         here are the same set validate-requests.mjs declares, and it cross-checks them. -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none';
+               script-src 'self' 'wasm-unsafe-eval' https://adervec.github.io https://accounts.google.com;
+               style-src 'self' 'unsafe-inline';
+               img-src 'self' data: blob: https://*.googleusercontent.com;
+               font-src 'self' https://adervec.github.io;
+               connect-src 'self' https://adervec.github.io https://www.googleapis.com https://accounts.google.com https://oauth2.googleapis.com https://api.anthropic.com;
+               worker-src 'self' blob:;
+               frame-src https://accounts.google.com;
+               manifest-src 'self';
+               base-uri 'none';
+               form-action 'none';
+               object-src 'none'"
+    />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#1b1530" />
     <meta
@@ -17,6 +40,16 @@
     <!-- House font: Atkinson Hyperlegible by default, reader-changeable under Settings. Served
          from the maker's own site (the same origin as this app on GitHub Pages), under SIL OFL 1.1:
          https://adervec.github.io/fonts/OFL.txt -->
+    <!-- font.js reads these: the About panel, and the what's-new notice shown once
+         after an update. %BASE_URL% keeps whatsnew.json on the Pages sub-path. -->
+    <meta name="app-name" content="ChessRetabled" />
+    <meta name="app-whatsnew" content="%BASE_URL%whatsnew.json" />
+    <meta name="app-license" content="GPL-3.0-or-later" />
+    <meta name="app-source" content="https://github.com/adervec/ChessRetabled" />
+    <meta
+      name="app-data-note"
+      content="Everything stays in this browser. Nothing is sent anywhere unless you connect Google Drive yourself."
+    />
     <script src="https://adervec.github.io/font.js"></script>
     <title>ChessRetabled</title>
   </head>

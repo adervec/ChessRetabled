@@ -1,8 +1,11 @@
 name: Deploy to GitHub Pages
 
-# Ship the production build to GitHub Pages on every push to main. The build is
-# validated (type-check via `npm run build`, plus lesson content) before it goes
-# out, so a broken main never deploys. Can also be run manually.
+# Ship the production build to GitHub Pages on every push to main.
+#
+# The deploy is gated on the *same* checks as CI: `npm run verify` builds (which
+# is also the type-check) and runs every scripts/validate-*.mjs, so main cannot
+# deploy past something CI would have failed. It used to run validate-lessons
+# alone and ship whatever built. Can also be run manually.
 on:
   push:
     branches: [main]
@@ -36,14 +39,19 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Validate lesson content
-        run: node scripts/validate-lessons.mjs
+      # Advisories that actually reach a player. --omit=dev on purpose: this is a
+      # static client-side app, so the Vite/esbuild/postcss build chain never ships
+      # to a browser, and failing CI on a dev-only advisory would train everyone to
+      # ignore it. `npm audit` (no flags) still reports those locally.
+      - name: Audit shipped dependencies
+        run: npm audit --audit-level=high --omit=dev
 
-      # Build under the project subpath (e.g. /ChessRetabled/) so absolute asset
-      # URLs and the router basename resolve on Pages. `npm run build` also runs
-      # tsc --noEmit, so a type error fails the deploy here.
-      - name: Build
-        run: npm run build
+      # Builds under the project subpath (e.g. /ChessRetabled/) so absolute asset
+      # URLs and the router basename resolve on Pages, then runs every validator
+      # against that build. dist/ is what gets uploaded below, so the artifact is
+      # exactly the tree the checks passed on.
+      - name: Verify (build, type-check, every validator)
+        run: npm run verify
         env:
           BASE_PATH: /${{ github.event.repository.name }}/
 
@@ -67,3 +75,16 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  # Checks the site that is actually live (headless Chrome) and, if it is healthy,
+  # tags the deployed commit deploy-YYYYMMDD-HHMM so a release can be found and
+  # rolled back to. `contents: write` is for pushing that tag, nothing else.
+  # ponytail: @main tracks the shared workflow, which is the point — pin a SHA
+  # instead if an unreviewed change there should not be able to run here.
+  after-deploy:
+    needs: deploy
+    uses: adervec/CoworkSyncHub/.github/workflows/after-deploy.yml@main
+    with:
+      url: https://adervec.github.io/ChessRetabled/
+    permissions:
+      contents: write

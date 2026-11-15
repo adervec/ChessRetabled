@@ -4,6 +4,7 @@
 
 import type { GameRecord } from "./useArchive";
 import { CATALOG, CATEGORY_ORDER, type CatalogEntry, type CatalogCategory } from "../catalog.ts";
+import { dayKey } from "./day.ts";
 
 const DAY = 86400000;
 
@@ -52,7 +53,8 @@ export interface DashboardData {
   byDay: { date: string; count: number }[];
 }
 
-const dayKey = (iso: string) => iso.slice(0, 10);
+// NB: not iso.slice(0, 10) — endedISO is a UTC instant, so slicing it buckets a
+// 22:30 game in Sao Paulo into tomorrow. dayKey converts to the local day.
 
 function emptyStats(entry: CatalogEntry): GameStats {
   return {
@@ -128,7 +130,7 @@ export function buildDashboard(records: GameRecord[], now: number = Date.now()):
   const byDay: { date: string; count: number }[] = [];
   for (let i = 13; i >= 0; i--) {
     const d = new Date(now - i * DAY);
-    const key = d.toISOString().slice(0, 10);
+    const key = dayKey(d);
     byDay.push({ date: key, count: records.filter((r) => dayKey(r.endedISO) === key).length });
   }
 

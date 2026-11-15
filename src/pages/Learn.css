@@ -94,6 +94,6 @@
 .lessonrow__cta {
   font-family: var(--font-display);
   font-weight: 700;
-  color: var(--gold);
+  color: var(--gold-ink);
   flex-shrink: 0;
 }

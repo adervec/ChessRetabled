@@ -156,7 +156,7 @@
   text-align: left;
 }
 .md-table th { background: var(--surface-2); font-family: var(--font-display, inherit); }
-.md a { color: var(--sky); }
+.md a { color: var(--sky-ink); }
 
 @media (max-width: 560px) {
   .guide-read__nb { max-width: 100%; }

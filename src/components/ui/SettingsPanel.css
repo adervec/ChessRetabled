@@ -52,7 +52,8 @@
   transform: translateY(-2px);
 }
 .theme-chip.is-on {
-  background: var(--violet);
+  /* the -dark shade: white on the raw #9b6bff is only 3.5:1 */
+  background: var(--violet-dark);
   color: #fff;
   box-shadow: var(--shadow-sticker-sm);
 }
@@ -152,3 +153,13 @@
 .settings__profiletext { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; margin-right: auto; }
 .settings__profilename { font-weight: 800; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .settings__profilemail { font-size: 0.78rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* The erase confirmation. Same shape as .review__confirm, which lives in a page
+   sheet this component does not import. */
+.settings__danger {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 12px 14px;
+  border: var(--outline); border-radius: var(--radius-m);
+  background: color-mix(in srgb, var(--coral) 16%, var(--surface));
+  font-weight: 700;
+}

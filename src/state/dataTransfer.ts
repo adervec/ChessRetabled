@@ -1,7 +1,9 @@
 import { useProgress } from "./useProgress";
-import { useSettings } from "./useSettings";
+import { useSettings, upgradeSettings } from "./useSettings";
 import { useArchive } from "./useArchive";
 import { useDaily } from "./useDaily";
+import { useGameReviews } from "./useGameReviews";
+import { dayKey } from "./day.ts";
 
 // One-stop JSON export/import of all persisted app data. The same bundle shape
 // is what the cloud-sync layer pushes/pulls (state/sync.ts), so a future cloud
@@ -19,6 +21,8 @@ export interface DataBundle {
   archive: Record<string, unknown>;
   /** Optional: added after v1, so an older bundle simply has none. */
   daily?: Record<string, unknown>;
+  /** Per-game grades: the app's own, and the cowork channel's second opinion. */
+  reviews?: Record<string, unknown>;
 }
 
 /** Strip action functions so only serialisable data is captured. */
@@ -39,6 +43,7 @@ export function buildBundle(): DataBundle {
     settings: dataOnly(useSettings.getState() as unknown as Record<string, unknown>),
     archive: dataOnly(useArchive.getState() as unknown as Record<string, unknown>),
     daily: dataOnly(useDaily.getState() as unknown as Record<string, unknown>),
+    reviews: dataOnly(useGameReviews.getState() as unknown as Record<string, unknown>),
   };
 }
 
@@ -60,9 +65,12 @@ export function applyBundle(bundle: DataBundle): ImportResult {
     return { ok: false, error: `Unsupported data version (${bundle.version}).` };
   }
   if (bundle.progress) useProgress.setState(bundle.progress as never);
-  if (bundle.settings) useSettings.setState(bundle.settings as never);
+  // Through the same upgrade persist uses, so a backup from before the house
+  // theme list still restores the reader's board skin.
+  if (bundle.settings) useSettings.setState(upgradeSettings(bundle.settings) as never);
   if (bundle.archive) useArchive.setState(bundle.archive as never);
   if (bundle.daily) useDaily.setState(bundle.daily as never);
+  if (bundle.reviews) useGameReviews.setState(bundle.reviews as never);
   return { ok: true };
 }
 
@@ -81,7 +89,7 @@ export function downloadExport(): void {
   const blob = new Blob([exportJson()], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
-  const stamp = new Date().toISOString().slice(0, 10);
+  const stamp = dayKey();
   a.href = url;
   a.download = `chessretabled-data-${stamp}.json`;
   a.click();

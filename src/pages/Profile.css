@@ -19,6 +19,9 @@
   border-radius: var(--radius-l);
   border: var(--outline);
   background: var(--gold);
+  /* a hue fill, so the glyph takes the skin's dark ink rather than --text,
+     which is near-white on every dark theme */
+  color: var(--text-on-light);
   box-shadow: var(--shadow-sticker);
   flex-shrink: 0;
 }

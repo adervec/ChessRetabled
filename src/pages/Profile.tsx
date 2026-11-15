@@ -36,7 +36,7 @@ export function Profile() {
       <div className="profile__hero" style={{ marginTop: 16 }}>
         <div className="profile__avatar">🦊</div>
         <div className="profile__level">
-          <div className="profile__levelnum" style={{ color: "var(--gold)" }}>
+          <div className="profile__levelnum" style={{ color: "var(--gold-ink)" }}>
             Level {level}
           </div>
           <div className="text-dim" style={{ fontWeight: 700, marginBottom: 8 }}>
@@ -49,7 +49,7 @@ export function Profile() {
           </div>
         </div>
         <div style={{ textAlign: "center" }}>
-          <div className="profile__levelnum" style={{ color: "var(--coral)" }}>
+          <div className="profile__levelnum" style={{ color: "var(--coral-ink)" }}>
             🔥 {p.streak.count}
           </div>
           <div className="text-muted" style={{ fontWeight: 700 }}>
@@ -61,7 +61,7 @@ export function Profile() {
       <div className="profile__grid">
         <div className="statcard">
           <div className="statcard__label">⚡ Puzzle Rating</div>
-          <div className="statcard__value" style={{ color: "var(--gold)" }}>
+          <div className="statcard__value" style={{ color: "var(--gold-ink)" }}>
             {p.puzzle.rating}
           </div>
           <div className="statcard__sub">
@@ -71,7 +71,7 @@ export function Profile() {
 
         <div className="statcard">
           <div className="statcard__label">🔥 Best Puzzle Streak</div>
-          <div className="statcard__value" style={{ color: "var(--coral)" }}>
+          <div className="statcard__value" style={{ color: "var(--coral-ink)" }}>
             {p.puzzle.bestStreak}
           </div>
           <div className="statcard__sub">of {PUZZLES.length} puzzles available</div>
@@ -79,7 +79,7 @@ export function Profile() {
 
         <div className="statcard">
           <div className="statcard__label">♟ Bot Games</div>
-          <div className="statcard__value" style={{ color: "var(--mint)" }}>
+          <div className="statcard__value" style={{ color: "var(--mint-ink)" }}>
             {p.games.won}-{p.games.drawn}-{p.games.lost}
           </div>
           <div className="statcard__sub">
@@ -89,7 +89,7 @@ export function Profile() {
 
         <div className="statcard">
           <div className="statcard__label">🎓 Lessons</div>
-          <div className="statcard__value" style={{ color: "var(--sky)" }}>
+          <div className="statcard__value" style={{ color: "var(--sky-ink)" }}>
             {lessonsDone}/{TOTAL_LESSONS}
           </div>
           <div className="statcard__sub">⭐ {stars} stars earned</div>
@@ -97,7 +97,7 @@ export function Profile() {
 
         <div className="statcard">
           <div className="statcard__label">🎯 Drills Mastered</div>
-          <div className="statcard__value" style={{ color: "var(--violet)" }}>
+          <div className="statcard__value" style={{ color: "var(--violet-ink)" }}>
             {drillsDone}/{DRILLS.length}
           </div>
           <div className="statcard__sub">endgame technique</div>
@@ -105,7 +105,7 @@ export function Profile() {
 
         <div className="statcard">
           <div className="statcard__label">★ Level</div>
-          <div className="statcard__value" style={{ color: "var(--gold)" }}>
+          <div className="statcard__value" style={{ color: "var(--gold-ink)" }}>
             {level}
           </div>
           <div className="statcard__sub">{p.xp} XP earned</div>

@@ -26,12 +26,7 @@ export function dailyPool(): string[] {
  * The day key for a moment, in the *viewer's own* timezone, so the puzzle turns
  * over at their midnight rather than UTC's.
  */
-export function dailyKey(d: Date): string {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
+export { dayKey as dailyKey } from "../state/day.ts";
 
 /**
  * A key as a day number. Keys are read as UTC midnight purely for arithmetic —

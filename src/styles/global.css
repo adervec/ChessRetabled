@@ -265,8 +265,15 @@ p {
   --btn-bg: var(--gold);
   --btn-fg: var(--text-on-light);
 }
+/*
+ * Measured pairings, worst case (the Pastel skin's --text-on-light, #4a3a63):
+ *   gold/ink 6.8   mint/ink 6.0   sky/ink 5.1
+ *   coral-dark/white 4.4   violet-dark/white 6.4   rose-dark/white 4.6
+ * The raw coral and violet fail both foregrounds (2.8 and 3.5 on white, 3.6 and
+ * 2.9 on ink), so those two take the -dark shade as the fill.
+ */
 .btn--coral {
-  --btn-bg: var(--coral);
+  --btn-bg: var(--coral-dark);
   --btn-fg: #fff;
 }
 .btn--mint {
@@ -274,7 +281,7 @@ p {
   --btn-fg: var(--text-on-light);
 }
 .btn--violet {
-  --btn-bg: var(--violet);
+  --btn-bg: var(--violet-dark);
   --btn-fg: #fff;
 }
 .btn--sky {
@@ -574,5 +581,7 @@ p {
 .arcade-card__badge {
   margin-top: 0.35rem;
   font-size: 0.72rem;
-  color: var(--gold);
+  /* Muted, not gold: at 11.5px no mix of gold reaches 4.5:1 on the warm light
+     themes while still reading as gold. Big gold numbers keep --gold-ink. */
+  color: var(--text-muted);
 }

@@ -1,7 +1,8 @@
 import { createElement, useRef, useState } from "react";
-import { useSettings, THEMES, ANIM_SPEEDS, ORIENTATIONS } from "../../state/useSettings";
+import { useSettings, SKINS, ANIM_SPEEDS, ORIENTATIONS } from "../../state/useSettings";
 import { playSfx } from "../../state/sfx";
 import { downloadExport, importJson } from "../../state/dataTransfer";
+import { eraseLocalData } from "../../state/eraseLocal";
 import { syncNow } from "../../state/sync";
 import { useCloudConfig } from "../../state/cloudConfig";
 import { chooseAdapterKind, CLOUD_CONSENT_TEXT } from "../../state/cloud/policy";
@@ -10,11 +11,14 @@ import "./SettingsPanel.css";
 
 export function SettingsPanel() {
   const {
-    theme, animSpeed, boardTilt, orientation, sound, volume,
-    setTheme, setAnimSpeed, setBoardTilt, setOrientation, setSound, setVolume,
+    boardSkin, animSpeed, boardTilt, orientation, sound, volume,
+    setBoardSkin, setAnimSpeed, setBoardTilt, setOrientation, setSound, setVolume,
   } = useSettings();
   const cloud = useCloudConfig();
   const [msg, setMsg] = useState<string | null>(null);
+  // Two-step instead of window.confirm: a native dialog is easy to dismiss by
+  // reflex, and this keeps the warning on screen while the user decides.
+  const [confirmErase, setConfirmErase] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   // The id actually in play: the user's own if they pasted one, otherwise the
   // built-in one on an origin it's registered for.
@@ -32,6 +36,13 @@ export function SettingsPanel() {
     } catch (e) {
       setMsg(`Connect failed: ${e instanceof Error ? e.message : "unknown error"}`);
     }
+  }
+
+  // Reload rather than resetting each store: the persisted stores are already
+  // in memory and would write themselves straight back out.
+  function onErase() {
+    eraseLocalData();
+    window.location.reload();
   }
 
   function onImport(e: React.ChangeEvent<HTMLInputElement>) {
@@ -71,12 +82,23 @@ export function SettingsPanel() {
 
       <div className="settings__group">
         <h3>Theme</h3>
+        {/*
+          The colour theme is the house's one list (standard 24): font.js owns
+          the fifteen themes and the palette, and keeps the choice per app. The
+          board below is ours, so a reader can pair any theme with any board.
+        */}
+        <div className="settings__row">{createElement("app-theme-picker")}</div>
+      </div>
+
+      <div className="settings__group">
+        <h3>Board</h3>
         <div className="settings__row">
-          {THEMES.map((t) => (
+          {SKINS.map((t) => (
             <button
               key={t.id}
-              className={"theme-chip" + (t.id === theme ? " is-on" : "")}
-              onClick={() => setTheme(t.id)}
+              className={"theme-chip" + (t.id === boardSkin ? " is-on" : "")}
+              onClick={() => setBoardSkin(t.id)}
+              aria-pressed={t.id === boardSkin}
             >
               <span className="theme-chip__swatches">
                 {t.swatch.map((c, i) => (
@@ -291,6 +313,38 @@ export function SettingsPanel() {
         )}
 
         {msg && <p className="settings__msg">{msg}</p>}
+      </div>
+
+      <div className="settings__group">
+        <h3>Erase everything</h3>
+        {confirmErase ? (
+          <div className="settings__danger">
+            <span>
+              Erase every game, puzzle, streak, lesson and setting stored in this
+              browser? This cannot be undone.
+            </span>
+            <button className="btn btn--sm btn--danger" onClick={onErase}>
+              Erase it all
+            </button>
+            <button className="btn btn--sm btn--ghost" onClick={() => setConfirmErase(false)}>
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <div className="settings__row">
+            <button className="btn btn--sm btn--danger" onClick={() => setConfirmErase(true)}>
+              🗑 Erase all data on this device
+            </button>
+          </div>
+        )}
+        <p className="settings__hint">
+          Clears this app's own storage only — the maker's other apps on this site
+          share the same browser storage, and their data is left alone (as is your
+          chosen font). If you sync to Google Drive, <strong>the copy in your Drive
+          is not touched</strong>: this app would re-download it the next time you
+          connect, so delete that file in Drive too if you want it gone. Export
+          first if you might want any of it back.
+        </p>
       </div>
     </section>
   );

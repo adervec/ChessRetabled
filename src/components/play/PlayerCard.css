@@ -39,7 +39,7 @@
 }
 .playercard__thinking {
   font-size: 0.8rem;
-  color: var(--gold);
+  color: var(--gold-ink);
   font-weight: 700;
   animation: blink 1s steps(2, start) infinite;
 }
@@ -79,5 +79,5 @@
   font-family: var(--font-display);
   font-weight: 800;
   font-size: 0.82rem;
-  color: var(--mint);
+  color: var(--mint-ink);
 }

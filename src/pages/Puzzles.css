@@ -115,10 +115,10 @@
   font-size: 1.3rem;
 }
 .puz__delta.up {
-  color: var(--mint);
+  color: var(--mint-ink);
 }
 .puz__delta.down {
-  color: var(--coral);
+  color: var(--coral-ink);
 }
 .puz__controls {
   display: grid;

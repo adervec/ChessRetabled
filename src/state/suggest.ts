@@ -5,6 +5,7 @@
 // scripts/validate-stats.mjs can drive it headlessly.
 
 import type { DashboardData } from "./stats.ts";
+import { dayKey } from "./day.ts";
 import { CATEGORY_LABEL, type CatalogEntry } from "../catalog.ts";
 import { COURSES } from "../content/lessons.ts";
 
@@ -74,7 +75,8 @@ function nextLesson(lessons: Record<string, { completed: boolean }>): Suggestion
 
 export function suggestActivities(d: DashboardData, input: SuggestInput = {}): Suggestion[] {
   const { lessons = {}, streak = 0, now = Date.now(), seed = 0 } = input;
-  const today = new Date(now).toISOString().slice(0, 10);
+  // Local day, so this agrees with stats.ts's byDay buckets.
+  const today = dayKey(now);
   const playedToday = d.byDay.some((b) => b.date === today && b.count > 0);
   const age = (iso: string | null) => (iso ? now - new Date(iso).getTime() : Infinity);
 

@@ -1,13 +1,21 @@
 name: CI
 
-# Quality gate for changes that aren't yet on main: type-check, content
-# validation, and a production build. Pushes to main are validated + deployed by
-# deploy.yml instead, so this skips main to avoid a redundant run.
+# Quality gate for changes that aren't yet on main. Pushes to main are validated
+# and deployed by deploy.yml instead, so this skips main to avoid a redundant run.
+#
+# The check list is not here: it lives in `npm run verify` (scripts/verify.mjs),
+# which builds, type-checks and runs every scripts/validate-*.mjs. deploy.yml runs
+# the same command, so a deploy cannot ship past a check CI enforces — and adding a
+# validator needs no edit to either workflow.
 on:
   push:
     branches-ignore: [main]
   pull_request:
     branches: [main]
+
+# Least privilege by default: this workflow only ever reads the repo.
+permissions:
+  contents: read
 
 # A newer push to the same branch/PR supersedes an in-flight run.
 concurrency:
@@ -31,59 +39,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Type-check
-        run: npm run typecheck
+      # Advisories that actually reach a player. --omit=dev on purpose: this is a
+      # static client-side app, so the Vite/esbuild/postcss build chain never ships
+      # to a browser, and failing CI on a dev-only advisory would train everyone to
+      # ignore it. `npm audit` (no flags) still reports those locally.
+      - name: Audit shipped dependencies
+        run: npm audit --audit-level=high --omit=dev
 
-      - name: Validate lesson content
-        run: node scripts/validate-lessons.mjs
-
-      # Exercises the combinatorial-games suite (rules, terminal detection, AI)
-      # headlessly via the same .ts type-stripping the content scripts use.
-      - name: Validate games suite
-        run: node scripts/validate-games.mjs
-
-      # Verifies the games-academy learning paths (challenge setups + answers).
-      - name: Validate game lessons
-        run: node scripts/validate-game-lessons.mjs
-
-      # Drives the card games' seeded logic (legality, termination, scoring,
-      # 52-card conservation) via AI-vs-AI / policy simulations.
-      - name: Validate card games
-        run: node scripts/validate-cards.mjs
-
-      # Logic Lab: Sudoku generator/solver/uniqueness + Mastermind feedback/solver.
-      - name: Validate logic puzzles
-        run: node scripts/validate-logic.mjs
-
-      # Daily challenge: the date -> seed -> puzzle mapping, streak maths, and
-      # that all 25 generators really are reproducible from a pinned seed (the
-      # check that caught Kakuro collapsing to a 1-cell fallback).
-      - name: Validate daily challenge
-        run: node scripts/validate-daily.mjs
-
-      # Move review: the referee searches a fixed depth (not a time budget),
-      # so verdicts are the same on a busy runner as on a fast laptop.
-      - name: Validate move review
-        run: node scripts/validate-review.mjs
-
-      # House font standard: Atkinson Hyperlegible default + a reader font choice.
-      - name: Validate house font
-        run: node scripts/validate-font.mjs
-
-      # Dashboard analytics: catalogue integrity + buildDashboard aggregation.
-      - name: Validate dashboard stats
-        run: node scripts/validate-stats.mjs
-
-      # Cloud sync: privacy gate, Firestore encode/decode, JWT decode, LWW rule.
-      - name: Validate cloud sync
-        run: node scripts/validate-sync.mjs
-
-      # Puzzles are derived, not hand-typed: regenerate and fail if the committed
-      # JSON drifts from what the generator produces (stale file or a hand-edit).
-      - name: Verify generated puzzles are up to date
-        run: |
-          node scripts/build-puzzles.mjs
-          git diff --exit-code -- src/content/puzzles.generated.json
-
-      - name: Build
-        run: npm run build
+      - name: Verify (build, type-check, every validator)
+        run: npm run verify

@@ -50,7 +50,7 @@
 .sudoku-cell.peer { background: color-mix(in srgb, var(--violet) 14%, var(--surface)); }
 .sudoku-cell.same { background: color-mix(in srgb, var(--sky) 26%, var(--surface)); }
 .sudoku-cell.sel { background: color-mix(in srgb, var(--gold) 40%, var(--surface)); color: var(--text-on-light); }
-.sudoku-cell.bad { color: var(--coral); background: color-mix(in srgb, var(--coral) 22%, var(--surface)); }
+.sudoku-cell.bad { color: var(--coral-ink); background: color-mix(in srgb, var(--coral) 22%, var(--surface)); }
 .sudoku-cell.box-r { border-right: 3px solid var(--ink); }
 .sudoku-cell.box-b { border-bottom: 3px solid var(--ink); }
 
@@ -178,8 +178,8 @@
   color: var(--text);
 }
 .binairo-cell.given { background: var(--surface-2); }
-.binairo-cell.zero { color: var(--sky-dark); }
-.binairo-cell.one { color: var(--coral-dark); }
+.binairo-cell.zero { color: var(--sky-ink); }
+.binairo-cell.one { color: var(--coral-ink); }
 .binairo-cell.bad { background: color-mix(in srgb, var(--coral) 24%, var(--surface)); }
 
 /* ---- 15-puzzle ---- */
@@ -225,14 +225,14 @@
 }
 .fut-cell.given { background: var(--surface-2); }
 .fut-cell.sel { background: color-mix(in srgb, var(--gold) 40%, var(--surface)); color: var(--text-on-light); }
-.fut-cell.bad { background: color-mix(in srgb, var(--coral) 24%, var(--surface)); color: var(--coral); }
+.fut-cell.bad { background: color-mix(in srgb, var(--coral) 24%, var(--surface)); color: var(--coral-ink); }
 .fut-sign {
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 800;
   font-size: 1.2rem;
-  color: var(--violet);
+  color: var(--violet-ink);
   min-width: 14px;
   min-height: 14px;
 }
@@ -295,7 +295,7 @@
   cursor: pointer;
 }
 .hit-cell.shaded { background: var(--ink); color: var(--ink); }
-.hit-cell.bad { background: color-mix(in srgb, var(--coral) 26%, var(--surface)); color: var(--coral); }
+.hit-cell.bad { background: color-mix(in srgb, var(--coral) 26%, var(--surface)); color: var(--coral-ink); }
 
 /* ---- Skyscrapers ---- */
 .sky {
@@ -324,7 +324,7 @@
   cursor: pointer;
 }
 .sky-cell.sel { background: color-mix(in srgb, var(--gold) 40%, var(--surface)); color: var(--text-on-light); }
-.sky-cell.bad { background: color-mix(in srgb, var(--coral) 24%, var(--surface)); color: var(--coral); }
+.sky-cell.bad { background: color-mix(in srgb, var(--coral) 24%, var(--surface)); color: var(--coral-ink); }
 
 /* ---- Hidato ---- */
 .hidato {
@@ -348,7 +348,7 @@
 }
 .hidato-cell.given { background: var(--surface-2); font-weight: 900; }
 .hidato-cell.sel { background: color-mix(in srgb, var(--gold) 40%, var(--surface)); color: var(--text-on-light); }
-.hidato-cell.bad { background: color-mix(in srgb, var(--coral) 24%, var(--surface)); color: var(--coral); }
+.hidato-cell.bad { background: color-mix(in srgb, var(--coral) 24%, var(--surface)); color: var(--coral-ink); }
 
 /* ---- Kakurasu ---- */
 .kakurasu {
@@ -374,7 +374,7 @@
   justify-content: center;
   font-family: var(--font-display);
   font-weight: 800;
-  color: var(--gold-dark);
+  color: var(--gold-ink);
 }
 
 /* ---- Akari ---- */
@@ -428,7 +428,7 @@
 .sg-cell.edge-b { border-bottom: 3px solid var(--ink); }
 .sg-cell.given { background: var(--surface-2); }
 .sg-cell.sel { background: color-mix(in srgb, var(--gold) 40%, var(--surface)); color: var(--text-on-light); }
-.sg-cell.bad { background: color-mix(in srgb, var(--coral) 24%, var(--surface)); color: var(--coral); }
+.sg-cell.bad { background: color-mix(in srgb, var(--coral) 24%, var(--surface)); color: var(--coral-ink); }
 
 /* ---- Kakuro ---- */
 .kakuro-grid {
@@ -451,7 +451,7 @@
   cursor: pointer;
 }
 .kku-white.sel { background: color-mix(in srgb, var(--gold) 40%, var(--surface)); color: var(--text-on-light); }
-.kku-white.bad { background: color-mix(in srgb, var(--coral) 24%, var(--surface)); color: var(--coral); }
+.kku-white.bad { background: color-mix(in srgb, var(--coral) 24%, var(--surface)); color: var(--coral-ink); }
 .kku-clue {
   position: relative;
   aspect-ratio: 1;
@@ -480,7 +480,7 @@
   aspect-ratio: 1;
   border: 1px solid color-mix(in srgb, var(--ink) 20%, transparent);
   font-size: clamp(1.1rem, 5vw, 1.6rem);
-  color: var(--gold-dark);
+  color: var(--gold-ink);
   cursor: pointer;
 }
 .sb-cell.reg-0 { background: color-mix(in srgb, var(--violet) 16%, var(--surface)); }
@@ -517,7 +517,7 @@
 }
 .shk-cell.anchor { outline: 3px solid var(--gold); outline-offset: -3px; }
 .shk-cell.overlap { background: color-mix(in srgb, var(--coral) 36%, var(--surface)); }
-.shk-cell.bad { color: var(--coral); }
+.shk-cell.bad { color: var(--coral-ink); }
 .shk-cell.own-0 { background: color-mix(in srgb, var(--violet) 20%, var(--surface)); }
 .shk-cell.own-1 { background: color-mix(in srgb, var(--sky) 20%, var(--surface)); }
 .shk-cell.own-2 { background: color-mix(in srgb, var(--mint) 20%, var(--surface)); }
@@ -576,8 +576,8 @@
   font-weight: 800;
   color: var(--text-dim);
 }
-.aq-clue.ok { color: var(--mint-dark); }
-.aq-clue.over { color: var(--coral); }
+.aq-clue.ok { color: var(--mint-ink); }
+.aq-clue.over { color: var(--coral-ink); }
 
 /* ---- Slitherlink ---- */
 .slither {
@@ -603,7 +603,7 @@
   background: transparent;
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  color: var(--coral); font-weight: 800; font-size: 0.8rem; line-height: 1;
+  color: var(--coral-ink); font-weight: 800; font-size: 0.8rem; line-height: 1;
 }
 .sl-edge--h { height: 16px; }
 .sl-edge--v { width: 16px; }
@@ -716,7 +716,7 @@
 .br-isle.sel { outline: 3px solid var(--gold); }
 .br-gap {
   display: flex; align-items: center; justify-content: center;
-  color: var(--violet);
+  color: var(--violet-ink);
   font-weight: 900;
   font-size: 1.4rem;
   line-height: 1;
@@ -748,7 +748,7 @@
   color: var(--text-dim);
 }
 .te-clue.ok { color: var(--mint, #2f9e6e); }
-.te-clue.over { color: var(--coral); }
+.te-clue.over { color: var(--coral-ink); }
 
 /* ---- Numberlink ---- */
 .numberlink {

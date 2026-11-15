@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { createElement, useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { Logo } from "../brand/Logo";
 import { useProgress, useLevel } from "../../state/useProgress";
@@ -109,6 +109,10 @@ export function NavBar() {
       </div>
 
       <div className="nav__stats">
+        {/* House standard: while the app is synced, the Google picture is in the top
+            bar on every screen, not just in Settings. font.js owns and draws this
+            element (and hides it when signed out); App.tsx tells it who is signed in. */}
+        {createElement("app-account")}
         <LayoutToggle />
         <NavLink to="/profile" className="nav__stat nav__stat--rating" title="Puzzle rating">
           <span className="ico" aria-hidden>⚡</span>
@@ -123,7 +127,8 @@ export function NavBar() {
           to="/profile"
           className="nav__stat nav__stat--level"
           title="Level"
-          style={{ background: "var(--violet)", color: "#fff" }}
+          // the -dark shade, not the raw hue: white on #9b6bff is only 3.5:1
+          style={{ background: "var(--violet-dark)", color: "#fff" }}
         >
           <span className="ico" aria-hidden>★</span>
           Lv {level}

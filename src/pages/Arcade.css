@@ -77,12 +77,12 @@
   min-height: 1.4em;
 }
 .arcade-status.is-over {
-  color: var(--gold);
+  color: var(--gold-ink);
 }
 .arcade-hintnote {
   text-align: center;
   font-size: 0.88rem;
-  color: var(--sky);
+  color: var(--sky-ink);
   font-weight: 700;
 }
 .arcade-game__board {

@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { playSfx } from "./sfx";
+import { kindForGame, logSession, sessionMinutes } from "./ledger.ts";
 
 // Rich history of every finished game — chess and the arcade games alike.
 // Records are fully serialisable so the whole archive round-trips through the
@@ -62,6 +63,9 @@ export const useArchive = create<ArchiveState>()(
         if (r.outcome === "win" || r.outcome === "loss" || r.outcome === "draw") {
           playSfx(r.outcome === "win" ? "win" : r.outcome === "loss" ? "lose" : "draw");
         }
+        // ...and the one place the hub hears about a finished session (standard 25).
+        // Abandoned games are told too: time at the board is time spent.
+        logSession(kindForGame(r.gameId), r.id, sessionMinutes(r.startedISO, r.endedISO));
         set((s) => ({ records: [r, ...s.records].slice(0, MAX_RECORDS) }));
       },
       remove: (id) => set((s) => ({ records: s.records.filter((x) => x.id !== id) })),

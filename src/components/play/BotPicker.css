@@ -44,6 +44,8 @@
   border-radius: var(--radius-s);
   border: 2px solid var(--ink);
   background: var(--bc-accent);
+  /* each bot sets --bc-accent to one of our hues: dark ink on it, not --text */
+  color: var(--text-on-light);
   margin-bottom: 10px;
 }
 .botcard__name {
@@ -63,7 +65,7 @@
   font-family: var(--font-display);
   font-weight: 800;
   font-size: 1.1rem;
-  color: var(--gold);
+  color: var(--gold-ink);
 }
 .botcard__blurb {
   margin-top: 8px;

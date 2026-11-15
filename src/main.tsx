@@ -15,18 +15,9 @@ if (import.meta.env.PROD && "serviceWorker" in navigator) {
   });
 }
 
-// Let the app portal (same origin, adervec.github.io) know this app is installed:
-// a same-origin localStorage registry, no network. Only written when we're
-// actually running as an installed app, never in a normal browser tab.
-try {
-  const modes = ["standalone", "minimal-ui", "fullscreen", "window-controls-overlay"];
-  if (modes.some((m) => matchMedia(`(display-mode: ${m})`).matches)) {
-    const key = "portal-installed";
-    const reg: Record<string, number> = JSON.parse(localStorage.getItem(key) || "{}");
-    reg["ChessRetabled"] = Date.now();
-    localStorage.setItem(key, JSON.stringify(reg));
-  }
-} catch {}
+// The portal's installed-app registry (portal-installed) used to be written here.
+// font.js now records it for every app on the origin, so our copy is gone — a
+// house key is the house's to write. eraseLocal.ts still prunes our row out of it.
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

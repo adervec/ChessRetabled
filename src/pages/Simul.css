@@ -60,7 +60,7 @@
   color: var(--text);
   margin-bottom: 8px;
 }
-.simul-setup__warn { color: var(--coral); font-weight: 700; }
+.simul-setup__warn { color: var(--coral-ink); font-weight: 700; }
 
 /* ---- play ---- */
 .simul-topbar {
@@ -91,7 +91,7 @@
   text-align: center;
   font-family: var(--font-display);
   font-size: 1.2rem;
-  color: var(--gold);
+  color: var(--gold-ink);
   background: var(--surface);
   border: var(--outline);
   border-radius: var(--radius-m);

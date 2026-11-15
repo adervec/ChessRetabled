@@ -34,7 +34,7 @@
   border: var(--outline);
   border-radius: var(--radius-l);
   box-shadow: var(--shadow-sticker-sm);
-  border-left: 6px solid var(--accent, var(--violet));
+  border-left: 6px solid var(--accent, var(--violet-ink));
   color: var(--text);
   transition: transform 0.14s var(--ease-pop), box-shadow 0.14s ease;
 }
@@ -43,13 +43,13 @@
   box-shadow: var(--shadow-sticker);
 }
 
-.whatnow__card--streak { --accent: var(--coral); }
-.whatnow__card--momentum { --accent: var(--mint); }
-.whatnow__card--improve { --accent: var(--gold); }
-.whatnow__card--fresh { --accent: var(--sky); }
-.whatnow__card--revisit { --accent: var(--violet); }
-.whatnow__card--lesson { --accent: var(--sky); }
-.whatnow__card--favourite { --accent: var(--gold); }
+.whatnow__card--streak { --accent: var(--coral-ink); }
+.whatnow__card--momentum { --accent: var(--mint-ink); }
+.whatnow__card--improve { --accent: var(--gold-ink); }
+.whatnow__card--fresh { --accent: var(--sky-ink); }
+.whatnow__card--revisit { --accent: var(--violet-ink); }
+.whatnow__card--lesson { --accent: var(--sky-ink); }
+.whatnow__card--favourite { --accent: var(--gold-ink); }
 
 .whatnow__ico {
   grid-area: ico;
@@ -77,7 +77,7 @@
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 0.88rem;
-  color: var(--accent, var(--violet));
+  color: var(--accent, var(--violet-ink));
 }
 
 .whatnow--compact .whatnow__card {

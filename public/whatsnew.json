@@ -1,0 +1,28 @@
+[
+  {
+    "date": "2026-11-14",
+    "items": [
+      "Fifteen colour themes, the same ones in every app by this maker: System (which follows your phone or computer), Light, Dark, Midnight, Slate, Ocean, Forest, Ember, Gold, Synthwave, Terminal, Paper, Pastel, Mono and High contrast.",
+      "Your board is now its own choice, separate from the theme. Dusk, Pastel, Croanada, Penguin, Volcano and Vegas are all still there, with their pieces and felt, so you can pair any board with any theme. Whichever one you were using is the one you still have.",
+      "Had a game analysed? You can now ask for a second opinion on it. The app's own accuracy score stays exactly where it was — the AI's grade appears beside it, and you choose which ones to keep.",
+      "While you're synced to Google Drive, your account picture sits in the top bar on every screen, and tapping it takes you to your sync settings.",
+      "The app now opens in light or dark to match your device. The moment you pick a theme yourself, that choice wins for good."
+    ]
+  },
+  {
+    "date": "2026-11-10",
+    "items": [
+      "Your day now ends at your midnight instead of UTC's. Streaks, the daily puzzle and your activity chart all follow your own clock — if you played at 10pm, it counts for today.",
+      "Settings can now erase everything this app has stored on your device. It asks first, leaves the maker's other apps alone, and does not touch your Google Drive copy."
+    ]
+  },
+  {
+    "date": "2026-11-09",
+    "items": [
+      "New: a Daily Challenge. One Logic Lab puzzle a day, the same one for everybody, with a streak and a result you can share without spoiling the puzzle.",
+      "Kakuro was handing out a board with a single square on it. It now gives you a real grid every time.",
+      "Looking back at a game gives the same verdict every time you open it, instead of changing its mind when your device is busy.",
+      "You can pick the app's typeface in Settings. Atkinson Hyperlegible, designed for low vision, is the new default."
+    ]
+  }
+]

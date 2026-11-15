@@ -12,6 +12,8 @@ import type { BoardView, Token } from "../games/ui/boardView";
 import type { GameMove } from "../games/core/types";
 import { FAMOUS, type FamousGame } from "../content/famous";
 import { reviewRecord, isReviewable, LABEL_META, tally, type GameReview } from "../review";
+import { dayKey } from "../state/day.ts";
+import { useGameReviews } from "../state/useGameReviews";
 import { buildGameBrief, downloadBrief } from "../state/cowork";
 import "./Review.css";
 
@@ -282,6 +284,17 @@ function RecordReview({ record, onBack }: { record: GameRecord; onBack: () => vo
         onProgress: (done, total) => setProgress([done, total]),
       });
       setReview(r);
+      // Keep the grade: it cost an engine search, and the game-review cowork
+      // channel offers a second opinion only on games the app has graded.
+      useGameReviews.getState().setApp(record.id, {
+        accuracy: r.accuracy,
+        method: r.method,
+        turningPointPly: r.turningPointPly,
+        counts: Object.fromEntries(
+          tally(r.moves.filter((m) => m.by !== "opponent").map((m) => m.label)).map((t) => [t.label, t.count])
+        ),
+        gradedISO: new Date().toISOString(),
+      });
     } finally {
       setBusy(false);
       setProgress(null);
@@ -325,6 +338,32 @@ function RecordReview({ record, onBack }: { record: GameRecord; onBack: () => vo
   );
 }
 
+/**
+ * The cowork channel's grade, shown *beside* the accuracy above rather than
+ * replacing it — two judges, both visible. Absent until a review is applied.
+ */
+function AiSecondOpinion({ recordId }: { recordId: string }) {
+  const ai = useGameReviews((s) => s.byRecord[recordId]?.ai);
+  if (!ai) return null;
+  return (
+    <div className="review__ai">
+      <div className="review__ai-head">
+        <span className="review__ai-grade">{ai.grade}</span>
+        <span>AI second opinion</span>
+        <span className="text-muted">{dayKey(ai.reviewedISO)}</span>
+      </div>
+      {ai.summary && <p className="review__ai-sum">{ai.summary}</p>}
+      {ai.strengths.length > 0 && (
+        <p className="review__ai-line"><b>Working:</b> {ai.strengths.join(" · ")}</p>
+      )}
+      {ai.fixes.length > 0 && (
+        <p className="review__ai-line"><b>To fix:</b> {ai.fixes.join(" · ")}</p>
+      )}
+      {ai.next && <p className="review__ai-line"><b>Next:</b> {ai.next}</p>}
+    </div>
+  );
+}
+
 function ReviewBody({ record, review }: { record: GameRecord; review: GameReview }) {
   const [ply, setPly] = useState(review.moves.length);
   const counts = useMemo(() => tally(review.moves.filter((m) => m.by !== "opponent").map((m) => m.label)), [review]);
@@ -345,6 +384,7 @@ function ReviewBody({ record, review }: { record: GameRecord; review: GameReview
         </div>
       </div>
       <p className="review__note text-muted">Method: {review.method}.</p>
+      <AiSecondOpinion recordId={record.id} />
       {review.unavailable && <p className="review__note text-muted">{review.unavailable}</p>}
 
       <ReplayBoard record={record} ply={ply} />
