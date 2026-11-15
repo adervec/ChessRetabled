@@ -1,0 +1,8 @@
+{
+  "schema": 2,
+  "localStorage": ["chessretabled.*", "cr-coach-reply"],
+  "indexedDB": [],
+  "drive": ["chessretabled-state.json"],
+  "caches": [],
+  "export": "Settings (on Profile) > Data & sync > Export JSON"
+}

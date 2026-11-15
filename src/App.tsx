@@ -1,11 +1,11 @@
 import { useEffect, useRef } from "react";
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { NavBar } from "./components/ui/NavBar";
 import { useProgress } from "./state/useProgress";
 import { useSettings, ANIM_MS } from "./state/useSettings";
 import { resolveLayout } from "./state/orientation";
 import { useActiveGameStore } from "./state/activeGame";
-import { applyCloudConfig } from "./state/cloudConfig";
+import { applyCloudConfig, useCloudConfig } from "./state/cloudConfig";
 import { installUiSfx } from "./state/sfx";
 import { Home } from "./pages/Home";
 import { Play } from "./pages/Play";
@@ -13,6 +13,7 @@ import { Arcade } from "./pages/Arcade";
 import { Simul } from "./pages/Simul";
 import { Cards } from "./pages/Cards";
 import { Logic } from "./pages/Logic";
+import { Daily } from "./pages/Daily";
 import { Puzzles } from "./pages/Puzzles";
 import { LessonPlayer } from "./pages/LessonPlayer";
 import { Academy } from "./pages/Academy";
@@ -26,13 +27,34 @@ import { Profile } from "./pages/Profile";
 
 export default function App() {
   const touchDay = useProgress((s) => s.touchDay);
-  const theme = useSettings((s) => s.theme);
+  const boardSkin = useSettings((s) => s.boardSkin);
   const animSpeed = useSettings((s) => s.animSpeed);
   const orientation = useSettings((s) => s.orientation);
   const gameOrientation = useSettings((s) => s.gameOrientation);
   const activeGame = useActiveGameStore((s) => s.id);
   const loc = useLocation();
+  const navigate = useNavigate();
+  const account = useCloudConfig((c) => c.account);
   const mainRef = useRef<HTMLElement>(null);
+
+  // The always-visible account picture (<app-account> in NavBar). Mirroring the
+  // persisted account is what makes one effect cover all three cases: a fresh
+  // sign-in, a disconnect, and the silent reconnect on boot — instead of a
+  // setAccount call at each of those sites. font.js remembers it per app, so the
+  // picture is already there on the next visit, before the reconnect finishes.
+  useEffect(() => {
+    const appFont = (window as { appFont?: { setAccount?: (a: unknown) => void } }).appFont;
+    // Guarded rather than `setAccount?.()`: font.js is a blocking <head> script so
+    // it is normally there, but an offline first load can leave it absent.
+    if (appFont && typeof appFont.setAccount === "function") appFont.setAccount(account ?? null);
+  }, [account]);
+
+  // Clicking the picture goes where the sync settings actually live.
+  useEffect(() => {
+    const open = () => navigate("/profile");
+    document.addEventListener("app-account-click", open);
+    return () => document.removeEventListener("app-account-click", open);
+  }, [navigate]);
 
   useEffect(() => {
     touchDay();
@@ -46,9 +68,11 @@ export default function App() {
   // Reflect presentation settings onto the document so CSS can react globally.
   useEffect(() => {
     const root = document.documentElement;
-    root.dataset.theme = theme;
+    // The colour theme is font.js's job (it sets --t-* on <html>); ours is the
+    // board skin and the animation speed.
+    root.dataset.skin = boardSkin;
     root.style.setProperty("--anim-dur", `${ANIM_MS[animSpeed]}ms`);
-  }, [theme, animSpeed]);
+  }, [boardSkin, animSpeed]);
 
   // One place decides the layout, so nothing fights over the attribute: the
   // game's own pin, then the app-wide setting, then the game's logical default,
@@ -86,6 +110,7 @@ export default function App() {
           <Route path="/simul" element={<Simul />} />
           <Route path="/cards" element={<Cards />} />
           <Route path="/logic" element={<Logic />} />
+          <Route path="/daily" element={<Daily />} />
           <Route path="/puzzles" element={<Puzzles />} />
           {/* Learn folded into the Academy — one place to be taught anything. */}
           <Route path="/learn" element={<Navigate to="/academy" replace />} />

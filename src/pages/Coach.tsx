@@ -4,6 +4,13 @@ import { useProgress, useLevel } from "../state/useProgress";
 import { buildDashboard } from "../state/stats";
 import { deriveArchetype } from "../state/archetype";
 import { buildCoachBrief } from "../state/coach";
+import { applyAdvice, previewRows, undoAdvice, type AdviceIO } from "../state/coworkCoach.ts";
+import { useGameReviews, type ReviewEntry } from "../state/useGameReviews";
+import {
+  REVIEW_CHANNEL, REVIEW_INSTRUCTIONS, applyReviews, buildRequest, pendingSessions,
+  previewRows as reviewRows, trendHistory, undoReviews, type ReviewIO, type SessionRecord,
+} from "../state/coworkGameReview.ts";
+import { dayKey } from "../state/day.ts";
 import "./Coach.css";
 
 // Direct browser call to the Anthropic Messages API with the user's own key —
@@ -45,7 +52,10 @@ function djb2(text: string): string {
 }
 const COWORK_MANIFEST = {
   protocol: "cowork-manifest", protocolVersion: 1, app: "chessretabled",
-  channels: [{ name: "coach", request: ["coach/request.json"], instructions: "coach/INSTRUCTIONS.md", replyPath: "coach/reply.json" }],
+  channels: [
+    { name: "coach", request: ["coach/request.json"], instructions: "coach/INSTRUCTIONS.md", replyPath: "coach/reply.json" },
+    { name: "game-review", request: ["game-review/request.json"], instructions: "game-review/INSTRUCTIONS.md", replyPath: "game-review/reply.json" },
+  ],
 };
 const COWORK_INSTRUCTIONS = `# ChessRetabled — coach channel
 
@@ -79,21 +89,89 @@ export function Coach() {
 
   const coworkHost = useRef<HTMLDivElement>(null);
   const briefRef = useRef("");
+  // Refs, not deps: the mount effect runs once and reads the latest on demand.
+  const briefDataRef = useRef<Record<string, unknown>>({});
+  const sessionsRef = useRef<SessionRecord[]>([]);
+  const reviewsRef = useRef<Record<string, ReviewEntry>>({});
   const [folderReply, setFolderReply] = useState(() => localStorage.getItem(COACH_REPLY_KEY) || "");
   useEffect(() => {
     const host = coworkHost.current;
     if (!host) return;
     loadCowork().then((cw) => {
       if (!cw || !host.isConnected || host.childElementCount) return;
-      cw.mount(host, {
-        app: "chessretabled", manifest: COWORK_MANIFEST,
-        files: () => ({ "coach/request.json": coworkRequest(briefRef.current), "coach/INSTRUCTIONS.md": COWORK_INSTRUCTIONS }),
-        apply: (_ch: string, reply: unknown) => {
-          const r = reply as { reply?: string; payload?: { reply?: string } } | string;
-          const text = typeof r === "string" ? r : r?.reply ?? r?.payload?.reply ?? JSON.stringify(reply, null, 2);
-          localStorage.setItem(COACH_REPLY_KEY, text);
+      // The game-review seam. Read through the store's live state, so an apply
+      // that lands minutes after the panel opened still sees current data.
+      const reviewIO: ReviewIO = {
+        get: (id) => useGameReviews.getState().byRecord[id],
+        setAi: (id, ai) => useGameReviews.getState().setAi(id, ai),
+        removeAi: (id) => useGameReviews.getState().removeAi(id),
+      };
+      const askedIds = () =>
+        pendingSessions(sessionsRef.current, reviewsRef.current).map((r) => r.id);
+      const nameOf = (id: string) => {
+        const r = sessionsRef.current.find((x) => x.id === id);
+        // dayKey, not a slice: endedISO is a UTC instant, so slicing shows
+        // tomorrow for a game finished after ~21:00 local west of UTC.
+        return r ? `${r.gameName} · ${dayKey(r.endedISO)}` : id;
+      };
+      const io: AdviceIO = {
+        get: () => {
+          try { return localStorage.getItem(COACH_REPLY_KEY) || ""; } catch { return ""; }
+        },
+        set: (text) => {
+          try { localStorage.setItem(COACH_REPLY_KEY, text); } catch { /* quota, private mode */ }
           setFolderReply(text);
         },
+      };
+      cw.mount(host, {
+        app: "chessretabled", manifest: COWORK_MANIFEST,
+        // One channel's files at a time, so the game-review request (which carries
+        // move lists) is only built when that channel actually sends.
+        files: (ch: string) =>
+          ch === REVIEW_CHANNEL
+            ? {
+                "game-review/request.json": buildRequest(
+                  pendingSessions(sessionsRef.current, reviewsRef.current).map((r) => ({
+                    ...r,
+                    appScore: reviewsRef.current[r.id]!.app!,
+                  })),
+                  trendHistory(sessionsRef.current, reviewsRef.current),
+                  new Date().toISOString()
+                ),
+                "game-review/INSTRUCTIONS.md": REVIEW_INSTRUCTIONS,
+              }
+            : { "coach/request.json": coworkRequest(briefRef.current), "coach/INSTRUCTIONS.md": COWORK_INSTRUCTIONS },
+        // The morning brief: cowork.js writes these as BRIEF.md + brief.json.
+        brief: () => ({ markdown: briefRef.current, data: briefDataRef.current }),
+        // cowork v2 (house standard): the reply is reviewed before it replaces the
+        // advice on the page, and the run history can undo it. `review` is left at
+        // its default (on).
+        channels: {
+          coach: {
+            label: "Chess coach",
+            preview: (reply: unknown) => previewRows(reply),
+            apply: (reply: unknown, acceptedIds?: string[] | null) => applyAdvice(reply, acceptedIds, io),
+            undo: (data: { prev?: string }) => undoAdvice(data, io),
+          },
+          // The second opinion on games the app has already graded. Sent daily;
+          // `asked` is recomputed from the store, so a reply can only reach a game
+          // that is still waiting for one — never one already reviewed.
+          // Literal key, matching the manifest name above: validate-cowork checks the
+          // two agree, and a computed key would hide that from it.
+          "game-review": {
+            label: "Game review (second opinion)",
+            schedule: "daily",
+            preview: (reply: unknown) =>
+              reviewRows(reply, askedIds(), (id) => nameOf(id)),
+            apply: (reply: unknown, acceptedIds?: string[] | null) =>
+              applyReviews(reply, acceptedIds, askedIds(), reviewIO, new Date().toISOString()),
+            undo: (data: { recordIds?: string[] }) => undoReviews(data, reviewIO),
+          },
+        },
+        // v1 fallback, for a browser that serves an older cached cowork.js: that
+        // build ignores `channels` entirely, and without this a reply would have
+        // no way to land. Same write, minus the review step.
+        apply: (_ch: string, reply: unknown) => { applyAdvice(reply, null, io); },
       });
     });
     return () => { host.replaceChildren(); };
@@ -132,7 +210,7 @@ export function Coach() {
     const url = URL.createObjectURL(new Blob([brief], { type: "text/markdown" }));
     const a = document.createElement("a");
     a.href = url;
-    a.download = `chessretabled-brief-${new Date().toISOString().slice(0, 10)}.md`;
+    a.download = `chessretabled-brief-${dayKey()}.md`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -141,6 +219,17 @@ export function Coach() {
   const [apiKey, setApiKey] = useState("");
   const [consent, setConsent] = useState(false);
   briefRef.current = brief;
+  sessionsRef.current = records;
+  reviewsRef.current = useGameReviews((s) => s.byRecord);
+  briefDataRef.current = {
+    archetype: arch.id,
+    level,
+    xp: progress.xp,
+    puzzleRating: progress.puzzle.rating,
+    puzzlesSolved: progress.puzzle.solved,
+    dayStreak: progress.streak.count,
+    gamesLogged: records.length,
+  };
   const [messages, setMessages] = useState<ChatMsg[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);

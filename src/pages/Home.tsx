@@ -1,10 +1,13 @@
 import { useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useProgress, useLevel } from "../state/useProgress";
 import { useArchive } from "../state/useArchive";
 import { buildDashboard } from "../state/stats";
 import { CATALOG, CATEGORY_LABEL, CATEGORY_ORDER, type CatalogCategory } from "../catalog";
 import { WhatNow } from "../components/ui/WhatNow";
+import { dailyKey, dailyNumber, dailyPuzzleId } from "../logic/daily";
+import { LOGIC_PUZZLES } from "../logic/registry";
+import { useDaily } from "../state/useDaily";
 import "./Home.css";
 
 // The landing page is deliberately category-agnostic: chess is one of four
@@ -94,26 +97,28 @@ export function Home() {
         </div>
       </section>
 
+      <DailyStrip />
+
       <WhatNow />
 
       <section className="home__progress">
         <div className="home__stat">
-          <div className="big" style={{ color: "var(--violet)" }}>Lv {level}</div>
+          <div className="big" style={{ color: "var(--violet-ink)" }}>Lv {level}</div>
           <div className="lbl">Level</div>
           <div className="bar" style={{ marginTop: 10 }}>
             <span style={{ width: `${Math.round((into / need) * 100)}%` }} />
           </div>
         </div>
         <div className="home__stat">
-          <div className="big" style={{ color: "var(--gold)" }}>🎮 {d.totalPlayed}</div>
+          <div className="big" style={{ color: "var(--gold-ink)" }}>🎮 {d.totalPlayed}</div>
           <div className="lbl">Games played</div>
         </div>
         <div className="home__stat">
-          <div className="big" style={{ color: "var(--coral)" }}>🔥 {streak}</div>
+          <div className="big" style={{ color: "var(--coral-ink)" }}>🔥 {streak}</div>
           <div className="lbl">Day streak</div>
         </div>
         <div className="home__stat">
-          <div className="big" style={{ color: "var(--mint)" }}>
+          <div className="big" style={{ color: "var(--mint-ink)" }}>
             {d.triedCount}/{d.catalogCount}
           </div>
           <div className="lbl">Games tried</div>
@@ -181,5 +186,23 @@ export function Home() {
         </p>
       </footer>
     </div>
+  );
+}
+
+function DailyStrip() {
+  const todayKey = dailyKey(new Date());
+  const meta = LOGIC_PUZZLES.find((p) => p.id === dailyPuzzleId(todayKey));
+  const done = !!useDaily((s) => s.results[todayKey]);
+  return (
+    <Link to="/daily" className="daily-strip">
+      <span className="daily-strip__icon">📅</span>
+      <span className="daily-strip__text">
+        <strong>Daily Challenge #{dailyNumber(todayKey)} · {meta?.name}</strong>
+        <span className="text-muted">
+          {done ? "Solved today — the next one lands at midnight" : "One puzzle a day, the same one for everyone"}
+        </span>
+      </span>
+      <span className={"tag" + (done ? " tag--gold" : "")}>{done ? "✓ done" : "play"}</span>
+    </Link>
   );
 }

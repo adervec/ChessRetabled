@@ -2,7 +2,7 @@
   margin-top: 4px;
   font-weight: 800;
   font-size: 0.78rem;
-  color: var(--violet);
+  color: var(--violet-ink);
 }
 
 /* ---- shared card table ---- */
@@ -59,9 +59,9 @@
 .bj-msg { text-align: center; font-family: var(--font-display); font-size: 1.1rem; }
 .bj-betlabel { font-weight: 800; }
 .bj-result { font-weight: 800; font-family: var(--font-display); }
-.bj-result--win { color: var(--mint); }
+.bj-result--win { color: var(--mint-ink); }
 .bj-result--loss { color: #ffd2c8; }
-.bj-result--push { color: var(--gold); }
+.bj-result--push { color: var(--gold-ink); }
 
 /* ---- Crazy Eights ---- */
 .c8-opponents { display: flex; justify-content: space-around; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
@@ -90,7 +90,7 @@
   width: 60px; height: 60px; font-size: 1.8rem; border: var(--outline);
   border-radius: var(--radius-m); background: var(--paper); cursor: pointer;
 }
-.c8-suitbtn.red { color: var(--coral-dark); }
+.c8-suitbtn.red { color: var(--coral-ink); }
 .c8-suitbtn.black { color: var(--ink); }
 
 /* ---- Hearts ---- */
@@ -102,7 +102,7 @@
 .hearts-opp.is-turn { background: rgba(255, 206, 79, 0.35); }
 .hearts-trick { position: absolute; inset: 0; }
 .hearts-trick__card { position: absolute; }
-.hearts-trick__result { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--font-display); font-size: 1.4rem; color: var(--gold); }
+.hearts-trick__result { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--font-display); font-size: 1.4rem; color: var(--gold-ink); }
 .pos-top { top: 4px; left: 50%; transform: translateX(-50%); }
 .pos-bottom { bottom: 4px; left: 50%; transform: translateX(-50%); }
 .pos-left { left: 8px; top: 50%; transform: translateY(-50%); }
@@ -153,11 +153,11 @@
 /* ---- War ---- */
 .war-row { display: flex; align-items: center; justify-content: center; gap: 24px; margin: 10px 0; }
 .war-side { text-align: center; }
-.war-vs { font-family: var(--font-display); font-size: 1.3rem; color: var(--gold); min-width: 90px; text-align: center; }
+.war-vs { font-family: var(--font-display); font-size: 1.3rem; color: var(--gold-ink); min-width: 90px; text-align: center; }
 
 /* ---- Go Fish ---- */
 .gf-info { display: flex; justify-content: space-between; font-weight: 800; font-size: 0.9rem; margin-bottom: 8px; }
-.gf-info .is-turn { color: var(--gold); }
+.gf-info .is-turn { color: var(--gold-ink); }
 .gf-books { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; min-height: 26px; margin-bottom: 8px; }
 .gf-book { font-weight: 800; font-size: 0.78rem; padding: 2px 8px; border-radius: var(--radius-pill); border: 2px solid var(--ink); }
 .gf-book--you { background: var(--mint); color: var(--text-on-light); }

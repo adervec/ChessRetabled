@@ -11,14 +11,29 @@ import { rateMove, accuracy } from "./rate.ts";
 import type { GameReview, MoveReview } from "./types.ts";
 
 /**
+ * Search depth per game for the referee, roughly what the old 220 ms think time
+ * reached from the opening. A fixed DEPTH (not a fixed time) is what makes two
+ * runs of a review agree: a time budget reaches a different depth on a busy or
+ * slow device and can flip the verdict (validate-review caught Konane's own
+ * opening move rated a blunder under load).
+ * ponytail: hand-tuned table; re-measure if a game's engine gets much slower/faster.
+ */
+const REVIEW_DEPTH: Record<string, number> = {
+  checkers: 9, reversi: 6, "connect-four": 7, gomoku: 5, "nine-mens-morris": 4, konane: 8,
+  breakthrough: 5, surakarta: 3, fanorona: 3, loa: 3, hex: 3, "tic-tac-toe": 9,
+};
+
+/**
  * The yardstick: the game's own engine at its strongest setting, with the
- * randomness turned off and a fixed think time so two runs of a review agree.
+ * randomness turned off and a fixed depth so two runs of a review agree.
  * Reviewing against the same engine the player actually faced is the point —
  * "best move" then means the move that would have beaten them.
  */
 export function refereeFor<S>(def: GameDefinition<S>): Difficulty {
   const strongest = def.difficulties[def.difficulties.length - 1];
-  return { ...strongest, randomness: 0, timeMs: Math.max(60, Math.min(strongest.timeMs, 220)) };
+  const depth = Math.min(strongest.depth, REVIEW_DEPTH[def.id] ?? 4);
+  // timeMs is only a hang guard now — a normal search finishes its depth long before it.
+  return { ...strongest, randomness: 0, depth, timeMs: 5000 };
 }
 
 /**

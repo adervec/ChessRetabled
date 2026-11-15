@@ -127,7 +127,15 @@ export function generate(seed: number, size = 7): Puzzle {
     const kind = new Array(size * size).fill(0);
     for (let i = 0; i < size * size; i++) {
       const r = Math.floor(i / size), c = i % size;
-      if (r === 0 || c === 0 || rng.next() < 0.12) kind[i] = 1;
+      // Wall density matters more than it looks. At 0.12 the runs stay long,
+      // sums almost never pin a unique fill, all 60 attempts below fail, and
+      // generate() drops through to the 1-cell fallback — which is what it did
+      // for 76 of every 80 seeds, so Kakuro served a single-cell board holding
+      // a 5. Real Kakuro grids are much blacker; 0.38 makes every seed yield a
+      // genuine unique puzzle, and ~170x faster because the search stops
+      // thrashing. validate-daily.mjs fails if a generator collapses like that
+      // again.
+      if (r === 0 || c === 0 || rng.next() < 0.38) kind[i] = 1;
     }
     const runs = computeRuns(kind, size);
     // every run must have length 1..9 (distinct digits); skip layouts that break it

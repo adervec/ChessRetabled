@@ -74,17 +74,17 @@ export function Dashboard() {
           <div className="profile__grid" style={{ marginTop: 16 }}>
             <div className="statcard">
               <div className="statcard__label">🎮 Games played</div>
-              <div className="statcard__value" style={{ color: "var(--gold)" }}>{d.totalPlayed}</div>
+              <div className="statcard__value" style={{ color: "var(--gold-ink)" }}>{d.totalPlayed}</div>
               <div className="statcard__sub">{d.last7} in the last 7 days</div>
             </div>
             <div className="statcard">
               <div className="statcard__label">🗂 Variety</div>
-              <div className="statcard__value" style={{ color: "var(--sky)" }}>{d.triedCount}/{d.catalogCount}</div>
+              <div className="statcard__value" style={{ color: "var(--sky-ink)" }}>{d.triedCount}/{d.catalogCount}</div>
               <div className="statcard__sub">{d.notPlayed.length} still untried</div>
             </div>
             <div className="statcard">
               <div className="statcard__label">🏆 Win rate</div>
-              <div className="statcard__value" style={{ color: "var(--mint)" }}>{pct(d.overallWinRate)}</div>
+              <div className="statcard__value" style={{ color: "var(--mint-ink)" }}>{pct(d.overallWinRate)}</div>
               <div className="statcard__sub">
                 {d.totalWins} wins · {d.decisive} decisive
                 {d.assistedCount > 0 ? ` · ${d.assistedCount} assisted 💡` : ""}
@@ -92,19 +92,19 @@ export function Dashboard() {
             </div>
             <div className="statcard">
               <div className="statcard__label">🔥 Day streak</div>
-              <div className="statcard__value" style={{ color: "var(--coral)" }}>{streak}</div>
+              <div className="statcard__value" style={{ color: "var(--coral-ink)" }}>{streak}</div>
               <div className="statcard__sub">{d.activeDays} active days logged</div>
             </div>
             <div className="statcard">
               <div className="statcard__label">⭐ Favourite</div>
-              <div className="statcard__value" style={{ color: "var(--violet)", fontSize: "1.5rem" }}>
+              <div className="statcard__value" style={{ color: "var(--violet-ink)", fontSize: "1.5rem" }}>
                 {d.mostPlayed ? `${d.mostPlayed.entry.icon} ${d.mostPlayed.entry.name}` : "—"}
               </div>
               <div className="statcard__sub">{d.mostPlayed ? `${d.mostPlayed.played} games` : "play something!"}</div>
             </div>
             <div className="statcard">
               <div className="statcard__label">📅 This month</div>
-              <div className="statcard__value" style={{ color: "var(--gold)" }}>{d.last30}</div>
+              <div className="statcard__value" style={{ color: "var(--gold-ink)" }}>{d.last30}</div>
               <div className="statcard__sub">
                 busiest: {d.busiestCategory ? CATEGORY_LABEL[d.busiestCategory] : "—"}
               </div>

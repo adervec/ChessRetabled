@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { createElement, useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { Logo } from "../brand/Logo";
 import { useProgress, useLevel } from "../../state/useProgress";
@@ -19,7 +19,7 @@ const NEUTRAL_ICON = "▦";
 function brandIcon(pathname: string): string {
   if (/^\/(games|academy)/.test(pathname)) return CATEGORY_ICON.board;
   if (/^\/cards/.test(pathname)) return CATEGORY_ICON.cards;
-  if (/^\/logic/.test(pathname)) return CATEGORY_ICON.logic;
+  if (/^\/(logic|daily)/.test(pathname)) return CATEGORY_ICON.logic;
   if (/^\/(play|puzzles|learn|practice|simul)/.test(pathname)) return CATEGORY_ICON.chess;
   return NEUTRAL_ICON;
 }
@@ -29,6 +29,7 @@ const LINKS = [
   { to: "/games", label: "Games", ico: "🎲" },
   { to: "/cards", label: "Cards", ico: "🃏" },
   { to: "/logic", label: "Logic", ico: "💡" },
+  { to: "/daily", label: "Daily", ico: "📅" },
   { to: "/simul", label: "Simul", ico: "♞" },
   { to: "/puzzles", label: "Puzzles", ico: "🧩" },
   { to: "/academy", label: "Academy", ico: "🎓" },
@@ -39,7 +40,7 @@ const LINKS = [
   { to: "/guide", label: "Guides", ico: "📖" },
 ];
 
-// Only these stay in the bar itself; all 12 live in the ☰ menu. Twelve labelled
+// Only these stay in the bar itself; all 13 live in the ☰ menu. Twelve labelled
 // pills need ~1750px of bar — they used to overflow and shove the menu button
 // off-screen on any normal display.
 const PRIMARY = LINKS.slice(0, 4);
@@ -108,6 +109,10 @@ export function NavBar() {
       </div>
 
       <div className="nav__stats">
+        {/* House standard: while the app is synced, the Google picture is in the top
+            bar on every screen, not just in Settings. font.js owns and draws this
+            element (and hides it when signed out); App.tsx tells it who is signed in. */}
+        {createElement("app-account")}
         <LayoutToggle />
         <NavLink to="/profile" className="nav__stat nav__stat--rating" title="Puzzle rating">
           <span className="ico" aria-hidden>⚡</span>
@@ -122,7 +127,8 @@ export function NavBar() {
           to="/profile"
           className="nav__stat nav__stat--level"
           title="Level"
-          style={{ background: "var(--violet)", color: "#fff" }}
+          // the -dark shade, not the raw hue: white on #9b6bff is only 3.5:1
+          style={{ background: "var(--violet-dark)", color: "#fff" }}
         >
           <span className="ico" aria-hidden>★</span>
           Lv {level}

@@ -141,6 +141,8 @@
   border-radius: var(--radius-m);
   border: var(--outline);
   background: var(--accent);
+  /* each card sets --accent to one of our hues, which are always light-leaning */
+  color: var(--text-on-light);
   box-shadow: var(--shadow-sticker-sm);
 }
 .mode-card h3 {

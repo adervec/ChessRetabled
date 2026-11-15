@@ -265,8 +265,15 @@ p {
   --btn-bg: var(--gold);
   --btn-fg: var(--text-on-light);
 }
+/*
+ * Measured pairings, worst case (the Pastel skin's --text-on-light, #4a3a63):
+ *   gold/ink 6.8   mint/ink 6.0   sky/ink 5.1
+ *   coral-dark/white 4.4   violet-dark/white 6.4   rose-dark/white 4.6
+ * The raw coral and violet fail both foregrounds (2.8 and 3.5 on white, 3.6 and
+ * 2.9 on ink), so those two take the -dark shade as the fill.
+ */
 .btn--coral {
-  --btn-bg: var(--coral);
+  --btn-bg: var(--coral-dark);
   --btn-fg: #fff;
 }
 .btn--mint {
@@ -274,7 +281,7 @@ p {
   --btn-fg: var(--text-on-light);
 }
 .btn--violet {
-  --btn-bg: var(--violet);
+  --btn-bg: var(--violet-dark);
   --btn-fg: #fff;
 }
 .btn--sky {
@@ -549,4 +556,32 @@ p {
 }
 ::-webkit-scrollbar-corner {
   background: transparent;
+}
+
+/* Daily-challenge strip — used on both Home and the Logic Lab, so it lives
+   here rather than in either page's sheet. Tokens only, so it re-skins. */
+.daily-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--surface-raised);
+  border: var(--outline-w) solid var(--outline);
+  border-radius: var(--radius-m);
+  box-shadow: var(--shadow-sticker-sm);
+  color: var(--text);
+  text-decoration: none;
+}
+.daily-strip:hover { background: var(--surface-2); }
+.daily-strip__icon { font-size: 1.6rem; }
+.daily-strip__text { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.daily-strip__text > span { font-size: 0.85rem; }
+
+.arcade-card__badge {
+  margin-top: 0.35rem;
+  font-size: 0.72rem;
+  /* Muted, not gold: at 11.5px no mix of gold reaches 4.5:1 on the warm light
+     themes while still reading as gold. Big gold numbers keep --gold-ink. */
+  color: var(--text-muted);
 }

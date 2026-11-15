@@ -6,6 +6,7 @@
 import type { DashboardData } from "./stats.ts";
 import type { Archetype } from "./archetype.ts";
 import { CATEGORY_LABEL } from "../catalog.ts";
+import { dayKey } from "./day.ts";
 
 /** Snapshot of the chess-progress store the page passes in (kept UI-free). */
 export interface CoachProgress {
@@ -29,7 +30,7 @@ export function buildCoachBrief(
   const push = (s: string) => lines.push(s);
 
   push(`# ChessRetabled coaching brief`);
-  push(`Generated ${nowISO.slice(0, 10)}. Local data only — no account involved.`);
+  push(`Generated ${dayKey(nowISO)}. Local data only — no account involved.`);
   push(``);
   push(`## Player`);
   push(`- Archetype: **${arch.name}** ${arch.icon} — ${arch.blurb}`);
@@ -67,7 +68,7 @@ export function buildCoachBrief(
   if (d.recent.length) {
     push(`## Recent games`);
     for (const r of d.recent) {
-      push(`- ${r.endedISO.slice(0, 10)} · ${r.outcome} · ${r.gameName} vs ${r.opponent}${r.reason ? ` (${r.reason})` : ""}${r.assisted ? " · hint-assisted" : ""}`);
+      push(`- ${dayKey(r.endedISO)} · ${r.outcome} · ${r.gameName} vs ${r.opponent}${r.reason ? ` (${r.reason})` : ""}${r.assisted ? " · hint-assisted" : ""}`);
     }
     push(``);
   }

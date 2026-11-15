@@ -34,7 +34,7 @@
   margin-top: 6px;
   font-weight: 800;
   font-size: 0.8rem;
-  color: var(--mint-dark);
+  color: var(--mint-ink);
 }
 
 .academy__lessons {
@@ -97,8 +97,8 @@
   gap: 12px;
   min-height: 36px;
 }
-.academy-step__ok { color: var(--mint); font-weight: 800; }
-.academy-step__no { color: var(--coral); font-weight: 800; }
+.academy-step__ok { color: var(--mint-ink); font-weight: 800; }
+.academy-step__no { color: var(--coral-ink); font-weight: 800; }
 .academy-step__prompt { color: var(--text-muted); font-weight: 700; }
 .academy-step__hint {
   margin-top: 10px;

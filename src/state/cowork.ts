@@ -7,13 +7,14 @@
 // unless the user copies it somewhere.
 
 import type { GameRecord } from "./useArchive";
+import { dayKey } from "./day.ts";
 import type { GameReview } from "../review/types";
 import { LABEL_META } from "../review/rate";
 import { catalogEntry, CATEGORY_LABEL } from "../catalog";
 
 function header(r: GameRecord): string {
   const e = catalogEntry(r.gameId);
-  const when = new Date(r.endedISO).toISOString().slice(0, 10);
+  const when = dayKey(r.endedISO);
   return [
     `# ${r.gameName} — ${r.outcome}${r.reason ? ` (${r.reason})` : ""}`,
     "",
@@ -107,7 +108,7 @@ export function buildSessionBrief(items: { record: GameRecord; review: GameRevie
 
 /** Save the brief next to wherever the user keeps their notes. */
 export function downloadBrief(r: GameRecord, brief: string): void {
-  const name = `${r.gameId}-${new Date(r.endedISO).toISOString().slice(0, 10)}-review.md`;
+  const name = `${r.gameId}-${dayKey(r.endedISO)}-review.md`;
   const blob = new Blob([brief], { type: "text/markdown;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");

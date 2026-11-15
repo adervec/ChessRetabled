@@ -1,23 +1,23 @@
-import { useSettings, type ThemeId } from "../state/useSettings";
+import { useSettings, type SkinId } from "../state/useSettings";
 import { darken, lighten, luminance } from "../games/ui/color";
 
-// Per-theme piece reskinning. A theme may recolour every piece — chess and the
+// Per-skin piece reskinning. A board skin may recolour every piece — chess and the
 // board-game tokens alike — by supplying a "light" and "dark" side. Each game's
 // two sides are mapped to light/dark by their original luminance, so the lighter
 // side stays light (e.g. chess White, Reversi's white discs) and only the hue
-// changes. Themes without an entry (Dusk) keep each game's native colours.
+// changes. Skins without an entry (Dusk) keep each game's native colours.
 
 export interface PieceSide {
   body: string; // main fill
   base: string; // chess plinth / accent
   ink: string; // outline
 }
-export interface ThemePieceSet {
+export interface SkinPieceSet {
   light: PieceSide;
   dark: PieceSide;
 }
 
-export const THEME_PIECES: Partial<Record<ThemeId, ThemePieceSet>> = {
+export const SKIN_PIECES: Partial<Record<SkinId, SkinPieceSet>> = {
   pastel: {
     light: { body: "#fff1e8", base: "#ffd28a", ink: "#5b4a63" },
     dark: { body: "#b8a6ff", base: "#8e76e6", ink: "#3a2f4a" },
@@ -44,9 +44,9 @@ export const THEME_PIECES: Partial<Record<ThemeId, ThemePieceSet>> = {
   },
 };
 
-export function useThemePieces(): ThemePieceSet | null {
-  const theme = useSettings((s) => s.theme);
-  return THEME_PIECES[theme] ?? null;
+export function useThemePieces(): SkinPieceSet | null {
+  const skin = useSettings((s) => s.boardSkin);
+  return SKIN_PIECES[skin] ?? null;
 }
 
 /** True if `owner`'s side is the lighter of a game's two piece colours. */
@@ -56,7 +56,7 @@ export function isLighterSide(colors: [string, string], owner: number): boolean 
 }
 
 /** The colour a token should actually use, honouring the active theme. */
-export function resolveBody(colors: [string, string], owner: number, tp: ThemePieceSet | null): string {
+export function resolveBody(colors: [string, string], owner: number, tp: SkinPieceSet | null): string {
   if (!tp) return colors[owner];
   return isLighterSide(colors, owner) ? tp.light.body : tp.dark.body;
 }

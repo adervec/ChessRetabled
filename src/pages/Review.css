@@ -16,7 +16,8 @@
   background: var(--surface-2); color: var(--text);
 }
 .review__bulk { display: flex; gap: 6px; margin-left: auto; flex-wrap: wrap; }
-.btn--danger { --btn-bg: var(--coral); --btn-fg: var(--text-on-light); }
+/* coral + dark ink is only 3.6:1; the -dark shade with white is 4.4 */
+.btn--danger { --btn-bg: var(--coral-dark); --btn-fg: #fff; }
 
 .review__confirm {
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
@@ -54,7 +55,7 @@
 .review__pill--loss { background: var(--coral); color: var(--text-on-light); }
 .review__pill--draw { background: var(--gold); color: var(--text-on-light); }
 .review__pill--abandoned { background: var(--surface-2); color: var(--text-dim); }
-.review__go { font-weight: 800; color: var(--violet); white-space: nowrap; }
+.review__go { font-weight: 800; color: var(--violet-ink); white-space: nowrap; }
 .review__del {
   width: 42px; border: 0; border-left: var(--outline); background: var(--surface-2);
   color: var(--text-dim); font-size: 1rem; cursor: pointer;
@@ -74,7 +75,7 @@
 }
 .review__card:hover { transform: translateY(-3px); }
 .review__card h3 { font-family: var(--font-display); margin: 6px 0 4px; font-size: 1.05rem; }
-.review__card-kind { font-size: 0.74rem; font-weight: 800; color: var(--violet); }
+.review__card-kind { font-size: 0.74rem; font-weight: 800; color: var(--violet-ink); }
 .review__card-players { font-size: 0.82rem; color: var(--text-dim); margin-bottom: 6px; }
 .review__card-ctx { font-size: 0.85rem; color: var(--text-muted); line-height: 1.45; }
 
@@ -90,7 +91,7 @@
   padding: 14px; margin: 16px 0 8px;
   border: var(--outline); border-radius: var(--radius-m); background: var(--surface);
 }
-.review__acc-num { font-family: var(--font-display); font-size: 2.2rem; color: var(--mint); line-height: 1; }
+.review__acc-num { font-family: var(--font-display); font-size: 2.2rem; color: var(--mint-ink); line-height: 1; }
 .review__acc-lbl { font-size: 0.78rem; color: var(--text-muted); }
 .review__tally { display: flex; gap: 6px; flex-wrap: wrap; }
 .review__tag {
@@ -141,3 +142,22 @@
   .review__best, .review__chance { display: none; }
   .review__movenote { grid-column: 1 / -1; }
 }
+
+/* The cowork channel's second opinion. Beside the app's own accuracy, never
+   instead of it — two judges, both visible. Tokens only. */
+.review__ai {
+  margin: 10px 0 0;
+  padding: 10px 12px;
+  border: var(--outline);
+  border-radius: var(--radius-m);
+  background: color-mix(in srgb, var(--violet) 12%, var(--surface));
+}
+.review__ai-head { display: flex; align-items: center; gap: 8px; font-weight: 800; }
+.review__ai-grade {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 1.8em; padding: 1px 6px;
+  border: 2px solid var(--ink); border-radius: var(--radius-s);
+  background: var(--gold); color: var(--text-on-light);
+}
+.review__ai-sum { margin: 6px 0 0; }
+.review__ai-line { margin: 4px 0 0; font-size: 0.9rem; }

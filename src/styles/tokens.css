@@ -2,27 +2,96 @@
  * ChessRetabled — cel-shaded design tokens
  * The whole look is built from: flat color fills, a few hard-edged shade tones,
  * thick "ink" outlines, chunky drop shadows, and halftone accents.
+ *
+ * Two layers, and the split is house standard 24 rather than taste:
+ *
+ *  1. THE THEME IS THE HOUSE'S. font.js owns the one list every app offers
+ *     (System, Light, Dark, Midnight, Slate, Ocean, Forest, Ember, Gold,
+ *     Synthwave, Terminal, Paper, Pastel, Mono, High contrast) and sets the
+ *     chosen palette on <html> as --t-bg, --t-surface, --t-surface2, --t-line,
+ *     --t-text, --t-dim, --t-accent, --t-on-accent, --t-good, --t-warn, --t-bad
+ *     and --t-scheme. This app's chrome is DERIVED from those, so there is no
+ *     per-theme block here to fall behind the list: a theme added to font.js
+ *     works here with no change. Don't hand-tune a colour for one theme.
+ *
+ *  2. THE BOARD SKIN IS OURS. Standard 24 is explicit that "skins for a thing
+ *     inside the app (chess boards and pieces...)" stay the app's own, so the
+ *     squares, the frame, the card-table felt, the card face and the piece art
+ *     live in the [data-skin] blocks below and in theme/pieces.ts. A reader can
+ *     wear Ocean chrome with the Croanada board.
+ *
+ * Every --t-* read carries the old Dusk value as its fallback, so a page that
+ * loaded without font.js (blocked, or offline before the first cache) still
+ * renders the palette this app shipped with instead of an unstyled one.
  */
 :root {
-  /* ---- Core ink + paper ---- */
-  --ink: #1a1330; /* near-black outline color used everywhere */
-  --ink-soft: #2c2148;
-  --paper: #fbf4e4; /* warm off-white */
+  /* ---- The house palette, with Dusk as the fallback ---- */
+  --h-bg: var(--t-bg, #1e1640);
+  --h-surface: var(--t-surface, #2c2154);
+  --h-surface2: var(--t-surface2, #372a68);
+  --h-line: var(--t-line, #4a3a86);
+  --h-text: var(--t-text, #fbf4e4);
+  --h-dim: var(--t-dim, #c7bbe6);
+  --h-accent: var(--t-accent, #ffce4f);
+  --h-on-accent: var(--t-on-accent, #2a1f4f);
+  --h-good: var(--t-good, #44e0a4);
+  --h-warn: var(--t-warn, #ffce4f);
+  --h-bad: var(--t-bad, #ff6b4a);
 
-  /* ---- Backdrop (deep dusk) ---- */
-  --bg-0: #160f29; /* deepest */
-  --bg-1: #1e1640;
-  --bg-2: #2a1f54;
-  --bg-3: #372a68;
-  --bg-grad-top: #271b4d;
-  --bg-grad-bottom: #170f2c;
+  /* Native widgets, scrollbars and form controls follow the theme too. */
+  color-scheme: var(--t-scheme, dark);
+
+  /*
+   * ---- Core ink ----
+   * The cel outline, from the theme's own border colour (every house palette has
+   * already tuned that for visibility) pushed well toward black — because --ink
+   * is not only an outline: it is also a dark FILL carrying --paper text (a
+   * Kakuro wall, a shaded Nurikabe cell), so it must stay dark on light themes.
+   */
+  --ink: color-mix(in oklab, var(--h-line) 42%, #000 58%);
+  --ink-soft: color-mix(in oklab, var(--ink) 72%, var(--h-line) 28%);
+
+  /* ---- Backdrop ---- */
+  --bg-0: color-mix(in oklab, var(--h-bg) 86%, #000 14%);
+  --bg-1: var(--h-bg);
+  --bg-2: var(--h-surface);
+  --bg-3: var(--h-surface2);
+  --bg-grad-top: color-mix(in oklab, var(--h-bg) 70%, var(--h-surface) 30%);
+  --bg-grad-bottom: var(--bg-0);
 
   /* ---- Surfaces ---- */
-  --surface: #2c2154;
-  --surface-2: #372a68;
-  --surface-raised: #41327d;
+  --surface: var(--h-surface);
+  --surface-2: var(--h-surface2);
+  /*
+   * "Raised" is a CARD background, so the lift is carried by the ink outline and
+   * the sticker shadow, not by colour: it only needs to be distinguishable from
+   * --surface. A big step toward --text made cards mid-grey on the light themes
+   * (#d0d2d7), which dragged every small coloured label on them under 4.5:1 — so
+   * this is a nudge, from --surface rather than the darker --surface-2.
+   */
+  --surface-raised: color-mix(in oklab, var(--h-surface) 93%, var(--h-text) 7%);
 
-  /* ---- Brand accents (vivid, flat) ---- */
+  /*
+   * ---- Brand accents (vivid, flat) ----
+   * The six cel hues are this app's own — brand, like the board skin, not part
+   * of the house palette — so they are FIXED. That matters: the CSS pairs a hue
+   * FILL with a dark foreground (`--btn-fg: var(--text-on-light)`), and a hue
+   * that drifted darker on a light theme would put dark text on a dark button.
+   *
+   * What does adapt is the -ink tier, for a hue used as TEXT on the page: mixed
+   * toward the theme's own text colour, so it goes lighter on a dark theme and
+   * deeper on a light one. Rule of thumb: filling something, use --mint; writing
+   * words straight onto the background, use --mint-ink.
+   *
+   * The per-hue mixes are MEASURED, not chosen: a binary search found, for each
+   * hue, the most hue it can keep and still clear 4.6:1 against --surface,
+   * --surface-2, --surface-raised AND --bg-1 on all fourteen themes, then a few
+   * points of margin came off. They differ because the hues do: gold
+   * and mint are pale and need most of the text colour, violet is already dark
+   * and needs little. One shared ratio either left gold at 3.4:1 or flattened
+   * violet into grey. Re-measure if a hue changes.
+   * The -dark pair is the hard cel shade tone, as before.
+   */
   --coral: #ff6b4a;
   --coral-dark: #d8462a;
   --gold: #ffce4f;
@@ -36,38 +105,30 @@
   --rose: #ff5d9e;
   --rose-dark: #d62f76;
 
-  /* semantic */
-  --accent: var(--gold);
-  --accent-dark: var(--gold-dark);
-  --good: var(--mint);
-  --good-dark: var(--mint-dark);
-  --bad: var(--coral);
-  --bad-dark: var(--coral-dark);
+  --coral-ink: color-mix(in oklab, var(--coral) 50%, var(--h-text) 50%);
+  --gold-ink: color-mix(in oklab, var(--gold) 34%, var(--h-text) 66%);
+  --mint-ink: color-mix(in oklab, var(--mint) 36%, var(--h-text) 64%);
+  --violet-ink: color-mix(in oklab, var(--violet) 60%, var(--h-text) 40%);
+  --sky-ink: color-mix(in oklab, var(--sky) 40%, var(--h-text) 60%);
+  --rose-ink: color-mix(in oklab, var(--rose) 50%, var(--h-text) 50%);
 
-  /* ---- Board ---- */
-  --sq-light: #f3d9a4;
-  --sq-light-shade: #e6c489;
-  --sq-dark: #4a8fb5;
-  --sq-dark-shade: #3a779b;
-  --board-frame: #2a1f4f;
-  --board-frame-edge: #4a3a86;
-  --sq-highlight: #ffe27a; /* last move / selection */
-  --sq-target: rgba(68, 224, 164, 0.0); /* dots are drawn separately */
-  --sq-check: #ff6b6b;
-
-  /* ---- Card table felt ---- */
-  --felt: #2f9e74;
-  --felt-2: #1c5f47;
+  /* semantic — these are the theme's own colours, not our hues */
+  --accent: var(--h-accent);
+  --accent-dark: color-mix(in oklab, var(--h-accent) 74%, #000 26%);
+  --good: var(--h-good);
+  --good-dark: color-mix(in oklab, var(--h-good) 74%, #000 26%);
+  --bad: var(--h-bad);
+  --bad-dark: color-mix(in oklab, var(--h-bad) 74%, #000 26%);
+  --warn: var(--h-warn);
 
   /* ---- Text ---- */
-  --text: #fbf4e4;
-  --text-dim: #c7bbe6;
-  --text-muted: #8d7fb8;
-  --text-on-light: #2a1f4f;
+  --text: var(--h-text);
+  --text-dim: color-mix(in oklab, var(--h-dim) 50%, var(--h-text) 50%);
+  --text-muted: color-mix(in oklab, var(--h-dim) 68%, var(--h-text) 32%);
 
   /* ---- Typography ---- */
   --font-display: "Baloo 2", "Trebuchet MS", system-ui, sans-serif;
-  --font-body: "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-body: var(--app-font, "Nunito", system-ui, -apple-system, "Segoe UI", sans-serif);
 
   /* ---- Outlines & shadows (the cel-shaded signature) ---- */
   --outline-w: 3px;
@@ -77,11 +138,11 @@
   --radius-l: 24px;
   --radius-pill: 999px;
 
-  /* chunky offset shadow (the "sticker" look) */
+  /* chunky offset shadow (the "sticker" look) — reads --ink, so it tracks it */
   --shadow-sticker: 0 6px 0 0 var(--ink);
   --shadow-sticker-sm: 0 4px 0 0 var(--ink);
-  --shadow-drop: 0 10px 24px -8px rgba(0, 0, 0, 0.55);
-  --shadow-pop: 0 14px 40px -10px rgba(0, 0, 0, 0.6);
+  --shadow-drop: 0 10px 24px -8px color-mix(in srgb, var(--ink) 60%, transparent);
+  --shadow-pop: 0 14px 40px -10px color-mix(in srgb, var(--ink) 66%, transparent);
 
   /* ---- Layout ---- */
   --nav-h: 68px;
@@ -93,47 +154,43 @@
 
   /* Move-animation duration, overridden at runtime from settings (App.tsx). */
   --anim-dur: 300ms;
+
+  /* Legal-move dots are drawn separately; the square itself stays clear. */
+  --sq-target: rgba(68, 224, 164, 0);
 }
 
 /*
- * Pastel theme — a soft, light counterpart to the default dusk palette. Only the
- * color tokens are overridden; every component reads them through the variables
- * above, so the whole app (and all game boards) re-themes from this one block.
+ * ---- Board skins (ours: standard 24's "not themes") ----
+ *
+ * Each skin sets the same twelve props: the two square colours and their hard
+ * shade tones, the frame and its edge, the highlight and check tints, the
+ * card-table felt, and the "paper" pair — a card face or a light puzzle cell
+ * plus the ink that is legible on it. These are physical objects, so they do NOT
+ * follow the house palette: a playing card is white on every theme.
+ * theme/pieces.ts recolours the pieces to match, keyed by these same skin ids.
+ *
+ * Dusk is the default and lives on :root, so [data-skin="dusk"] needs no block.
  */
-:root[data-theme="pastel"] {
-  --ink: #4a3a63;
-  --ink-soft: #6a577f;
+:root {
+  --paper: #fbf4e4; /* warm off-white: card faces, light puzzle cells */
+  --text-on-light: #2a1f4f; /* text drawn on --paper */
+
+  --sq-light: #f3d9a4;
+  --sq-light-shade: #e6c489;
+  --sq-dark: #4a8fb5;
+  --sq-dark-shade: #3a779b;
+  --board-frame: #2a1f4f;
+  --board-frame-edge: #4a3a86;
+  --sq-highlight: #ffe27a; /* last move / selection */
+  --sq-check: #ff6b6b;
+  --felt: #2f9e74;
+  --felt-2: #1c5f47;
+}
+
+/* Pastel — soft and light, the original light-mode board. */
+:root[data-skin="pastel"] {
   --paper: #fffaf3;
-
-  --bg-0: #fbeef2;
-  --bg-1: #f3e9fb;
-  --bg-2: #eef1fc;
-  --bg-3: #e7f6f0;
-  --bg-grad-top: #f6edfb;
-  --bg-grad-bottom: #fdeef3;
-
-  --surface: #ffffff;
-  --surface-2: #f6f1fb;
-  --surface-raised: #ffffff;
-
-  --coral: #ff9a8b;
-  --coral-dark: #f4715f;
-  --gold: #ffcf7a;
-  --gold-dark: #eaa94a;
-  --mint: #7ad6b0;
-  --mint-dark: #46b88c;
-  --violet: #b8a6ff;
-  --violet-dark: #8e76e6;
-  --sky: #8ecdf5;
-  --sky-dark: #4ea7e0;
-  --rose: #ff9ec2;
-  --rose-dark: #ef6fa0;
-
-  --good: var(--mint);
-  --good-dark: var(--mint-dark);
-  --bad: var(--coral);
-  --bad-dark: var(--coral-dark);
-
+  --text-on-light: #4a3a63;
   --sq-light: #f6e7c9;
   --sq-light-shade: #ecd6ad;
   --sq-dark: #b7d7c9;
@@ -144,59 +201,12 @@
   --sq-check: #ff8f8f;
   --felt: #5fb893;
   --felt-2: #3a8f6e;
-
-  --text: #4a3a63;
-  --text-dim: #6f6088;
-  --text-muted: #9d8fb6;
-  --text-on-light: #4a3a63;
-
-  --shadow-sticker: 0 6px 0 0 rgba(74, 58, 99, 0.35);
-  --shadow-sticker-sm: 0 4px 0 0 rgba(74, 58, 99, 0.3);
-  --shadow-drop: 0 10px 24px -8px rgba(120, 90, 140, 0.35);
-  --shadow-pop: 0 14px 40px -10px rgba(120, 90, 140, 0.4);
 }
 
-/*
- * Croanada — Croatia × Canada. Both flags are red-and-white, so the board
- * squares become the red/white Croatian checkerboard (šahovnica); maple-leaf
- * amber/gold and a warm maple-brown ink carry the Canadian half, over a snowy
- * warm-white backdrop.
- */
-:root[data-theme="croanada"] {
-  --ink: #2b1410;
-  --ink-soft: #4a2418;
+/* Croanada — Croatia x Canada: the red/white board in a maple-brown frame. */
+:root[data-skin="croanada"] {
   --paper: #fff8f1;
-
-  --bg-0: #fdeee7;
-  --bg-1: #fbe2da;
-  --bg-2: #f7d6cb;
-  --bg-3: #f1c9bb;
-  --bg-grad-top: #fbe0d5;
-  --bg-grad-bottom: #fff7f1;
-
-  --surface: #ffffff;
-  --surface-2: #fdeee8;
-  --surface-raised: #ffffff;
-
-  --coral: #d52b1e;
-  --coral-dark: #a81d12;
-  --gold: #e7a33c;
-  --gold-dark: #c07e1a;
-  --mint: #2e9e6b;
-  --mint-dark: #1f7a50;
-  --violet: #b5532a;
-  --violet-dark: #8a3d1c;
-  --sky: #4f93c4;
-  --sky-dark: #2f6f9e;
-  --rose: #e8607a;
-  --rose-dark: #c43e58;
-
-  --good: var(--mint);
-  --good-dark: var(--mint-dark);
-  --bad: var(--coral);
-  --bad-dark: var(--coral-dark);
-
-  /* the Croatian checkerboard: white + maple red */
+  --text-on-light: #2b1410;
   --sq-light: #fbf3ec;
   --sq-light-shade: #ecdccd;
   --sq-dark: #d52b1e;
@@ -207,53 +217,12 @@
   --sq-check: #ff8a3d;
   --felt: #2e6b4a;
   --felt-2: #1b4530;
-
-  --text: #2b1410;
-  --text-dim: #6a4434;
-  --text-muted: #9c7868;
-  --text-on-light: #2b1410;
-
-  --shadow-sticker: 0 6px 0 0 rgba(43, 20, 16, 0.4);
-  --shadow-sticker-sm: 0 4px 0 0 rgba(43, 20, 16, 0.35);
-  --shadow-drop: 0 10px 24px -8px rgba(120, 40, 30, 0.35);
-  --shadow-pop: 0 14px 40px -10px rgba(120, 40, 30, 0.4);
 }
 
-/* Penguin — an icy Antarctic theme: snow + glacier blue, tuxedo black, beak orange. */
-:root[data-theme="penguin"] {
-  --ink: #14202b;
-  --ink-soft: #2a3a48;
+/* Penguin — ice and tuxedo, with an orange-beak highlight. */
+:root[data-skin="penguin"] {
   --paper: #f5fbff;
-
-  --bg-0: #eaf4fb;
-  --bg-1: #e0eef8;
-  --bg-2: #d3e6f4;
-  --bg-3: #c4dcef;
-  --bg-grad-top: #dceefa;
-  --bg-grad-bottom: #f5fbff;
-
-  --surface: #ffffff;
-  --surface-2: #eaf3fa;
-  --surface-raised: #ffffff;
-
-  --coral: #ff7a3d;
-  --coral-dark: #e0561f;
-  --gold: #ffc24a;
-  --gold-dark: #e0991f;
-  --mint: #2fc2a4;
-  --mint-dark: #1c9a82;
-  --violet: #6f86e0;
-  --violet-dark: #4a61c4;
-  --sky: #4fb8ff;
-  --sky-dark: #1f8fd6;
-  --rose: #ff8fbe;
-  --rose-dark: #e0699c;
-
-  --good: var(--mint);
-  --good-dark: var(--mint-dark);
-  --bad: var(--coral);
-  --bad-dark: var(--coral-dark);
-
+  --text-on-light: #14202b;
   --sq-light: #eef6fc;
   --sq-light-shade: #dcebf5;
   --sq-dark: #7fb4d8;
@@ -262,55 +231,14 @@
   --board-frame-edge: #557790;
   --sq-highlight: #ffd86a;
   --sq-check: #ff6b6b;
-
-  --text: #14202b;
-  --text-dim: #46586a;
-  --text-muted: #8499aa;
-  --text-on-light: #14202b;
-
-  --shadow-sticker: 0 6px 0 0 rgba(20, 32, 43, 0.35);
-  --shadow-sticker-sm: 0 4px 0 0 rgba(20, 32, 43, 0.3);
-  --shadow-drop: 0 10px 24px -8px rgba(40, 70, 95, 0.35);
-  --shadow-pop: 0 14px 40px -10px rgba(40, 70, 95, 0.4);
   --felt: #1f8c8c;
   --felt-2: #0f5a5a;
 }
 
-/* Volcano — molten dark theme: basalt + obsidian, lava red, ember gold. */
-:root[data-theme="volcano"] {
-  --ink: #160b08;
-  --ink-soft: #2e1812;
+/* Volcano — molten rock and cooled obsidian. */
+:root[data-skin="volcano"] {
   --paper: #f7e6d6;
-
-  --bg-0: #190c09;
-  --bg-1: #271310;
-  --bg-2: #371a14;
-  --bg-3: #47211a;
-  --bg-grad-top: #3a1408;
-  --bg-grad-bottom: #140805;
-
-  --surface: #2a1512;
-  --surface-2: #371c16;
-  --surface-raised: #44231b;
-
-  --coral: #ff5a2b;
-  --coral-dark: #d83a12;
-  --gold: #ffb02e;
-  --gold-dark: #e08a1a;
-  --mint: #6fcf4a;
-  --mint-dark: #4aa82e;
-  --violet: #b05ae0;
-  --violet-dark: #8a3ac0;
-  --sky: #4fb0e0;
-  --sky-dark: #2f80b0;
-  --rose: #ff5a8c;
-  --rose-dark: #e0356a;
-
-  --good: var(--mint);
-  --good-dark: var(--mint-dark);
-  --bad: var(--coral);
-  --bad-dark: var(--coral-dark);
-
+  --text-on-light: #160b08;
   --sq-light: #d4925c;
   --sq-light-shade: #bd7a45;
   --sq-dark: #6e3320;
@@ -319,55 +247,14 @@
   --board-frame-edge: #3a1c14;
   --sq-highlight: #ffb02e;
   --sq-check: #ff4a2b;
-
-  --text: #fbe9dc;
-  --text-dim: #d6b3a0;
-  --text-muted: #9c7c6a;
-  --text-on-light: #160b08;
-
-  --shadow-sticker: 0 6px 0 0 rgba(0, 0, 0, 0.5);
-  --shadow-sticker-sm: 0 4px 0 0 rgba(0, 0, 0, 0.45);
-  --shadow-drop: 0 10px 24px -8px rgba(0, 0, 0, 0.7);
-  --shadow-pop: 0 14px 40px -10px rgba(60, 10, 4, 0.6);
   --felt: #5a1e12;
   --felt-2: #350f08;
 }
 
-/* Vegas — casino glam: velvet red/black, neon, and plenty of gold, on green felt. */
-:root[data-theme="vegas"] {
-  --ink: #0c0a0e;
-  --ink-soft: #221820;
+/* Vegas — high-roller gold on velvet black, over a green baize. */
+:root[data-skin="vegas"] {
   --paper: #fdf3df;
-
-  --bg-0: #120308;
-  --bg-1: #200a12;
-  --bg-2: #2e0f1c;
-  --bg-3: #3c1426;
-  --bg-grad-top: #2c0a14;
-  --bg-grad-bottom: #0c0206;
-
-  --surface: #241019;
-  --surface-2: #311623;
-  --surface-raised: #3d1c2c;
-
-  --coral: #ff3b5c;
-  --coral-dark: #d81f3e;
-  --gold: #ffd24a;
-  --gold-dark: #e0a417;
-  --mint: #2fe07a;
-  --mint-dark: #1faa55;
-  --violet: #b15aff;
-  --violet-dark: #8a2fe0;
-  --sky: #3ce0e0;
-  --sky-dark: #1faaaa;
-  --rose: #ff4aa8;
-  --rose-dark: #e01f86;
-
-  --good: var(--mint);
-  --good-dark: var(--mint-dark);
-  --bad: var(--coral);
-  --bad-dark: var(--coral-dark);
-
+  --text-on-light: #0c0a0e;
   --sq-light: #e8d6a0;
   --sq-light-shade: #d4bd7e;
   --sq-dark: #9a1530;
@@ -376,16 +263,6 @@
   --board-frame-edge: #3a1020;
   --sq-highlight: #ffd24a;
   --sq-check: #ff3b5c;
-
-  --text: #fdf0e0;
-  --text-dim: #e6c9a8;
-  --text-muted: #b8967e;
-  --text-on-light: #0c0a0e;
-
-  --shadow-sticker: 0 6px 0 0 rgba(0, 0, 0, 0.5);
-  --shadow-sticker-sm: 0 4px 0 0 rgba(0, 0, 0, 0.45);
-  --shadow-drop: 0 10px 24px -8px rgba(0, 0, 0, 0.7);
-  --shadow-pop: 0 14px 40px -10px rgba(120, 10, 40, 0.55);
   --felt: #1f7a3c;
   --felt-2: #0e4a22;
 }

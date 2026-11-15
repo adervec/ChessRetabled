@@ -9,6 +9,14 @@ overview; this file captures the non-obvious decisions.
 - `npm run dev` / `build` / `preview` — pre/post hooks vendor the engine first.
 - `npm run typecheck` — `tsc --noEmit` (single config, **no project references**;
   `tsc -b` was dropped because the composite node config rejected `noEmit`).
+- **`npm run verify` — the gate.** Builds (which is also the type-check), then runs
+  **every** `scripts/validate-*.mjs` plus the puzzle-drift check, via
+  `scripts/verify.mjs`. CI and the deploy both run exactly this one command, so
+  they cannot drift apart, and the validator list is a **glob** — a new
+  `validate-*.mjs` is enforced the moment it exists, with no workflow edit. The
+  build comes first because `validate-responsive` greps the built CSS. Takes a
+  while (the game/card/session suites play real games); run a single validator
+  directly while iterating.
 - `node scripts/build-puzzles.mjs` — regenerate `src/content/puzzles.generated.json`.
 - `node scripts/validate-lessons.mjs` — validate interactive lesson moves.
   (Both scripts import the `.ts` content directly via Node 24 type-stripping.)
@@ -61,14 +69,18 @@ overview; this file captures the non-obvious decisions.
 
 ## CI/CD (`.github/workflows/`)
 
-- `ci.yml` (PRs to `main` + pushes to non-`main` branches): `npm ci` → typecheck
-  → `validate-lessons.mjs` → **puzzle drift check** (re-run `build-puzzles.mjs`
-  and fail if `puzzles.generated.json` changes — enforces "derive, don't
-  hand-edit") → build. Runs on **Node 24** (the content scripts need
-  type-stripping). `main` is skipped here — it's covered by deploy.
-- `deploy.yml` (push to `main` / manual): validate → build → **GitHub Pages**.
-  One-time: set repo Pages source to "GitHub Actions". Ships an SPA `404.html`
-  (copy of `index.html`) so deep links survive a refresh.
+- **Both workflows run one command: `npm run verify`.** Neither contains a list of
+  checks, so neither can fall behind the other — `deploy.yml` used to run
+  `validate-lessons` alone and ship whatever built, which meant `main` could
+  deploy past checks CI enforced on every other branch. Adding a validator now
+  needs no workflow edit (see `npm run verify` under Commands).
+- `ci.yml` (PRs to `main` + pushes to non-`main` branches): `npm ci` → `npm run
+  verify`. Runs on **Node 24** (the content scripts need type-stripping). `main`
+  is skipped here — it's covered by deploy.
+- `deploy.yml` (push to `main` / manual): `npm ci` → `npm run verify` (with
+  `BASE_PATH` set, so the validated `dist/` **is** the uploaded artifact) →
+  **GitHub Pages**. One-time: set repo Pages source to "GitHub Actions". Ships an
+  SPA `404.html` (copy of `index.html`) so deep links survive a refresh.
 - **Sub-path base** — Pages serves at `/<repo>/`, so `deploy.yml` builds with
   `BASE_PATH=/<repo>/`. `vite.config.ts` reads it into `base`; everything else
   derives from `import.meta.env.BASE_URL` (= `base`): router `basename`
@@ -118,12 +130,14 @@ of Action, Hex, Tic-Tac-Toe) living **beside** the chess app, reachable at
 
 ## Presentation, settings & data (added in the expansion)
 
-- **Settings** (`state/useSettings.ts`, persisted): `theme` (`dusk` default /
-  `pastel` / `croanada`), `animSpeed`, `boardTilt`. App.tsx reflects them onto
-  `<html data-theme>` and the `--anim-dur` CSS var. Chrome/board/card colours are
-  pure token overrides in `tokens.css` (`:root[data-theme="…"]`) incl. `--felt`.
-- **Themed pieces** (`theme/pieces.ts`): chess SVGs (`PieceArt`) and arcade tokens
-  (`GamePiece`) recolour per theme. A theme may supply a `light`/`dark` piece pair;
+- **Settings** (`state/useSettings.ts`, persisted): `boardSkin` (`dusk` /
+  `pastel` / `croanada` / `penguin` / `volcano` / `vegas`), `animSpeed`,
+  `boardTilt`. App.tsx reflects them onto `<html data-skin>` and the `--anim-dur`
+  CSS var; board/card colours are token overrides in `tokens.css`
+  (`:root[data-skin="…"]`) incl. `--felt`. The app's **colour theme** is not here
+  at all — it is font.js's, see House standards below.
+- **Skinned pieces** (`theme/pieces.ts`): chess SVGs (`PieceArt`) and arcade tokens
+  (`GamePiece`) recolour per skin. A skin may supply a `light`/`dark` piece pair;
   each game's two sides map to it **by luminance** (so the lighter side stays light
   and only the hue changes). Dusk has no entry → native per-game colours; Pastel
   and Croanada fully reskin (Croanada = snow white vs maple red).
@@ -241,6 +255,254 @@ opponent-based games. Same discipline — pure logic in `.ts`, verified headless
   `countSolutions`/`isSolved` module + a `.tsx`; the loop/path ones use bespoke
   segment- or path-drawing UIs rather than the shading grid.
 
+## Daily challenge (`/daily`)
+
+- **One puzzle a day, the same for everyone, with no server.** Every Logic Lab
+  generator is already `generate(seed, …)` and nothing in `src/logic/` touches
+  `Math.random`, so `src/logic/daily.ts` hashes the date into that seed and the
+  day's puzzle is fixed — offline, unfetched, identical for every player.
+- **`src/logic/daily.ts` is pure and total**: `dailyKey` (now a re-export of
+  `state/day.ts`'s `dayKey` — the viewer's *local* day, so it turns over at their
+  midnight), `dailySeed` (FNV-1a), `dailyPuzzleId`,
+  `shiftKey`/`dayIndex`, `streak`, `shareText`. Key arithmetic reads keys as UTC
+  midnight on purpose — a calendar day is then a fixed 24h, so stepping across a
+  DST change can't land on the wrong date.
+- **`dailyPuzzleId` is a block-shuffle, not a hash.** Each run of 25 days is its
+  own seeded permutation of the pool, so all 25 puzzles come up once before any
+  repeats. A plain `seed % 25` repeats within a week and starves others.
+- **The seed is pinned, not threaded.** `cards/core/rng.ts` gained
+  `pinSeed(n | null)`, and `pages/Daily.tsx` sets it **during render** (each
+  puzzle seeds itself in a `useState` initialiser, which runs in its own render
+  pass) and clears it on unmount. That's what avoids a `seed` prop through 25
+  components and 46 call sites; the ceiling is that it's global — one pinned
+  surface at a time.
+- **Solves are detected via `useArchive.add`**, the single funnel all 25 puzzles
+  already use, so no puzzle component needed a callback prop. `state/useDaily.ts`
+  is the per-day ledger (its own store, because the archive can't tell a daily
+  from a casual play of the same puzzle that day) and it **does** ride in the
+  export/sync bundle — a streak lost by switching devices is no streak.
+- `logic/ui/components.tsx` maps id → puzzle screen; the lobby and the daily both
+  render from an id instead of each keeping a 25-line if-chain.
+- **The share text is deliberately spoiler-free** — which days you solved, never
+  anything about the grid. `validate-daily.mjs` asserts no long digit run from
+  the live solution appears in it.
+- `scripts/validate-daily.mjs` (98 checks, in CI) covers the date maths, leap and
+  DST boundaries, the 25-cycle, streak rules, and that **all 25 generators
+  reproduce from a pinned seed**. That last check caught a real shipped bug:
+  Kakuro's 0.12 wall density made runs too long for sums to force a unique fill,
+  so all 60 attempts failed and `generate` dropped through to its "should never
+  hit" 1-cell fallback — for **76 of every 80 seeds**. Fixed at 0.38 (and ~170x
+  faster). The validator now fails any generator whose 14 consecutive days
+  collapse to one puzzle.
+  (`validate-famous`, `validate-sessions`, `validate-orientation` and
+  `validate-responsive` used to exist without running in CI; `npm run verify`
+  globs them all, so that gap can't come back.)
+
+## House standards
+
+Shared conventions across this maker's apps. All three are enforced by a
+validator, because a promise about data or privacy that nothing checks is just a
+comment.
+
+- **One command gates everything** — `npm run verify`, run by both workflows. See
+  Commands and CI/CD above.
+- **A calendar day is the user's LOCAL day** (`state/day.ts`: `dayKey`,
+  `dayStart`, `dayDiff`). Instants stay UTC — `endedISO` is
+  `new Date().toISOString()`, which is right, because an instant is not a day —
+  but every day *derived* from one is local, so the fix lives in one helper rather
+  than at the ~60 recording sites. **Never** `toISOString().slice(0, 10)` (the UTC
+  day) and **never** `new Date("2026-11-10")` (UTC midnight, i.e. the 9th west of
+  UTC); read a stored key back with `dayStart`, which appends `T00:00:00`.
+  `dayKey` also passes an already-`YYYY-MM-DD` string straight through, so it
+  can't move a key a day west by round-tripping it.
+  This was a live bug: at UTC-3 the streak, the "played today" nudge, the
+  dashboard's 14-day sparkline and the daily challenge all rolled over at **21:00
+  local**, and a game finished at 22:30 was filed under tomorrow.
+  `validate-timezone.mjs` re-spawns itself with `TZ` preset (assigning
+  `process.env.TZ` mid-run doesn't re-read reliably, notably on Windows) across 7
+  zones from UTC-10 to UTC+14, asserts the local day at 22:30 and 01:30, walks 365
+  days through two DST transitions, and requires that at least two zones actually
+  disagree with UTC — otherwise the suite would pass on the very code it exists to
+  catch. It also ratchets the source: no `toISOString()` day-slice anywhere.
+- **Erase everything** (`state/eraseLocal.ts`, the last group in Settings). The
+  hard part is *scope*, not deletion: every app by this maker is served from
+  `adervec.github.io`, so they share one `localStorage` and
+  **`localStorage.clear()` here would wipe Tachyread and GymTracker**. So:
+  everything we persist is namespaced `chessretabled.*` (plus the one legacy
+  `cr-coach-reply`) and gets deleted; the two genuinely shared registries
+  (`portal-installed`, `portal-activity`) are **pruned** — our rows out, everyone
+  else's written back — and an unparseable shared value is left strictly alone.
+  The shared font choice (`maker-font`) survives too. Two-step confirm rather than
+  `window.confirm` (a native dialog is dismissed by reflex), then a reload,
+  because the persisted stores are still in memory and would write themselves
+  straight back out. **The Drive copy is not touched**, and the UI says so —
+  otherwise the next connect silently restores everything.
+  `validate-erase.mjs` scans the source for key-shaped literals and fails if one
+  is neither owned nor declared shared, so a new persisted store can't quietly
+  escape the eraser.
+- **No third-party requests.** Fonts are self-hosted; nothing is fetched from a
+  CDN. `validate-requests.mjs` is a ratchet over the **built** output (comments
+  stripped, dead code shaken out, so a host in `dist/` is a host the app can
+  really reach): seven hosts are declared with a reason each, and anything new
+  fails. The three that are real network calls — `accounts.google.com`,
+  `www.googleapis.com`, `api.anthropic.com` — are all opt-in, consented and
+  user-initiated.
+- **Content-Security-Policy** (the meta tag in `index.html`), modelled on
+  MicroMiniger's but **stricter**: no `'unsafe-inline'` in `script-src`, because
+  the built page has none — Vite emits one `src`'d module. What it must keep:
+  `'wasm-unsafe-eval'` (Stockfish compiles a WASM NNUE build; drop it and Play
+  silently falls back to the weak engine), `worker-src 'self'` (that worker),
+  `font-src https://adervec.github.io` (the house font would silently fall back),
+  `style-src 'unsafe-inline'` (React style props, the per-card `--card-w`, and
+  font.js's injected `@font-face`), and `img-src https://*.googleusercontent.com`
+  (the profile picture the `pfp` standard requires). Plain `'unsafe-eval'` is
+  never allowed — note `'unsafe-eval'` is a *substring* of `'wasm-unsafe-eval'`,
+  so the check matches on a boundary.
+  **The CSP and `validate-requests.mjs` are cross-checked**: a host the CSP opens
+  must be declared there with a reason (that's why `oauth2.googleapis.com` is in
+  both — Google's token endpoint). The one exception is
+  `*.googleusercontent.com`, a wildcard the request ratchet's regex can't see.
+  Adding the CSP made the request ratchet fail until that host was declared,
+  which is the coupling working.
+- **Supply chain**: both workflows have a top-level `permissions:` (`ci.yml` asks
+  only for `contents: read`) and run `npm audit --audit-level=high --omit=dev`.
+  **`--omit=dev` is deliberate**: all five `high` advisories are in the
+  Vite/esbuild/postcss/browserslist build chain, which never reaches a browser
+  for a static client-side app, and failing CI on those would train everyone to
+  ignore the check. Plain `npm audit` still reports them locally. Two *moderate*
+  advisories do sit in a shipped dep (`react-router-dom`) — below the gate, not
+  hidden.
+- **The signed-in picture is in the top bar on every screen** (`pfp` standard:
+  "like YouTube's corner avatar", not only in Settings). `NavBar` renders
+  `<app-account>` (font.js owns and draws it, and hides it when signed out) and
+  **`App.tsx` holds a single mirror** of `useCloudConfig().account` →
+  `appFont.setAccount(...)`, so a fresh sign-in, a disconnect and the silent
+  reconnect on boot all flow through one effect instead of three call sites;
+  `app-account-click` navigates to `/profile`, where `SettingsPanel` lives.
+  Gotcha: `standards.mjs` matches a literal `setAccount(`, so **don't write
+  `setAccount?.()`** — the optional-call syntax fails the check even though the
+  code is correct.
+- **Cowork is the shared engine, not ours** (`pages/Coach.tsx` mounts
+  `https://adervec.github.io/cowork.js` in `fs` mode over a folder the user
+  picks). v2 does the scheduling, reply polling, review, undo, replay protection
+  and archiving; the app's job is only to *describe* its channels. For `coach`
+  that's `label` / `preview` / `apply` / `undo` plus a `brief()`, and the logic
+  behind them lives in `state/coworkCoach.ts` (`.ts`, so
+  `validate-cowork.mjs` can drive it — the `.tsx` can't be imported headlessly).
+  - **`review` is deliberately unset**, which means ON. A reply never lands
+    without the reader accepting it; the validator fails on `review: false`.
+  - `apply` honours the ticked row ids: an empty list writes nothing and returns
+    **no** undo, because nothing changed. `undo` data must be plain JSON — it's
+    stored in the panel's run history.
+  - The channel key in `channels` **must** match the manifest's channel name, or
+    the panel silently falls back to showing the raw reply JSON. That's checked.
+  - The top-level v1 `apply` is kept on purpose: a browser serving an older
+    cached `cowork.js` ignores `channels` entirely, and without it a reply would
+    have nowhere to land.
+- **`game-review`: an AI second opinion on games the app already graded**
+  (standard 18). `state/coworkGameReview.ts` is the pure core,
+  `state/useGameReviews.ts` the store: **`app` and `ai` are separate fields and
+  `setAi` merges**, so the AI grade sits *beside* the app's own and can never
+  replace it. Shown by `Review.tsx`'s `AiSecondOpinion`, under the accuracy.
+  - **Deviation from GymTracker's pattern, on purpose**: there, scoring a session
+    is arithmetic, so every finished session can be sent. Here the app's own grade
+    costs an **engine search** (`reviewRecord` is async, minutes for a long game),
+    so it is kept when the player opens the game in `/review`, and the channel
+    offers a second opinion on games the app has actually graded. Building the
+    request never runs the engine.
+  - "Sessions since the last review" is **derived, not tracked**: a session is
+    pending when it has `app` and no `ai`, so applying a review stops it being
+    pending and it can never be sent twice. No cursor to keep in sync.
+  - **The reply is untrusted** (standard 22 — an agent that read outside content
+    wrote it, and this reply gets stored *and rendered*). `parseReviews` drops any
+    review for a session the request didn't cover, forces the grade to A–E or
+    `?`, clamps every string and list, and copies only known fields. A game with
+    no `app` grade is skipped: this is a second opinion, not a first one.
+  - The request caps at 5 sessions (move lists are not small) while the trend
+    history carries 20 games of **scores only**.
+  - The `channels` key is the literal `"game-review"`, matching the manifest —
+    `validate-cowork` checks they agree, and a computed key would hide that.
+  - `validate-aireview.mjs` (84 checks) drives all of it, **including the real
+    zustand store** rather than only the harness's fake: the "never replaces"
+    guarantee lives in `setAi`, and a fake that mimics it would have hidden a bug
+    there. It shims `localStorage` so persist can load under Node.
+- **What's new** (`public/whatsnew.json`, newest first, declared by
+  `<meta name="app-whatsnew" content="%BASE_URL%whatsnew.json">`). font.js shows it
+  once after an update. Entries are written **for the player** — what changed for
+  them, not what changed in the code; `validate-house.mjs` fails on dev-speak
+  ("refactor", "validator", ".ts"…), on a date that isn't a real calendar date,
+  and on entries out of newest-first order. The same meta block also carries
+  `app-name`, `app-license`, `app-source` and `app-data-note`, which is what
+  fills font.js's About panel.
+- **The colour theme is the house's; the board skin is ours** (house standard 24).
+  font.js owns the one fifteen-theme list every app offers and sets the chosen
+  palette on `<html>` as `--t-bg`, `--t-surface`, `--t-surface2`, `--t-line`,
+  `--t-text`, `--t-dim`, `--t-accent`, `--t-on-accent`, `--t-good`, `--t-warn`,
+  `--t-bad`, `--t-scheme`; `<app-theme-picker>` in Settings is the control, and
+  the choice is kept per app. `tokens.css` **derives** the whole chrome from
+  those, so there is no per-theme block left to fall behind the list and a theme
+  added to font.js works here with no change. `SKINS` (`useSettings.boardSkin` →
+  `<html data-skin>`) keeps the six looks this app had — squares, frame, felt,
+  card face, piece art — because standard 24 exempts "chess boards and pieces".
+  - Every `--t-*` read carries the old Dusk value as its fallback, so a page that
+    loaded without font.js still renders the palette this app shipped with.
+  - **Hues have two tiers, and the split is the whole trick.** `--gold` etc. are
+    FIXED: the CSS pairs a hue *fill* with a dark foreground, so a hue that
+    drifted darker on a light theme would put dark text on a dark button.
+    `--gold-ink` is for a hue used as *text*, mixed toward the theme's own text
+    colour. Filling something → `--mint`; writing words on the background →
+    `--mint-ink`. A `--*-dark` is the hard cel **shade** tone for a fill, never
+    text (as text it measured 2.8:1 on the light themes).
+  - The per-hue ink mixes are **measured, not chosen** — a binary search for the
+    most hue each can keep while clearing 4.6:1 against `--surface`,
+    `--surface-2`, `--surface-raised` and `--bg-1` on all fourteen themes. They
+    differ a lot (gold 34% hue, violet 60%) because the hues do. Re-measure if a
+    hue changes; one shared ratio either left gold at 3.4:1 or flattened violet.
+  - `--surface-raised` is a **nudge** from `--surface`, not a step toward `--text`.
+    The lift is carried by the ink outline and the sticker shadow; a big step made
+    cards mid-grey (#d0d2d7) on the light themes and dragged every small coloured
+    label on them under 4.5:1.
+  - `--ink` is the theme's `--t-line` pushed 58% toward black. It is not only an
+    outline: it is also a dark **fill** carrying `--paper` text (a Kakuro wall),
+    so it has to stay dark even on the light themes. `--paper` and
+    `--text-on-light` are therefore **skin** tokens, not derived — a playing card
+    is white on every theme.
+  - Measured button pairings (worst case, the Pastel skin's `--text-on-light`):
+    gold/ink 6.8, mint/ink 6.0, sky/ink 5.1. Raw coral and violet fail BOTH
+    foregrounds, so `.btn--coral` and `.btn--violet` fill with the `-dark` shade
+    and use white (4.4 and 6.4).
+  - **Migration** (`theme.ts` `LEGACY_THEME_HOUSE`, `useSettings.upgradeSettings`):
+    a saved v1 `theme` becomes `boardSkin` — the ids are the same six names, so
+    the board is untouched — and the reader moves to the nearest house theme once
+    (dusk→midnight, croanada→paper, volcano→ember, vegas→gold, penguin→light),
+    only if they have not already chosen one. **Both** paths that rehydrate
+    settings go through `upgradeSettings`: persist on boot *and*
+    `dataTransfer.applyBundle`, so a backup made before this change still
+    restores the reader's board. `app-data.json` is at schema 2 for that.
+  - Standard 14 (the default follows the device) is font.js's "System" now. What
+    is left here is `deviceSkin()`: a dark device opens on the dark board.
+    `validate-house.mjs` reads `--board-frame` out of `tokens.css` and fails if
+    the light starting skin is not actually light.
+  - Gotcha: `standards.mjs` matches the literal `appFont.setTheme(`, so don't
+    alias the object — same trap as `setAccount(` in the pfp standard.
+- **One row per finished session for the hub** (standard 25, `state/ledger.ts`).
+  `appFont.logSession({ kind, minutes, id })`; font.js owns the storage, the
+  de-duplication by id, the 2000-row cap and the per-device Drive file. Two wire
+  points, both single funnels: `useArchive.add` (every mode's finished game, with
+  real minutes from `startedISO`/`endedISO`, `kind` = `focus` for a Logic Lab
+  puzzle and `chess` for everything else) and `useProgress.completeLesson` (a
+  `study` session, keyed `lesson:<id>:<dayKey>` so next week counts again but a
+  re-save today does not). It replaced a hand-written `portal-activity` row
+  inside `addXp`, which fired several times a game — an event is not a session,
+  and `validate-house.mjs` fails if that shape comes back.
+- **The build is visible.** `index.html` loads the shared
+  `https://adervec.github.io/font.js`, which also carries the house extras:
+  `navigator.storage.persist()` so the browser won't evict this origin's data, an
+  `<app-build-info>` stamp that it **auto-appends inside `<app-font-picker>`** (so
+  the Font group in Settings shows the running build with no code here — don't add
+  `no-build` to the picker), and an update notice when the service worker has a
+  new version ready. `validate-font.mjs` covers the font side.
+
 ## PWA, hints, archetype & coach
 
 - **PWA**: `public/manifest.webmanifest` uses **relative URLs** (`./`) so the
@@ -279,7 +541,10 @@ opponent-based games. Same discipline — pure logic in `.ts`, verified headless
   - chess → engine eval before/after each ply through the logistic in
     `winChance`; a second search only on bad moves, to say what was better.
   - board → **the game's own engine at full strength is the referee**
-    (`refereeFor`). Three attempts to get here: a private depth-2 search called
+    (`refereeFor`), searching a **fixed per-game depth** (`REVIEW_DEPTH` in
+    `review/board.ts`), never a time budget — a clock reaches a different depth
+    on a busy device and flipped verdicts (Konane's own opening rated a blunder
+    under load). `validate-review.mjs` is in CI. Three attempts to get here: a private depth-2 search called
     the shipped AI's own Reversi openings blunders; depth-5 cost 4m26s and still
     disagreed on Hex/LOA. Judging a player with a weaker judge is the bug, and
     chess-calibrated thresholds don't transfer to a differently scaled quantity.
@@ -459,3 +724,13 @@ opponent-based games. Same discipline — pure logic in `.ts`, verified headless
   (screenshot capture timed out service-wide). Verify via DOM/`eval` instead.
 - Reusable game loop: `useChessGame` (state) → `useBoardController` (selection/
   promotion) → feature hooks (`useBotGame`, `usePuzzle`). All four modes share it.
+
+## House standards (shared across every app by this maker)
+
+@../CoworkSyncHub/HOUSE-STANDARDS.md
+
+For this app:
+- Check the standards: `node ../CoworkSyncHub/standards.mjs chess -v`. Keep it all `ok` before pushing.
+- Test: `npm run verify` (build, typecheck, every scripts/validate-*.mjs)
+- Deploy: push to main: deploy.yml runs verify, publishes, live-checks and tags
+- Work on `main`, push your own work when it passes, and add user-visible changes to `whatsnew.json`.
